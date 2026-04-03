@@ -18,11 +18,11 @@ struct DayDetailSheet: View {
 
     private var activityWindows: [ScoredActivityWindow] {
         guard !hourlyData.isEmpty else { return [] }
-        // Create 2-hour slots from 5am to 11pm
+        // Create 2-hour slots from 6am to 10pm
         let calendar = Calendar.current
         let dayStart = calendar.startOfDay(for: selectedDate)
         var slots: [FreeTimeSlot] = []
-        for h in stride(from: 5, to: 23, by: 1) {
+        for h in stride(from: 6, to: 22, by: 1) {
             guard let start = calendar.date(byAdding: .hour, value: h, to: dayStart),
                   let end = calendar.date(byAdding: .hour, value: h + 2, to: dayStart) else { continue }
             slots.append(FreeTimeSlot(start: start, end: end, source: .default))

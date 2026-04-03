@@ -39,9 +39,9 @@ class CalendarService: ObservableObject {
             .filter { !$0.isAllDay }
             .sorted { $0.startDate < $1.startDate }
 
-        // Define the window we care about: 5am - 11pm
-        let wakeHour = 5
-        let sleepHour = 23
+        // Define the window we care about: 6am - 10pm
+        let wakeHour = 6
+        let sleepHour = 22
         guard let windowStart = calendar.date(bySettingHour: wakeHour, minute: 0, second: 0, of: date),
               let windowEnd = calendar.date(bySettingHour: sleepHour, minute: 0, second: 0, of: date)
         else { return generateDefaultSlots(for: date) }
@@ -91,17 +91,16 @@ class CalendarService: ObservableObject {
         let isToday = calendar.isDateInToday(date)
         let now = Date()
 
-        // Without calendar, create time blocks from 5am to 11pm
+        // Without calendar, create standard time blocks
         let blocks: [(Int, Int)] = [
-            (5, 7),    // Early morning
-            (7, 9),    // Morning
-            (9, 11),   // Late morning
-            (11, 13),  // Midday
-            (13, 15),  // Early afternoon
-            (15, 17),  // Afternoon
-            (17, 19),  // Late afternoon
-            (19, 21),  // Evening
-            (21, 23),  // Night
+            (6, 8),    // Early morning
+            (8, 10),   // Morning
+            (10, 12),  // Late morning
+            (12, 14),  // Midday
+            (14, 16),  // Afternoon
+            (16, 18),  // Late afternoon
+            (18, 20),  // Evening
+            (20, 22),  // Night
         ]
 
         var slots: [FreeTimeSlot] = []
