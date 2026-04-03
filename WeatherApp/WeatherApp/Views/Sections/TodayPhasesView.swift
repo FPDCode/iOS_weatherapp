@@ -86,6 +86,17 @@ struct PhaseCard: View {
                     }
                     .foregroundStyle(.secondary)
                 }
+
+                if let uv = phase.uvIndex, uv >= 3 {
+                    Label {
+                        Text(String(format: "%.0f", uv))
+                            .font(.caption2)
+                    } icon: {
+                        Image(systemName: "sun.max.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.orange)
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity)

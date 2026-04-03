@@ -6,6 +6,7 @@ enum HourlyMetric: String, CaseIterable {
     case temperature = "Temp"
     case precipitation = "Precip"
     case wind = "Wind"
+    case uv = "UV"
     case pressure = "Pressure"
     case humidity = "Humidity"
     case visibility = "Visibility"
@@ -15,6 +16,7 @@ enum HourlyMetric: String, CaseIterable {
         case .temperature: return "thermometer"
         case .precipitation: return "cloud.rain"
         case .wind: return "wind"
+        case .uv: return "sun.max.fill"
         case .pressure: return "gauge.medium"
         case .humidity: return "humidity"
         case .visibility: return "eye"
@@ -174,6 +176,17 @@ struct HourlyCell: View {
                 Image(systemName: "wind")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+            }
+
+        case .uv:
+            VStack(spacing: 2) {
+                Text(String(format: "%.0f", forecast.uvIndex))
+                    .font(.callout)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(forecast.uvIndex >= 6 ? .orange : forecast.uvIndex >= 3 ? .yellow : .primary)
+                Image(systemName: "sun.max.fill")
+                    .font(.caption2)
+                    .symbolRenderingMode(.multicolor)
             }
 
         case .pressure:

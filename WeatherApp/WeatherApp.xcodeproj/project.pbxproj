@@ -30,6 +30,7 @@
 		A10021 /* MorningBriefing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10022 /* MorningBriefing.swift */; };
 		A10022 /* UnitSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10023 /* UnitSettings.swift */; };
 		A10023 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10024 /* OnboardingView.swift */; };
+		A10024 /* AirQualityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10025 /* AirQualityView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +59,7 @@
 		B10022 /* MorningBriefing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningBriefing.swift; sourceTree = "<group>"; };
 		B10023 /* UnitSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitSettings.swift; sourceTree = "<group>"; };
 		B10024 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		B10025 /* AirQualityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirQualityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +144,7 @@
 				B10013 /* DailyForecastView.swift */,
 			B10019 /* PlanYourDayView.swift */,
 			B10015 /* SettingsView.swift */,
+			B10025 /* AirQualityView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -265,6 +268,7 @@
 			A10021 /* MorningBriefing.swift in Sources */,
 			A10022 /* UnitSettings.swift in Sources */,
 			A10023 /* OnboardingView.swift in Sources */,
+			A10024 /* AirQualityView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

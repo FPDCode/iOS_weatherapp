@@ -84,6 +84,16 @@ struct WeatherNowView: View {
                     )
                 }
 
+                // Air Quality & UV
+                if let aq = weatherViewModel.airQuality {
+                    GlassCard {
+                        AirQualityView(
+                            airQuality: aq,
+                            uvIndex: weatherViewModel.todayUVIndex
+                        )
+                    }
+                }
+
                 Text("Data from Open-Meteo.com")
                     .font(.caption2)
                     .foregroundStyle(.secondary)

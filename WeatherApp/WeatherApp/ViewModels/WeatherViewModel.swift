@@ -20,16 +20,25 @@ class WeatherViewModel: ObservableObject {
     @Published var sunrise: String = ""
     @Published var sunset: String = ""
     @Published var lastUpdated: Date?
+    @Published var todayUVIndex: Double = 0
+    @Published var airQuality: AirQualityInfo?
 
     private let weatherService = WeatherService.shared
-    private let isoFormatter: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withFullDate, .withDashSeparatorInDate, .withTime, .withColonSeparatorInTime]
+
+    // Open-Meteo returns "2026-04-03T14:00" — no seconds, so use DateFormatter
+    private let hourlyDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone.current
         return f
     }()
-    private let dayFormatter: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withFullDate, .withDashSeparatorInDate]
+
+    private let dailyDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone.current
         return f
     }()
 
@@ -38,11 +47,17 @@ class WeatherViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let response = try await weatherService.fetchWeather(
-                latitude: latitude,
-                longitude: longitude
-            )
+            async let weatherTask = weatherService.fetchWeather(latitude: latitude, longitude: longitude)
+            async let aqTask = weatherService.fetchAirQuality(latitude: latitude, longitude: longitude)
+
+            let response = try await weatherTask
             processResponse(response)
+
+            // Air quality is best-effort — don't fail if it errors
+            if let aqResponse = try? await aqTask {
+                processAirQuality(aqResponse)
+            }
+
             lastUpdated = Date()
         } catch {
             errorMessage = error.localizedDescription
@@ -73,7 +88,7 @@ class WeatherViewModel: ObservableObject {
         var forecasts: [DailyForecast] = []
         let count = min(
             daily.time.count,
-            daily.weathercode.count,
+            daily.weatherCode.count,
             daily.temperature2mMax.count,
             daily.temperature2mMin.count,
             daily.precipitationProbabilityMax.count,
@@ -81,13 +96,14 @@ class WeatherViewModel: ObservableObject {
         )
 
         for i in 0..<count {
-            if let date = dayFormatter.date(from: daily.time[i]) {
+            if let date = dailyDateFormatter.date(from: daily.time[i]) {
                 forecasts.append(DailyForecast(
                     date: date,
-                    weatherCode: daily.weathercode[i],
+                    weatherCode: daily.weatherCode[i],
                     tempHigh: daily.temperature2mMax[i],
                     tempLow: daily.temperature2mMin[i],
-                    precipChance: daily.precipitationProbabilityMax[i]
+                    precipChance: daily.precipitationProbabilityMax[i],
+                    uvIndexMax: daily.uvIndexMax?[safe: i] ?? 0
                 ))
             }
         }
@@ -99,9 +115,13 @@ class WeatherViewModel: ObservableObject {
             todayLow = daily.temperature2mMin[0]
         }
 
+        if let uv = daily.uvIndexMax?.first {
+            todayUVIndex = uv
+        }
+
         if !daily.sunrise.isEmpty {
-            sunrise = formatTimeFromISO(daily.sunrise[0])
-            sunset = formatTimeFromISO(daily.sunset[0])
+            sunrise = formatTimeFromAPI(daily.sunrise[0])
+            sunset = formatTimeFromAPI(daily.sunset[0])
         }
     }
 
@@ -116,14 +136,14 @@ class WeatherViewModel: ObservableObject {
             hourly.apparentTemperature.count,
             hourly.precipitationProbability.count,
             hourly.precipitation.count,
-            hourly.weathercode.count,
-            hourly.relativehumidity2m.count,
+            hourly.weatherCode.count,
+            hourly.relativeHumidity2m.count,
             hourly.visibility.count,
-            hourly.windspeed10m.count
+            hourly.windSpeed10m.count
         )
 
         for i in 0..<safeCount {
-            guard let date = isoFormatter.date(from: hourly.time[i]) else { continue }
+            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
 
             guard let oneHourAgo = calendar.date(byAdding: .hour, value: -1, to: now),
                   date >= oneHourAgo else { continue }
@@ -135,11 +155,12 @@ class WeatherViewModel: ObservableObject {
                 feelsLike: hourly.apparentTemperature[i],
                 precipChance: hourly.precipitationProbability[i],
                 precipAmount: hourly.precipitation[i],
-                weatherCode: hourly.weathercode[i],
-                pressure: hourly.pressure?[i] ?? 0,
-                humidity: hourly.relativehumidity2m[i],
+                weatherCode: hourly.weatherCode[i],
+                pressure: hourly.surfacePressure?[safe: i] ?? 0,
+                humidity: hourly.relativeHumidity2m[i],
                 visibility: hourly.visibility[i],
-                windSpeed: hourly.windspeed10m[i]
+                windSpeed: hourly.windSpeed10m[i],
+                uvIndex: hourly.uvIndex?[safe: i] ?? 0
             ))
         }
 
@@ -160,6 +181,7 @@ class WeatherViewModel: ObservableObject {
             var humids: [Int] = []
             var codes: [Int] = []
             var winds: [Double] = []
+            var uvs: [Double] = []
 
             for hour in range {
                 let actualHour = hour % 24
@@ -169,14 +191,15 @@ class WeatherViewModel: ObservableObject {
                 else { continue }
 
                 for i in 0..<hourly.time.count {
-                    if let date = isoFormatter.date(from: hourly.time[i]),
+                    if let date = hourlyDateFormatter.date(from: hourly.time[i]),
                        calendar.isDate(date, equalTo: targetHour, toGranularity: .hour) {
                         if i < hourly.temperature2m.count { temps.append(hourly.temperature2m[i]) }
                         if i < hourly.apparentTemperature.count { feels.append(hourly.apparentTemperature[i]) }
                         if i < hourly.precipitationProbability.count { precips.append(hourly.precipitationProbability[i]) }
-                        if i < hourly.relativehumidity2m.count { humids.append(hourly.relativehumidity2m[i]) }
-                        if i < hourly.weathercode.count { codes.append(hourly.weathercode[i]) }
-                        if i < hourly.windspeed10m.count { winds.append(hourly.windspeed10m[i]) }
+                        if i < hourly.relativeHumidity2m.count { humids.append(hourly.relativeHumidity2m[i]) }
+                        if i < hourly.weatherCode.count { codes.append(hourly.weatherCode[i]) }
+                        if i < hourly.windSpeed10m.count { winds.append(hourly.windSpeed10m[i]) }
+                        if let uvArr = hourly.uvIndex, i < uvArr.count { uvs.append(uvArr[i]) }
                         break
                     }
                 }
@@ -190,6 +213,7 @@ class WeatherViewModel: ObservableObject {
             let avgHumid = humids.isEmpty ? 0 : humids.reduce(0, +) / humids.count
             let dominantCode = mostFrequent(codes) ?? 0
             let avgWind = winds.isEmpty ? nil : winds.reduce(0, +) / Double(winds.count)
+            let maxUV = uvs.isEmpty ? nil : uvs.max()
 
             phases.append(DayPhaseWeather(
                 phase: phase,
@@ -198,11 +222,76 @@ class WeatherViewModel: ObservableObject {
                 weatherCode: dominantCode,
                 precipChance: maxPrecip,
                 humidity: avgHumid,
-                windSpeed: avgWind
+                windSpeed: avgWind,
+                uvIndex: maxUV
             ))
         }
 
         todayPhases = phases
+    }
+
+    private func processAirQuality(_ response: AirQualityResponse) {
+        guard let hourly = response.hourly else { return }
+
+        // Find the current hour's data
+        let now = Date()
+        let calendar = Calendar.current
+        var currentAqi: Int?
+        var currentPM25: Double?
+        var currentPM10: Double?
+
+        // Also collect pollen data for today
+        var grassValues: [Double] = []
+        var treeValues: [Double] = []
+        var weedValues: [Double] = []
+
+        let today = calendar.startOfDay(for: now)
+
+        for i in 0..<hourly.time.count {
+            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+
+            // Get current hour AQI
+            if calendar.isDate(date, equalTo: now, toGranularity: .hour) {
+                currentAqi = hourly.usAqi?[safe: i] ?? hourly.europeanAqi?[safe: i]
+                currentPM25 = hourly.pm25?[safe: i]
+                currentPM10 = hourly.pm10?[safe: i]
+            }
+
+            // Collect today's pollen
+            if calendar.isDate(date, inSameDayAs: today) {
+                if let v = hourly.grassPollen?[safe: i] { grassValues.append(v) }
+                if let alder = hourly.alderPollen?[safe: i],
+                   let birch = hourly.birchPollen?[safe: i],
+                   let olive = hourly.olivePollen?[safe: i] {
+                    treeValues.append(max(alder, birch, olive))
+                }
+                if let mugwort = hourly.mugwortPollen?[safe: i],
+                   let ragweed = hourly.ragweedPollen?[safe: i] {
+                    weedValues.append(max(mugwort, ragweed))
+                }
+            }
+        }
+
+        guard let aqi = currentAqi else { return }
+
+        let pollenSummary: PollenSummary?
+        if !grassValues.isEmpty || !treeValues.isEmpty || !weedValues.isEmpty {
+            pollenSummary = PollenSummary(
+                grassLevel: PollenLevel.from(grainsPerM3: grassValues.max() ?? 0),
+                treeLevel: PollenLevel.from(grainsPerM3: treeValues.max() ?? 0),
+                weedLevel: PollenLevel.from(grainsPerM3: weedValues.max() ?? 0)
+            )
+        } else {
+            pollenSummary = nil
+        }
+
+        airQuality = AirQualityInfo(
+            aqi: aqi,
+            pm25: currentPM25 ?? 0,
+            pm10: currentPM10 ?? 0,
+            level: AQILevel.from(usAqi: aqi),
+            pollenSummary: pollenSummary
+        )
     }
 
     private func mostFrequent(_ array: [Int]) -> Int? {
@@ -211,10 +300,30 @@ class WeatherViewModel: ObservableObject {
         return counts.max(by: { $0.value < $1.value })?.key
     }
 
-    private func formatTimeFromISO(_ iso: String) -> String {
-        guard let date = isoFormatter.date(from: iso) else { return "" }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a"
-        return formatter.string(from: date)
+    private func formatTimeFromAPI(_ timeString: String) -> String {
+        guard let date = hourlyDateFormatter.date(from: timeString) else { return "" }
+        return WeatherFormatters.shortTime(date)
+    }
+}
+
+// MARK: - Safe Array Access
+
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}
+
+extension Array where Element == Optional<Int> {
+    subscript(safe index: Int) -> Int? {
+        guard indices.contains(index) else { return nil }
+        return self[index]
+    }
+}
+
+extension Array where Element == Optional<Double> {
+    subscript(safe index: Int) -> Double? {
+        guard indices.contains(index) else { return nil }
+        return self[index]
     }
 }

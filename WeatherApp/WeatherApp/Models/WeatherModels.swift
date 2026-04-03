@@ -1,6 +1,6 @@
 import Foundation
 
-// MARK: - Open-Meteo API Response
+// MARK: - Open-Meteo Forecast API Response
 
 struct WeatherResponse: Codable {
     let latitude: Double
@@ -37,11 +37,12 @@ struct HourlyData: Codable {
     let apparentTemperature: [Double]
     let precipitationProbability: [Int]
     let precipitation: [Double]
-    let weathercode: [Int]
-    let pressure: [Double]?
-    let relativehumidity2m: [Int]
+    let weatherCode: [Int]
+    let surfacePressure: [Double]?
+    let relativeHumidity2m: [Int]
     let visibility: [Double]
-    let windspeed10m: [Double]
+    let windSpeed10m: [Double]
+    let uvIndex: [Double]?
 
     enum CodingKeys: String, CodingKey {
         case time
@@ -49,29 +50,69 @@ struct HourlyData: Codable {
         case apparentTemperature = "apparent_temperature"
         case precipitationProbability = "precipitation_probability"
         case precipitation
-        case weathercode
-        case pressure = "surface_pressure"
-        case relativehumidity2m = "relativehumidity_2m"
+        case weatherCode = "weather_code"
+        case surfacePressure = "surface_pressure"
+        case relativeHumidity2m = "relative_humidity_2m"
         case visibility
-        case windspeed10m = "windspeed_10m"
+        case windSpeed10m = "wind_speed_10m"
+        case uvIndex = "uv_index"
     }
 }
 
 struct DailyData: Codable {
     let time: [String]
-    let weathercode: [Int]
+    let weatherCode: [Int]
     let temperature2mMax: [Double]
     let temperature2mMin: [Double]
     let precipitationProbabilityMax: [Int]
     let sunrise: [String]
     let sunset: [String]
+    let uvIndexMax: [Double]?
 
     enum CodingKeys: String, CodingKey {
-        case time, weathercode
+        case time
+        case weatherCode = "weather_code"
         case temperature2mMax = "temperature_2m_max"
         case temperature2mMin = "temperature_2m_min"
         case precipitationProbabilityMax = "precipitation_probability_max"
         case sunrise, sunset
+        case uvIndexMax = "uv_index_max"
+    }
+}
+
+// MARK: - Open-Meteo Air Quality API Response
+
+struct AirQualityResponse: Codable {
+    let latitude: Double
+    let longitude: Double
+    let hourly: AirQualityHourly?
+}
+
+struct AirQualityHourly: Codable {
+    let time: [String]
+    let europeanAqi: [Int?]?
+    let usAqi: [Int?]?
+    let pm25: [Double?]?
+    let pm10: [Double?]?
+    let alderPollen: [Double?]?
+    let birchPollen: [Double?]?
+    let grassPollen: [Double?]?
+    let mugwortPollen: [Double?]?
+    let olivePollen: [Double?]?
+    let ragweedPollen: [Double?]?
+
+    enum CodingKeys: String, CodingKey {
+        case time
+        case europeanAqi = "european_aqi"
+        case usAqi = "us_aqi"
+        case pm25 = "pm2_5"
+        case pm10
+        case alderPollen = "alder_pollen"
+        case birchPollen = "birch_pollen"
+        case grassPollen = "grass_pollen"
+        case mugwortPollen = "mugwort_pollen"
+        case olivePollen = "olive_pollen"
+        case ragweedPollen = "ragweed_pollen"
     }
 }
 
@@ -86,6 +127,7 @@ struct DayPhaseWeather: Identifiable {
     let precipChance: Int
     let humidity: Int
     let windSpeed: Double?
+    let uvIndex: Double?
 }
 
 enum DayPhase: String, CaseIterable {
@@ -108,7 +150,7 @@ enum DayPhase: String, CaseIterable {
         case .morning: return 6...11
         case .afternoon: return 12...17
         case .evening: return 18...21
-        case .night: return 22...29 // wraps to next day 0-5
+        case .night: return 22...29
         }
     }
 }
@@ -125,6 +167,7 @@ struct HourlyForecast: Identifiable {
     let humidity: Int
     let visibility: Double
     let windSpeed: Double
+    let uvIndex: Double
 }
 
 struct DailyForecast: Identifiable {
@@ -134,6 +177,110 @@ struct DailyForecast: Identifiable {
     let tempHigh: Double
     let tempLow: Double
     let precipChance: Int
+    let uvIndexMax: Double
+}
+
+struct AirQualityInfo {
+    let aqi: Int
+    let pm25: Double
+    let pm10: Double
+    let level: AQILevel
+    let pollenSummary: PollenSummary?
+}
+
+enum AQILevel: String {
+    case good = "Good"
+    case fair = "Fair"
+    case moderate = "Moderate"
+    case poor = "Poor"
+    case veryPoor = "Very Poor"
+    case hazardous = "Hazardous"
+
+    var color: String {
+        switch self {
+        case .good: return "34D399"
+        case .fair: return "60A5FA"
+        case .moderate: return "FBBF24"
+        case .poor: return "FB923C"
+        case .veryPoor: return "F87171"
+        case .hazardous: return "A855F7"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .good: return "aqi.low"
+        case .fair: return "aqi.medium"
+        case .moderate: return "aqi.medium"
+        case .poor: return "aqi.high"
+        case .veryPoor: return "aqi.high"
+        case .hazardous: return "aqi.high"
+        }
+    }
+
+    static func from(usAqi: Int) -> AQILevel {
+        switch usAqi {
+        case 0...50: return .good
+        case 51...100: return .fair
+        case 101...150: return .moderate
+        case 151...200: return .poor
+        case 201...300: return .veryPoor
+        default: return .hazardous
+        }
+    }
+}
+
+struct PollenSummary {
+    let grassLevel: PollenLevel
+    let treeLevel: PollenLevel
+    let weedLevel: PollenLevel
+
+    var overallLevel: PollenLevel {
+        [grassLevel, treeLevel, weedLevel].max(by: { $0.rawValue < $1.rawValue }) ?? .none
+    }
+}
+
+enum PollenLevel: Int, Comparable {
+    case none = 0
+    case low = 1
+    case moderate = 2
+    case high = 3
+    case veryHigh = 4
+
+    static func < (lhs: PollenLevel, rhs: PollenLevel) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+
+    var label: String {
+        switch self {
+        case .none: return "None"
+        case .low: return "Low"
+        case .moderate: return "Moderate"
+        case .high: return "High"
+        case .veryHigh: return "Very High"
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .none: return "34D399"
+        case .low: return "60A5FA"
+        case .moderate: return "FBBF24"
+        case .high: return "FB923C"
+        case .veryHigh: return "F87171"
+        }
+    }
+
+    /// Grains/m³ thresholds (approximate, varies by species)
+    static func from(grainsPerM3: Double) -> PollenLevel {
+        switch grainsPerM3 {
+        case ..<1: return .none
+        case 1..<25: return .low
+        case 25..<50: return .moderate
+        case 50..<100: return .high
+        default: return .veryHigh
+        }
+    }
 }
 
 // MARK: - Weather Code Helpers
