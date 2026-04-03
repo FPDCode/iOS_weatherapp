@@ -240,12 +240,43 @@ class WeatherViewModel: ObservableObject {
 
     private func processTodayPhases(_ hourly: HourlyData) {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let now = Date()
+        let currentHour = calendar.component(.hour, from: now)
+
+        // Determine current phase index
+        let allPhases = DayPhase.allCases // [morning, afternoon, evening, night]
+        let currentPhaseIndex: Int
+        switch currentHour {
+        case 6..<12: currentPhaseIndex = 0  // morning
+        case 12..<18: currentPhaseIndex = 1 // afternoon
+        case 18..<22: currentPhaseIndex = 2 // evening
+        default: currentPhaseIndex = 3      // night
+        }
+
+        // Build the 4 upcoming phases: current + next 3 (wrapping into tomorrow)
+        var upcomingPhases: [(phase: DayPhase, dayOffset: Int)] = []
+        for offset in 0..<4 {
+            let idx = (currentPhaseIndex + offset) % 4
+            let dayOff = (currentPhaseIndex + offset) >= 4 ? 1 : 0
+            upcomingPhases.append((allPhases[idx], dayOff))
+        }
+
+        // Pre-extract safe arrays once
+        let t = hourly.temps
+        let f = hourly.feelsLike
+        let pp = hourly.precipProbabilityInts
+        let h = hourly.humidityInts
+        let wc = hourly.weatherCodeInts
+        let w = hourly.wind
+        let uvArr = hourly.uv
+        let timeArr = hourly.time ?? []
 
         var phases: [DayPhaseWeather] = []
 
-        for phase in DayPhase.allCases {
+        for (phase, dayOff) in upcomingPhases {
+            let baseDay = calendar.startOfDay(for: calendar.date(byAdding: .day, value: dayOff, to: now) ?? now)
             let range = phase.hourRange
+
             var temps: [Double] = []
             var feels: [Double] = []
             var precips: [Int] = []
@@ -256,27 +287,21 @@ class WeatherViewModel: ObservableObject {
 
             for hour in range {
                 let actualHour = hour % 24
-                let dayOffset = hour >= 24 ? 1 : 0
-                guard let targetDate = calendar.date(byAdding: .day, value: dayOffset, to: today),
-                      let targetHour = calendar.date(byAdding: .hour, value: actualHour, to: targetDate)
+                let extraDay = hour >= 24 ? 1 : 0
+                guard let targetDay = calendar.date(byAdding: .day, value: extraDay, to: baseDay),
+                      let targetHour = calendar.date(byAdding: .hour, value: actualHour, to: targetDay)
                 else { continue }
 
-                for i in 0..<(hourly.time ?? []).count {
-                    if let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]),
+                for i in 0..<timeArr.count {
+                    if let date = hourlyDateFormatter.date(from: timeArr[i]),
                        calendar.isDate(date, equalTo: targetHour, toGranularity: .hour) {
-                        let t = hourly.temps
-                        let f = hourly.feelsLike
-                        let pp = hourly.precipProbabilityInts
-                        let h = hourly.humidityInts
-                        let wc = hourly.weatherCodeInts
-                        let w = hourly.wind
                         if i < t.count { temps.append(t[i]) }
                         if i < f.count { feels.append(f[i]) }
                         if i < pp.count { precips.append(pp[i]) }
                         if i < h.count { humids.append(h[i]) }
                         if i < wc.count { codes.append(wc[i]) }
                         if i < w.count { winds.append(w[i]) }
-                        if i < hourly.uv.count { uvs.append(hourly.uv[i]) }
+                        if i < uvArr.count { uvs.append(uvArr[i]) }
                         break
                     }
                 }
