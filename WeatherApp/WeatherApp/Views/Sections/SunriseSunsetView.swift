@@ -217,8 +217,8 @@ struct SunMoonArcView: View {
             let width = geo.size.width
             let height = geo.size.height
             let horizonY = height - 10
-            // Use a smaller radius so the arc fits fully within the frame
-            let radius = width * 0.42
+            // Radius = min of half-width and available height, so arc fits as a 180° semi-circle
+            let radius = min(width / 2 - 10, horizonY - 15)
 
             ZStack {
                 // Horizon line
