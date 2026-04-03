@@ -3,8 +3,8 @@ import Foundation
 // MARK: - Open-Meteo Forecast API Response
 
 struct WeatherResponse: Codable {
-    let latitude: Double
-    let longitude: Double
+    let latitude: Double?
+    let longitude: Double?
     let currentWeather: CurrentWeather?
     let minutely15: Minutely15Data?
     let hourly: HourlyData?
@@ -19,7 +19,7 @@ struct WeatherResponse: Codable {
 }
 
 struct Minutely15Data: Codable {
-    let time: [String]
+    let time: [String]?
     let precipitation: [Double]?
     let rain: [Double]?
     let snowfall: [Double]?
@@ -38,10 +38,33 @@ struct CurrentWeather: Codable {
         case isDay = "is_day"
         case time
     }
+
+    // Custom decoder to handle weathercode/is_day as Double or Int
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        temperature = try container.decode(Double.self, forKey: .temperature)
+        windspeed = try container.decode(Double.self, forKey: .windspeed)
+        winddirection = try container.decode(Double.self, forKey: .winddirection)
+        time = try container.decode(String.self, forKey: .time)
+
+        // weathercode can be Int or Double
+        if let intVal = try? container.decode(Int.self, forKey: .weathercode) {
+            weathercode = intVal
+        } else {
+            weathercode = Int(try container.decode(Double.self, forKey: .weathercode))
+        }
+
+        // is_day can be Int or Double
+        if let intVal = try? container.decode(Int.self, forKey: .isDay) {
+            isDay = intVal
+        } else {
+            isDay = Int(try container.decode(Double.self, forKey: .isDay))
+        }
+    }
 }
 
 struct HourlyData: Codable {
-    let time: [String]
+    let time: [String]?
     let temperature2m: [Double]?
     let apparentTemperature: [Double]?
     let precipitationProbability: [Double]? // API may return as Double
@@ -101,7 +124,7 @@ struct HourlyData: Codable {
 }
 
 struct DailyData: Codable {
-    let time: [String]
+    let time: [String]?
     let weatherCode: [Double]? // API returns numbers
     let temperature2mMax: [Double]?
     let temperature2mMin: [Double]?

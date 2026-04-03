@@ -133,7 +133,7 @@ class WeatherViewModel: ObservableObject {
     private func processDailyData(_ daily: DailyData) {
         var forecasts: [DailyForecast] = []
         let count = min(
-            daily.time.count,
+            (daily.time ?? []).count,
             daily.weatherCodeInts.count,
             daily.tempMaxValues.count,
             daily.tempMinValues.count,
@@ -142,7 +142,7 @@ class WeatherViewModel: ObservableObject {
         )
 
         for i in 0..<count {
-            if let date = dailyDateFormatter.date(from: daily.time[i]) {
+            if let date = dailyDateFormatter.date(from: (daily.time ?? [])[i]) {
                 forecasts.append(DailyForecast(
                     date: date,
                     weatherCode: daily.weatherCodeInts[i],
@@ -209,12 +209,12 @@ class WeatherViewModel: ObservableObject {
         let wind = hourly.windSpeed10m ?? []
 
         let safeCount = min(
-            hourly.time.count, temps.count, feels.count, precProb.count,
+            (hourly.time ?? []).count, temps.count, feels.count, precProb.count,
             prec.count, codes.count, humid.count, vis.count, wind.count
         )
 
         for i in 0..<safeCount {
-            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+            guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]) else { continue }
 
             guard let oneHourAgo = calendar.date(byAdding: .hour, value: -1, to: now),
                   date >= oneHourAgo else { continue }
@@ -261,8 +261,8 @@ class WeatherViewModel: ObservableObject {
                       let targetHour = calendar.date(byAdding: .hour, value: actualHour, to: targetDate)
                 else { continue }
 
-                for i in 0..<hourly.time.count {
-                    if let date = hourlyDateFormatter.date(from: hourly.time[i]),
+                for i in 0..<(hourly.time ?? []).count {
+                    if let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]),
                        calendar.isDate(date, equalTo: targetHour, toGranularity: .hour) {
                         let t = hourly.temperature2m ?? []
                         let f = hourly.apparentTemperature ?? []
@@ -313,11 +313,12 @@ class WeatherViewModel: ObservableObject {
 
         var slots: [PrecipSlot] = []
 
+        let timeArr = minutely.time ?? []
         let precipArr = minutely.precipitation ?? []
-        let count = min(minutely.time.count, precipArr.count)
+        let count = min(timeArr.count, precipArr.count)
 
         for i in 0..<count {
-            guard let date = hourlyDateFormatter.date(from: minutely.time[i]) else { continue }
+            guard let date = hourlyDateFormatter.date(from: timeArr[i]) else { continue }
 
             guard let fifteenMinAgo = calendar.date(byAdding: .minute, value: -15, to: now),
                   date >= fifteenMinAgo else { continue }
@@ -398,8 +399,8 @@ class WeatherViewModel: ObservableObject {
         let calendar = Calendar.current
 
         // Find the current hour in hourly data
-        for i in 0..<hourly.time.count {
-            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+        for i in 0..<(hourly.time ?? []).count {
+            guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]) else { continue }
             guard calendar.isDate(date, equalTo: now, toGranularity: .hour) else { continue }
 
             let speed = hourly.windSpeed10m?[safe: i] ?? current?.windspeed ?? 0
@@ -444,8 +445,8 @@ class WeatherViewModel: ObservableObject {
         var pressureAt10h: Double?
         var readings: [(date: Date, pressure: Double)] = []
 
-        for i in 0..<min(hourly.time.count, pressureArr.count) {
-            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+        for i in 0..<min((hourly.time ?? []).count, pressureArr.count) {
+            guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]) else { continue }
 
             // Skip past hours (more than 1h ago)
             guard let oneHourAgo = calendar.date(byAdding: .hour, value: -1, to: now),
@@ -503,8 +504,8 @@ class WeatherViewModel: ObservableObject {
 
         let today = calendar.startOfDay(for: now)
 
-        for i in 0..<hourly.time.count {
-            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+        for i in 0..<(hourly.time ?? []).count {
+            guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]) else { continue }
 
             // Get current hour AQI
             if calendar.isDate(date, equalTo: now, toGranularity: .hour) {
@@ -555,8 +556,8 @@ class WeatherViewModel: ObservableObject {
         let now = Date()
         let calendar = Calendar.current
 
-        for i in 0..<hourly.time.count {
-            guard let date = hourlyDateFormatter.date(from: hourly.time[i]),
+        for i in 0..<(hourly.time ?? []).count {
+            guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]),
                   calendar.isDate(date, equalTo: now, toGranularity: .hour) else { continue }
             guard i < dewPoints.count else { break }
 
@@ -582,8 +583,8 @@ class WeatherViewModel: ObservableObject {
         var currentTotal = 0, currentLow = 0, currentMid = 0, currentHigh = 0
         var readings: [(date: Date, total: Int, low: Int, mid: Int, high: Int)] = []
 
-        for i in 0..<hourly.time.count {
-            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+        for i in 0..<(hourly.time ?? []).count {
+            guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]) else { continue }
             guard let oneHourAgo = calendar.date(byAdding: .hour, value: -1, to: now),
                   date >= oneHourAgo else { continue }
             if readings.count >= 24 { break }
@@ -621,8 +622,8 @@ class WeatherViewModel: ObservableObject {
         var slots: [SunshineSlot] = []
 
         // Only daytime hours (6am-9pm)
-        for i in 0..<hourly.time.count {
-            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+        for i in 0..<(hourly.time ?? []).count {
+            guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]) else { continue }
             guard calendar.isDate(date, inSameDayAs: today) else {
                 if date > calendar.date(byAdding: .day, value: 1, to: today)! { break }
                 continue
@@ -692,8 +693,8 @@ class WeatherViewModel: ObservableObject {
         let now = Date()
         let calendar = Calendar.current
 
-        for i in 0..<hourly.time.count {
-            guard let date = hourlyDateFormatter.date(from: hourly.time[i]),
+        for i in 0..<(hourly.time ?? []).count {
+            guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]),
                   calendar.isDate(date, equalTo: now, toGranularity: .hour) else { continue }
 
             let temp = soilTemps[safe: i] ?? 0
@@ -734,8 +735,8 @@ class WeatherViewModel: ObservableObject {
         // Find max CAPE in the next 12 hours
         var maxCape: Double = 0
         var count = 0
-        for i in 0..<hourly.time.count {
-            guard let date = hourlyDateFormatter.date(from: hourly.time[i]),
+        for i in 0..<(hourly.time ?? []).count {
+            guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]),
                   date >= now else { continue }
             if count >= 12 { break }
             if let c = capeValues[safe: i] { maxCape = max(maxCape, c) }
