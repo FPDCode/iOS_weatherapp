@@ -230,54 +230,69 @@ struct TemperatureCurveSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             SectionHeader(title: "Temperature", icon: "thermometer")
+            chartView
+            timeLabels
+            legendView
+        }
+    }
 
-            // Mini temp curve
-            GeometryReader { geo in
-                let width = geo.size.width
-                let height = geo.size.height
-                let temps = hourly.map(\.temperature)
-                let feels = hourly.map(\.feelsLike)
-                let minT = min(temps.min() ?? 0, feels.min() ?? 0) - 2
-                let maxT = max(temps.max() ?? 1, feels.max() ?? 1) + 2
-                let range = max(maxT - minT, 1)
+    private var chartView: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            let height = geo.size.height
+            let temps = hourly.map(\.temperature)
+            let feels = hourly.map(\.feelsLike)
+            let minT = min(temps.min() ?? 0, feels.min() ?? 0) - 2
+            let maxT = max(temps.max() ?? 1, feels.max() ?? 1) + 2
+            let range = max(maxT - minT, 1)
 
-                ZStack {
-                    // Feels like line (dashed)
-                    linePath(values: feels, minVal: minT, range: range, width: width, height: height)
-                        .stroke(.white.opacity(0.2), style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
+            ZStack {
+                linePath(values: feels, minVal: minT, range: range, width: width, height: height)
+                    .stroke(.white.opacity(0.2), style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
 
-                    // Temperature line
-                    linePath(values: temps, minVal: minT, range: range, width: width, height: height)
-                        .stroke(
-                            LinearGradient(colors: [.blue, .yellow, .orange], startPoint: .leading, endPoint: .trailing),
-                            lineWidth: 2.5
-                        )
-                }
+                linePath(values: temps, minVal: minT, range: range, width: width, height: height)
+                    .stroke(
+                        LinearGradient(colors: [.blue, .yellow, .orange], startPoint: .leading, endPoint: .trailing),
+                        lineWidth: 2.5
+                    )
             }
-            .frame(height: 60)
+        }
+        .frame(height: 60)
+    }
 
-            // Time labels
-            HStack {
-                ForEach([0, hourly.count / 4, hourly.count / 2, 3 * hourly.count / 4, hourly.count - 1], id: \.self) { i in
-                    if i < hourly.count {
-                        Text(WeatherFormatters.hourTime(hourly[i].time))
-                            .font(.system(size: 8))
-                            .foregroundStyle(.tertiary)
-                    }
-                    if i != hourly.count - 1 { Spacer() }
-                }
+    private var timeLabelIndices: [Int] {
+        let c = hourly.count
+        guard c > 0 else { return [] }
+        return [0, c / 4, c / 2, 3 * c / 4, c - 1]
+    }
+
+    private var timeLabels: some View {
+        HStack {
+            ForEach(timeLabelIndices, id: \.self) { i in
+                timeLabelItem(at: i)
+                if i != hourly.count - 1 { Spacer() }
             }
+        }
+    }
 
-            // Legend
-            HStack(spacing: 16) {
-                HStack(spacing: 4) {
-                    RoundedRectangle(cornerRadius: 1).fill(.orange).frame(width: 16, height: 2)
-                    Text("Temperature").font(.system(size: 9)).foregroundStyle(.secondary)
-                }
-                HStack(spacing: 4) {
-                    RoundedRectangle(cornerRadius: 1).stroke(.white.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [3, 3])).frame(width: 16, height: 2)
-                    Text("Feels Like").font(.system(size: 9)).foregroundStyle(.secondary)
-                }
+    @ViewBuilder
+    private func timeLabelItem(at i: Int) -> some View {
+        if i < hourly.count {
+            Text(WeatherFormatters.hourTime(hourly[i].time))
+                .font(.system(size: 8))
+                .foregroundStyle(.tertiary)
+        }
+    }
+
+    private var legendView: some View {
+        HStack(spacing: 16) {
+            HStack(spacing: 4) {
+                RoundedRectangle(cornerRadius: 1).fill(.orange).frame(width: 16, height: 2)
+                Text("Temperature").font(.system(size: 9)).foregroundStyle(.secondary)
+            }
+            HStack(spacing: 4) {
+                RoundedRectangle(cornerRadius: 1).stroke(.white.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [3, 3])).frame(width: 16, height: 2)
+                Text("Feels Like").font(.system(size: 9)).foregroundStyle(.secondary)
             }
         }
     }

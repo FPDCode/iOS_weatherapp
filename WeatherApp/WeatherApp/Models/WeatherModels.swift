@@ -399,7 +399,7 @@ enum PressureTrend: String {
     }
 }
 
-struct HourlyForecast: Identifiable {
+struct HourlyForecast: Identifiable, Equatable {
     let id = UUID()
     let time: Date
     let temperature: Double

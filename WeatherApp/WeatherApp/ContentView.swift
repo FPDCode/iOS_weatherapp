@@ -39,22 +39,12 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
     }
 
-    @ViewBuilder
     private var searchTab: some View {
-        if #available(iOS 26, *) {
-            SearchTabView()
-                .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
-                .tabRole(.search)
-                .tag(4)
-        } else {
-            SearchTabView()
-                .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
-                .tag(4)
-        }
+        SearchTabView()
+            .tabItem {
+                Label("Search", systemImage: "magnifyingglass")
+            }
+            .tag(4)
     }
 }
 

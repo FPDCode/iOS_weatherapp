@@ -51,7 +51,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		C10001 /* WeatherApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B10001 /* WeatherAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAppApp.swift; sourceTree = "<group>"; };
 		B10002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B10003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -94,6 +93,7 @@
 		B10040 /* SavedLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedLocation.swift; sourceTree = "<group>"; };
 		B10041 /* RadarPreviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarPreviewCard.swift; sourceTree = "<group>"; };
 		B10042 /* SearchTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTabView.swift; sourceTree = "<group>"; };
+		C10001 /* WeatherApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,9 +135,9 @@
 			isa = PBXGroup;
 			children = (
 				B10004 /* WeatherModels.swift */,
-			B10022 /* MorningBriefing.swift */,
-			B10023 /* UnitSettings.swift */,
-			B10040 /* SavedLocation.swift */,
+				B10022 /* MorningBriefing.swift */,
+				B10023 /* UnitSettings.swift */,
+				B10040 /* SavedLocation.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -165,36 +165,10 @@
 			isa = PBXGroup;
 			children = (
 				B10009 /* GlassCard.swift */,
-			B10017 /* CitySearchSheet.swift */,
-			B10036 /* DayDetailSheet.swift */,
+				B10017 /* CitySearchSheet.swift */,
+				B10036 /* DayDetailSheet.swift */,
 			);
 			path = Components;
-			sourceTree = "<group>";
-		};
-		E10010 /* Sections */ = {
-			isa = PBXGroup;
-			children = (
-				B10010 /* CurrentWeatherHeader.swift */,
-				B10011 /* TodayPhasesView.swift */,
-				B10012 /* HourlyForecastView.swift */,
-				B10013 /* DailyForecastView.swift */,
-			B10019 /* PlanYourDayView.swift */,
-			B10015 /* SettingsView.swift */,
-			B10025 /* AirQualityView.swift */,
-			B10026 /* PressureView.swift */,
-			B10027 /* WindGaugeView.swift */,
-			B10028 /* SunriseSunsetView.swift */,
-			B10029 /* PrecipTimelineView.swift */,
-			B10030 /* SunshinePlannerView.swift */,
-			B10031 /* ComfortIndexView.swift */,
-			B10032 /* CloudCoverView.swift */,
-			B10033 /* GardeningView.swift */,
-			B10035 /* WeatherWarningsView.swift */,
-			B10038 /* RadarMapView.swift */,
-			B10041 /* RadarPreviewCard.swift */,
-			B10042 /* SearchTabView.swift */,
-			);
-			path = Sections;
 			sourceTree = "<group>";
 		};
 		E10007 /* Services */ = {
@@ -202,12 +176,12 @@
 			children = (
 				B10006 /* WeatherService.swift */,
 				B10007 /* LocationService.swift */,
-			B10016 /* CitySearchService.swift */,
-			B10020 /* CalendarService.swift */,
-			B10021 /* ActivityScorer.swift */,
-			B10034 /* AlertsService.swift */,
-			B10037 /* RadarService.swift */,
-			B10039 /* TileCache.swift */,
+				B10016 /* CitySearchService.swift */,
+				B10020 /* CalendarService.swift */,
+				B10021 /* ActivityScorer.swift */,
+				B10034 /* AlertsService.swift */,
+				B10037 /* RadarService.swift */,
+				B10039 /* TileCache.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -226,6 +200,32 @@
 				C10001 /* WeatherApp.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E10010 /* Sections */ = {
+			isa = PBXGroup;
+			children = (
+				B10010 /* CurrentWeatherHeader.swift */,
+				B10011 /* TodayPhasesView.swift */,
+				B10012 /* HourlyForecastView.swift */,
+				B10013 /* DailyForecastView.swift */,
+				B10019 /* PlanYourDayView.swift */,
+				B10015 /* SettingsView.swift */,
+				B10025 /* AirQualityView.swift */,
+				B10026 /* PressureView.swift */,
+				B10027 /* WindGaugeView.swift */,
+				B10028 /* SunriseSunsetView.swift */,
+				B10029 /* PrecipTimelineView.swift */,
+				B10030 /* SunshinePlannerView.swift */,
+				B10031 /* ComfortIndexView.swift */,
+				B10032 /* CloudCoverView.swift */,
+				B10033 /* GardeningView.swift */,
+				B10035 /* WeatherWarningsView.swift */,
+				B10038 /* RadarMapView.swift */,
+				B10041 /* RadarPreviewCard.swift */,
+				B10042 /* SearchTabView.swift */,
+			);
+			path = Sections;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -309,34 +309,34 @@
 				A10011 /* TodayPhasesView.swift in Sources */,
 				A10012 /* HourlyForecastView.swift in Sources */,
 				A10013 /* DailyForecastView.swift in Sources */,
-			A10014 /* SettingsView.swift in Sources */,
-			A10015 /* CitySearchService.swift in Sources */,
-			A10016 /* CitySearchSheet.swift in Sources */,
-			A10017 /* WeatherNowView.swift in Sources */,
-			A10018 /* PlanYourDayView.swift in Sources */,
-			A10019 /* CalendarService.swift in Sources */,
-			A10020 /* ActivityScorer.swift in Sources */,
-			A10021 /* MorningBriefing.swift in Sources */,
-			A10022 /* UnitSettings.swift in Sources */,
-			A10023 /* OnboardingView.swift in Sources */,
-			A10024 /* AirQualityView.swift in Sources */,
-			A10025 /* PressureView.swift in Sources */,
-			A10026 /* WindGaugeView.swift in Sources */,
-			A10027 /* SunriseSunsetView.swift in Sources */,
-			A10028 /* PrecipTimelineView.swift in Sources */,
-			A10029 /* SunshinePlannerView.swift in Sources */,
-			A10030 /* ComfortIndexView.swift in Sources */,
-			A10031 /* CloudCoverView.swift in Sources */,
-			A10032 /* GardeningView.swift in Sources */,
-			A10033 /* AlertsService.swift in Sources */,
-			A10034 /* WeatherWarningsView.swift in Sources */,
-			A10035 /* DayDetailSheet.swift in Sources */,
-			A10036 /* RadarService.swift in Sources */,
-			A10037 /* RadarMapView.swift in Sources */,
-			A10038 /* TileCache.swift in Sources */,
-			A10039 /* SavedLocation.swift in Sources */,
-			A10040 /* RadarPreviewCard.swift in Sources */,
-			A10041 /* SearchTabView.swift in Sources */,
+				A10014 /* SettingsView.swift in Sources */,
+				A10015 /* CitySearchService.swift in Sources */,
+				A10016 /* CitySearchSheet.swift in Sources */,
+				A10017 /* WeatherNowView.swift in Sources */,
+				A10018 /* PlanYourDayView.swift in Sources */,
+				A10019 /* CalendarService.swift in Sources */,
+				A10020 /* ActivityScorer.swift in Sources */,
+				A10021 /* MorningBriefing.swift in Sources */,
+				A10022 /* UnitSettings.swift in Sources */,
+				A10023 /* OnboardingView.swift in Sources */,
+				A10024 /* AirQualityView.swift in Sources */,
+				A10025 /* PressureView.swift in Sources */,
+				A10026 /* WindGaugeView.swift in Sources */,
+				A10027 /* SunriseSunsetView.swift in Sources */,
+				A10028 /* PrecipTimelineView.swift in Sources */,
+				A10029 /* SunshinePlannerView.swift in Sources */,
+				A10030 /* ComfortIndexView.swift in Sources */,
+				A10031 /* CloudCoverView.swift in Sources */,
+				A10032 /* GardeningView.swift in Sources */,
+				A10033 /* AlertsService.swift in Sources */,
+				A10034 /* WeatherWarningsView.swift in Sources */,
+				A10035 /* DayDetailSheet.swift in Sources */,
+				A10036 /* RadarService.swift in Sources */,
+				A10037 /* RadarMapView.swift in Sources */,
+				A10038 /* TileCache.swift in Sources */,
+				A10039 /* SavedLocation.swift in Sources */,
+				A10040 /* RadarPreviewCard.swift in Sources */,
+				A10041 /* SearchTabView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,7 +467,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = MBVPABF8MH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WeatherApp/Info.plist;
@@ -502,7 +502,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = MBVPABF8MH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WeatherApp/Info.plist;
@@ -552,7 +552,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
 	};
 	rootObject = H10001 /* Project object */;
 }

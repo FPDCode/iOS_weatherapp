@@ -28,9 +28,9 @@ extension Color {
 
 extension View {
     @ViewBuilder
-    func adaptiveGlass() -> some View {
+    func adaptiveGlass(cornerRadius: CGFloat = 16) -> some View {
         if #available(iOS 26, *) {
-            self.glassEffect()
+            self.glassEffect(in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         } else {
             self.background(.ultraThinMaterial)
         }
