@@ -20,9 +20,9 @@ struct WeatherResponse: Codable {
 
 struct Minutely15Data: Codable {
     let time: [String]?
-    let precipitation: [Double]?
-    let rain: [Double]?
-    let snowfall: [Double]?
+    let precipitation: [Double?]?
+    let rain: [Double?]?
+    let snowfall: [Double?]?
 }
 
 struct CurrentWeather: Codable {
@@ -65,27 +65,29 @@ struct CurrentWeather: Codable {
 
 struct HourlyData: Codable {
     let time: [String]?
-    let temperature2m: [Double]?
-    let apparentTemperature: [Double]?
-    let precipitationProbability: [Double]? // API may return as Double
-    let precipitation: [Double]?
-    let weatherCode: [Double]? // API returns as number, could be Double
-    let surfacePressure: [Double]?
-    let relativeHumidity2m: [Double]? // API may return as Double
-    let visibility: [Double]?
-    let windSpeed10m: [Double]?
-    let windGusts10m: [Double]?
-    let windDirection10m: [Double]? // API returns as number
-    let uvIndex: [Double]?
-    let dewPoint2m: [Double]?
-    let cloudCover: [Double]?
-    let cloudCoverLow: [Double]?
-    let cloudCoverMid: [Double]?
-    let cloudCoverHigh: [Double]?
-    let shortwaveRadiation: [Double]?
-    let cape: [Double]?
-    let soilTemperature0cm: [Double]?
-    let soilMoisture0to1cm: [Double]?
+    // All numeric arrays use [Double?]? because Open-Meteo can return
+    // null for individual values (e.g., soil data for future dates, CAPE at night)
+    let temperature2m: [Double?]?
+    let apparentTemperature: [Double?]?
+    let precipitationProbability: [Double?]?
+    let precipitation: [Double?]?
+    let weatherCode: [Double?]?
+    let surfacePressure: [Double?]?
+    let relativeHumidity2m: [Double?]?
+    let visibility: [Double?]?
+    let windSpeed10m: [Double?]?
+    let windGusts10m: [Double?]?
+    let windDirection10m: [Double?]?
+    let uvIndex: [Double?]?
+    let dewPoint2m: [Double?]?
+    let cloudCover: [Double?]?
+    let cloudCoverLow: [Double?]?
+    let cloudCoverMid: [Double?]?
+    let cloudCoverHigh: [Double?]?
+    let shortwaveRadiation: [Double?]?
+    let cape: [Double?]?
+    let soilTemperature0cm: [Double?]?
+    let soilMoisture0to1cm: [Double?]?
 
     enum CodingKeys: String, CodingKey {
         case time
@@ -112,33 +114,50 @@ struct HourlyData: Codable {
         case soilMoisture0to1cm = "soil_moisture_0_to_1cm"
     }
 
-    // MARK: - Safe accessors (convert Double arrays to Int where needed)
-    var weatherCodeInts: [Int] { weatherCode?.map { Int($0) } ?? [] }
-    var precipProbabilityInts: [Int] { precipitationProbability?.map { Int($0) } ?? [] }
-    var humidityInts: [Int] { relativeHumidity2m?.map { Int($0) } ?? [] }
-    var windDirectionInts: [Int] { windDirection10m?.map { Int($0) } ?? [] }
-    var cloudCoverInts: [Int] { cloudCover?.map { Int($0) } ?? [] }
-    var cloudCoverLowInts: [Int] { cloudCoverLow?.map { Int($0) } ?? [] }
-    var cloudCoverMidInts: [Int] { cloudCoverMid?.map { Int($0) } ?? [] }
-    var cloudCoverHighInts: [Int] { cloudCoverHigh?.map { Int($0) } ?? [] }
+    // MARK: - Safe accessors (flatten [Double?]? → [Double] or [Int], replacing nil with 0)
+    private func doubles(_ arr: [Double?]?) -> [Double] { arr?.map { $0 ?? 0 } ?? [] }
+    private func ints(_ arr: [Double?]?) -> [Int] { arr?.map { Int($0 ?? 0) } ?? [] }
+
+    var temps: [Double] { doubles(temperature2m) }
+    var feelsLike: [Double] { doubles(apparentTemperature) }
+    var precip: [Double] { doubles(precipitation) }
+    var vis: [Double] { doubles(visibility) }
+    var wind: [Double] { doubles(windSpeed10m) }
+    var gusts: [Double] { doubles(windGusts10m) }
+    var pressure: [Double] { doubles(surfacePressure) }
+    var uv: [Double] { doubles(uvIndex) }
+    var dewPoint: [Double] { doubles(dewPoint2m) }
+    var radiation: [Double] { doubles(shortwaveRadiation) }
+    var capeValues: [Double] { doubles(cape) }
+    var soilTemp: [Double] { doubles(soilTemperature0cm) }
+    var soilMoist: [Double] { doubles(soilMoisture0to1cm) }
+
+    var weatherCodeInts: [Int] { ints(weatherCode) }
+    var precipProbabilityInts: [Int] { ints(precipitationProbability) }
+    var humidityInts: [Int] { ints(relativeHumidity2m) }
+    var windDirectionInts: [Int] { ints(windDirection10m) }
+    var cloudCoverInts: [Int] { ints(cloudCover) }
+    var cloudCoverLowInts: [Int] { ints(cloudCoverLow) }
+    var cloudCoverMidInts: [Int] { ints(cloudCoverMid) }
+    var cloudCoverHighInts: [Int] { ints(cloudCoverHigh) }
 }
 
 struct DailyData: Codable {
     let time: [String]?
-    let weatherCode: [Double]? // API returns numbers
-    let temperature2mMax: [Double]?
-    let temperature2mMin: [Double]?
-    let precipitationProbabilityMax: [Double]?
+    let weatherCode: [Double?]?
+    let temperature2mMax: [Double?]?
+    let temperature2mMin: [Double?]?
+    let precipitationProbabilityMax: [Double?]?
     let sunrise: [String]?
     let sunset: [String]?
-    let uvIndexMax: [Double]?
-    let windSpeed10mMax: [Double]?
-    let windGusts10mMax: [Double]?
-    let windDirection10mDominant: [Double]?
-    let sunshineDuration: [Double]?
-    let daylightDuration: [Double]?
-    let precipitationSum: [Double]?
-    let precipitationHours: [Double]?
+    let uvIndexMax: [Double?]?
+    let windSpeed10mMax: [Double?]?
+    let windGusts10mMax: [Double?]?
+    let windDirection10mDominant: [Double?]?
+    let sunshineDuration: [Double?]?
+    let daylightDuration: [Double?]?
+    let precipitationSum: [Double?]?
+    let precipitationHours: [Double?]?
 
     enum CodingKeys: String, CodingKey {
         case time
@@ -157,14 +176,24 @@ struct DailyData: Codable {
         case precipitationHours = "precipitation_hours"
     }
 
-    // Safe accessors
-    var weatherCodeInts: [Int] { weatherCode?.map { Int($0) } ?? [] }
-    var precipProbMaxInts: [Int] { precipitationProbabilityMax?.map { Int($0) } ?? [] }
-    var windDirDominantInts: [Int] { windDirection10mDominant?.map { Int($0) } ?? [] }
+    // Safe accessors (flatten [Double?]? → [Double] or [Int])
+    private func doubles(_ arr: [Double?]?) -> [Double] { arr?.map { $0 ?? 0 } ?? [] }
+    private func ints(_ arr: [Double?]?) -> [Int] { arr?.map { Int($0 ?? 0) } ?? [] }
+
+    var weatherCodeInts: [Int] { ints(weatherCode) }
+    var precipProbMaxInts: [Int] { ints(precipitationProbabilityMax) }
+    var windDirDominantInts: [Int] { ints(windDirection10mDominant) }
     var sunriseStrings: [String] { sunrise ?? [] }
     var sunsetStrings: [String] { sunset ?? [] }
-    var tempMaxValues: [Double] { temperature2mMax ?? [] }
-    var tempMinValues: [Double] { temperature2mMin ?? [] }
+    var tempMaxValues: [Double] { doubles(temperature2mMax) }
+    var tempMinValues: [Double] { doubles(temperature2mMin) }
+    var uvMaxValues: [Double] { doubles(uvIndexMax) }
+    var windSpeedMaxValues: [Double] { doubles(windSpeed10mMax) }
+    var windGustsMaxValues: [Double] { doubles(windGusts10mMax) }
+    var sunshineValues: [Double] { doubles(sunshineDuration) }
+    var daylightValues: [Double] { doubles(daylightDuration) }
+    var precipSumValues: [Double] { doubles(precipitationSum) }
+    var precipHoursValues: [Double] { doubles(precipitationHours) }
 }
 
 // MARK: - Open-Meteo Air Quality API Response

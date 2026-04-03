@@ -149,13 +149,13 @@ class WeatherViewModel: ObservableObject {
                     tempHigh: daily.tempMaxValues[i],
                     tempLow: daily.tempMinValues[i],
                     precipChance: daily.precipProbMaxInts[i],
-                    uvIndexMax: daily.uvIndexMax?[safe: i] ?? 0,
-                    sunshineDuration: daily.sunshineDuration?[safe: i] ?? 0,
-                    daylightDuration: daily.daylightDuration?[safe: i] ?? 0,
-                    precipSum: daily.precipitationSum?[safe: i] ?? 0,
-                    precipHours: daily.precipitationHours?[safe: i] ?? 0,
-                    windSpeedMax: daily.windSpeed10mMax?[safe: i] ?? 0,
-                    windGustsMax: daily.windGusts10mMax?[safe: i] ?? 0,
+                    uvIndexMax: daily.uvMaxValues[safe: i] ?? 0,
+                    sunshineDuration: daily.sunshineValues[safe: i] ?? 0,
+                    daylightDuration: daily.daylightValues[safe: i] ?? 0,
+                    precipSum: daily.precipSumValues[safe: i] ?? 0,
+                    precipHours: daily.precipHoursValues[safe: i] ?? 0,
+                    windSpeedMax: daily.windSpeedMaxValues[safe: i] ?? 0,
+                    windGustsMax: daily.windGustsMaxValues[safe: i] ?? 0,
                     windDirectionDominant: daily.windDirDominantInts[safe: i] ?? 0,
                     sunrise: i < daily.sunriseStrings.count ? daily.sunriseStrings[i] : "",
                     sunset: i < daily.sunsetStrings.count ? daily.sunsetStrings[i] : ""
@@ -170,14 +170,14 @@ class WeatherViewModel: ObservableObject {
             todayLow = daily.tempMinValues[0]
         }
 
-        if let uv = daily.uvIndexMax?.first {
+        if let uv = daily.uvMaxValues.first {
             todayUVIndex = uv
         }
 
-        if let sunshine = daily.sunshineDuration?.first {
+        if let sunshine = daily.sunshineValues.first {
             todaySunshineDuration = sunshine
         }
-        if let precipH = daily.precipitationHours?.first {
+        if let precipH = daily.precipHoursValues.first {
             todayPrecipHours = precipH
         }
 
@@ -199,14 +199,14 @@ class WeatherViewModel: ObservableObject {
         let now = Date()
         let calendar = Calendar.current
 
-        let temps = hourly.temperature2m ?? []
-        let feels = hourly.apparentTemperature ?? []
+        let temps = hourly.temps
+        let feels = hourly.feelsLike
         let precProb = hourly.precipProbabilityInts
-        let prec = hourly.precipitation ?? []
+        let prec = hourly.precip
         let codes = hourly.weatherCodeInts
         let humid = hourly.humidityInts
-        let vis = hourly.visibility ?? []
-        let wind = hourly.windSpeed10m ?? []
+        let vis = hourly.vis
+        let wind = hourly.wind
 
         let safeCount = min(
             (hourly.time ?? []).count, temps.count, feels.count, precProb.count,
@@ -227,11 +227,11 @@ class WeatherViewModel: ObservableObject {
                 precipChance: precProb[i],
                 precipAmount: prec[i],
                 weatherCode: codes[i],
-                pressure: hourly.surfacePressure?[safe: i] ?? 0,
+                pressure: hourly.pressure[safe: i] ?? 0,
                 humidity: humid[i],
                 visibility: vis[i],
                 windSpeed: wind[i],
-                uvIndex: hourly.uvIndex?[safe: i] ?? 0
+                uvIndex: hourly.uv[safe: i] ?? 0
             ))
         }
 
@@ -264,19 +264,19 @@ class WeatherViewModel: ObservableObject {
                 for i in 0..<(hourly.time ?? []).count {
                     if let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]),
                        calendar.isDate(date, equalTo: targetHour, toGranularity: .hour) {
-                        let t = hourly.temperature2m ?? []
-                        let f = hourly.apparentTemperature ?? []
+                        let t = hourly.temps
+                        let f = hourly.feelsLike
                         let pp = hourly.precipProbabilityInts
                         let h = hourly.humidityInts
                         let wc = hourly.weatherCodeInts
-                        let w = hourly.windSpeed10m ?? []
+                        let w = hourly.wind
                         if i < t.count { temps.append(t[i]) }
                         if i < f.count { feels.append(f[i]) }
                         if i < pp.count { precips.append(pp[i]) }
                         if i < h.count { humids.append(h[i]) }
                         if i < wc.count { codes.append(wc[i]) }
                         if i < w.count { winds.append(w[i]) }
-                        if let uvArr = hourly.uvIndex, i < uvArr.count { uvs.append(uvArr[i]) }
+                        if i < hourly.uv.count { uvs.append(hourly.uv[i]) }
                         break
                     }
                 }
@@ -314,7 +314,9 @@ class WeatherViewModel: ObservableObject {
         var slots: [PrecipSlot] = []
 
         let timeArr = minutely.time ?? []
-        let precipArr = minutely.precipitation ?? []
+        let precipArr = minutely.precipitation?.map { $0 ?? 0 } ?? []
+        let rainArr = minutely.rain?.map { $0 ?? 0 } ?? []
+        let snowArr = minutely.snowfall?.map { $0 ?? 0 } ?? []
         let count = min(timeArr.count, precipArr.count)
 
         for i in 0..<count {
@@ -325,8 +327,8 @@ class WeatherViewModel: ObservableObject {
             if slots.count >= 8 { break }
 
             let precip = precipArr[i]
-            let rain = minutely.rain?[safe: i] ?? precip
-            let snow = minutely.snowfall?[safe: i] ?? 0
+            let rain = rainArr[safe: i] ?? precip
+            let snow = snowArr[safe: i] ?? 0
 
             slots.append(PrecipSlot(
                 time: date,
@@ -403,9 +405,9 @@ class WeatherViewModel: ObservableObject {
             guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]) else { continue }
             guard calendar.isDate(date, equalTo: now, toGranularity: .hour) else { continue }
 
-            let speed = hourly.windSpeed10m?[safe: i] ?? current?.windspeed ?? 0
-            let gusts = hourly.windGusts10m?[safe: i] ?? speed
-            let direction = Int(hourly.windDirection10m?[safe: i] ?? current?.winddirection ?? 0)
+            let speed = hourly.wind[safe: i] ?? current?.windspeed ?? 0
+            let gusts = hourly.gusts[safe: i] ?? speed
+            let direction = hourly.windDirectionInts[safe: i] ?? Int(current?.winddirection ?? 0)
 
             let speedMph = UnitSettings.shared.toMph(speed)
             let beaufort = BeaufortScale.from(speedMph: speedMph)
@@ -432,7 +434,8 @@ class WeatherViewModel: ObservableObject {
     }
 
     private func processPressureTrend(_ hourly: HourlyData) {
-        guard let pressureArr = hourly.surfacePressure, !pressureArr.isEmpty else {
+        let pressureArr = hourly.pressure
+        guard !pressureArr.isEmpty else {
             pressureInfo = nil
             return
         }
@@ -552,7 +555,8 @@ class WeatherViewModel: ObservableObject {
     }
 
     private func processComfort(_ hourly: HourlyData) {
-        guard let dewPoints = hourly.dewPoint2m else { comfortInfo = nil; return }
+        let dewPoints = hourly.dewPoint
+        guard !dewPoints.isEmpty else { comfortInfo = nil; return }
         let now = Date()
         let calendar = Calendar.current
 
@@ -633,7 +637,7 @@ class WeatherViewModel: ObservableObject {
             guard (6...21).contains(hour) else { continue }
 
             let cloud = clouds[safe: i] ?? 100
-            let radiation = hourly.shortwaveRadiation?[safe: i] ?? 0
+            let radiation = hourly.radiation[safe: i] ?? 0
 
             slots.append(SunshineSlot(
                 time: date,
@@ -684,8 +688,9 @@ class WeatherViewModel: ObservableObject {
     }
 
     private func processGardening(_ hourly: HourlyData) {
-        guard let soilTemps = hourly.soilTemperature0cm,
-              let soilMoistures = hourly.soilMoisture0to1cm else {
+        let soilTemps = hourly.soilTemp
+        let soilMoistures = hourly.soilMoist
+        guard !soilTemps.isEmpty, !soilMoistures.isEmpty else {
             gardeningInfo = nil
             return
         }
@@ -728,7 +733,8 @@ class WeatherViewModel: ObservableObject {
     }
 
     private func processStormRisk(_ hourly: HourlyData) {
-        guard let capeValues = hourly.cape else { stormRisk = nil; return }
+        let capeVals = hourly.capeValues
+        guard !capeVals.isEmpty else { stormRisk = nil; return }
         let now = Date()
         let calendar = Calendar.current
 
@@ -739,7 +745,7 @@ class WeatherViewModel: ObservableObject {
             guard let date = hourlyDateFormatter.date(from: (hourly.time ?? [])[i]),
                   date >= now else { continue }
             if count >= 12 { break }
-            if let c = capeValues[safe: i] { maxCape = max(maxCape, c) }
+            if let c = capeVals[safe: i] { maxCape = max(maxCape, c) }
             count += 1
         }
 
