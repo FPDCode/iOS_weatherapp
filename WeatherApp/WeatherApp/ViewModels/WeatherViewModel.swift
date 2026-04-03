@@ -620,8 +620,8 @@ class WeatherViewModel: ObservableObject {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: now)
 
-        let sunshineSecs = daily?.sunshineDuration?.first ?? 0
-        let daylightSecs = daily?.daylightDuration?.first ?? 1
+        let sunshineSecs = daily?.sunshineValues.first ?? 0
+        let daylightSecs = daily?.daylightValues.first ?? 1
 
         var slots: [SunshineSlot] = []
 
