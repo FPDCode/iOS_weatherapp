@@ -41,6 +41,7 @@
 		A10032 /* GardeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10033 /* GardeningView.swift */; };
 		A10033 /* AlertsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10034 /* AlertsService.swift */; };
 		A10034 /* WeatherWarningsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10035 /* WeatherWarningsView.swift */; };
+		A10035 /* DayDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10036 /* DayDetailSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -80,6 +81,7 @@
 		B10033 /* GardeningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GardeningView.swift; sourceTree = "<group>"; };
 		B10034 /* AlertsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsService.swift; sourceTree = "<group>"; };
 		B10035 /* WeatherWarningsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWarningsView.swift; sourceTree = "<group>"; };
+		B10036 /* DayDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDetailSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +153,7 @@
 			children = (
 				B10009 /* GlassCard.swift */,
 			B10017 /* CitySearchSheet.swift */,
+			B10036 /* DayDetailSheet.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -309,6 +312,7 @@
 			A10032 /* GardeningView.swift in Sources */,
 			A10033 /* AlertsService.swift in Sources */,
 			A10034 /* WeatherWarningsView.swift in Sources */,
+			A10035 /* DayDetailSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

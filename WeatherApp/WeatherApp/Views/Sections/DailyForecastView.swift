@@ -2,6 +2,9 @@ import SwiftUI
 
 struct DailyForecastView: View {
     let forecasts: [DailyForecast]
+    @EnvironmentObject var weatherViewModel: WeatherViewModel
+    @State private var selectedDate: Date = Date()
+    @State private var showDayDetail = false
 
     private var tempRange: (min: Double, max: Double) {
         let lows = forecasts.map(\.tempLow)
@@ -28,6 +31,12 @@ struct DailyForecastView: View {
                             globalMax: tempRange.max,
                             isFirst: index == 0
                         )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            selectedDate = forecast.date
+                            showDayDetail = true
+                        }
 
                         if index < forecasts.count - 1 {
                             Divider()
@@ -36,6 +45,13 @@ struct DailyForecastView: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showDayDetail) {
+            DayDetailSheet(
+                selectedDate: $selectedDate,
+                forecasts: forecasts
+            )
+            .environmentObject(weatherViewModel)
         }
     }
 }
@@ -91,12 +107,10 @@ struct DailyRow: View {
                 let highOffset = CGFloat((forecast.tempHigh - globalMin) / totalRange) * width
 
                 ZStack(alignment: .leading) {
-                    // Track
                     Capsule()
                         .fill(.white.opacity(0.1))
                         .frame(height: 5)
 
-                    // Range bar
                     Capsule()
                         .fill(tempBarGradient)
                         .frame(width: max(highOffset - lowOffset, 6), height: 5)

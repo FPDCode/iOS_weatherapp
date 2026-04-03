@@ -422,6 +422,15 @@ struct DailyForecast: Identifiable {
     let tempLow: Double
     let precipChance: Int
     let uvIndexMax: Double
+    let sunshineDuration: Double // seconds
+    let daylightDuration: Double // seconds
+    let precipSum: Double
+    let precipHours: Double
+    let windSpeedMax: Double
+    let windGustsMax: Double
+    let windDirectionDominant: Int
+    let sunrise: String
+    let sunset: String
 }
 
 struct AirQualityInfo {

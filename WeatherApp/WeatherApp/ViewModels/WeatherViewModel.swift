@@ -149,7 +149,16 @@ class WeatherViewModel: ObservableObject {
                     tempHigh: daily.temperature2mMax[i],
                     tempLow: daily.temperature2mMin[i],
                     precipChance: daily.precipitationProbabilityMax[i],
-                    uvIndexMax: daily.uvIndexMax?[safe: i] ?? 0
+                    uvIndexMax: daily.uvIndexMax?[safe: i] ?? 0,
+                    sunshineDuration: daily.sunshineDuration?[safe: i] ?? 0,
+                    daylightDuration: daily.daylightDuration?[safe: i] ?? 0,
+                    precipSum: daily.precipitationSum?[safe: i] ?? 0,
+                    precipHours: daily.precipitationHours?[safe: i] ?? 0,
+                    windSpeedMax: daily.windSpeed10mMax?[safe: i] ?? 0,
+                    windGustsMax: daily.windGusts10mMax?[safe: i] ?? 0,
+                    windDirectionDominant: daily.windDirection10mDominant?[safe: i] ?? 0,
+                    sunrise: i < daily.sunrise.count ? daily.sunrise[i] : "",
+                    sunset: i < daily.sunset.count ? daily.sunset[i] : ""
                 ))
             }
         }
@@ -728,6 +737,12 @@ class WeatherViewModel: ObservableObject {
             cape: maxCape,
             level: StormRiskLevel.from(cape: maxCape)
         )
+    }
+
+    /// Get hourly forecasts for a specific date (for the day detail view)
+    func hourlyForDate(_ date: Date) -> [HourlyForecast] {
+        let calendar = Calendar.current
+        return hourlyForecasts.filter { calendar.isDate($0.time, inSameDayAs: date) }
     }
 
     private func mostFrequent(_ array: [Int]) -> Int? {
