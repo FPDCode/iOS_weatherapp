@@ -22,6 +22,7 @@ class WeatherViewModel: ObservableObject {
     @Published var lastUpdated: Date?
     @Published var todayUVIndex: Double = 0
     @Published var airQuality: AirQualityInfo?
+    @Published var pressureInfo: PressureInfo?
 
     private let weatherService = WeatherService.shared
 
@@ -81,6 +82,7 @@ class WeatherViewModel: ObservableObject {
         if let hourly = response.hourly {
             processHourlyData(hourly)
             processTodayPhases(hourly)
+            processPressureTrend(hourly)
         }
     }
 
@@ -228,6 +230,62 @@ class WeatherViewModel: ObservableObject {
         }
 
         todayPhases = phases
+    }
+
+    private func processPressureTrend(_ hourly: HourlyData) {
+        guard let pressureArr = hourly.surfacePressure, !pressureArr.isEmpty else {
+            pressureInfo = nil
+            return
+        }
+
+        let now = Date()
+        let calendar = Calendar.current
+
+        // Collect pressure readings from now through +10 hours
+        var currentPressure: Double?
+        var pressureAt10h: Double?
+        var readings: [(date: Date, pressure: Double)] = []
+
+        for i in 0..<min(hourly.time.count, pressureArr.count) {
+            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+
+            // Skip past hours (more than 1h ago)
+            guard let oneHourAgo = calendar.date(byAdding: .hour, value: -1, to: now),
+                  date >= oneHourAgo else { continue }
+
+            // Current hour
+            if currentPressure == nil {
+                currentPressure = pressureArr[i]
+            }
+
+            // Collect readings for the next 12 hours (for the mini chart)
+            if readings.count < 12 {
+                readings.append((date: date, pressure: pressureArr[i]))
+            }
+
+            // Find the reading closest to +10 hours
+            if let tenHoursLater = calendar.date(byAdding: .hour, value: 10, to: now),
+               calendar.isDate(date, equalTo: tenHoursLater, toGranularity: .hour) {
+                pressureAt10h = pressureArr[i]
+            }
+        }
+
+        guard let current = currentPressure else {
+            pressureInfo = nil
+            return
+        }
+
+        // If we didn't find an exact +10h match, use the last reading or interpolate
+        let target = pressureAt10h ?? readings.last?.pressure ?? current
+        let change = target - current
+        let trend = PressureTrend.from(change: change)
+
+        pressureInfo = PressureInfo(
+            currentPressure: current,
+            pressureIn10h: target,
+            trend: trend,
+            hourlyReadings: readings
+        )
     }
 
     private func processAirQuality(_ response: AirQualityResponse) {

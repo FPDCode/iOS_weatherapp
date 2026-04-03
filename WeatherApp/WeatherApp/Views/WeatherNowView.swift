@@ -84,6 +84,13 @@ struct WeatherNowView: View {
                     )
                 }
 
+                // Air Pressure
+                if let pressure = weatherViewModel.pressureInfo {
+                    GlassCard {
+                        PressureView(info: pressure)
+                    }
+                }
+
                 // Air Quality & UV
                 if let aq = weatherViewModel.airQuality {
                     GlassCard {

@@ -155,6 +155,55 @@ enum DayPhase: String, CaseIterable {
     }
 }
 
+// MARK: - Pressure Trend
+
+struct PressureInfo {
+    let currentPressure: Double // hPa from API
+    let pressureIn10h: Double
+    let trend: PressureTrend
+    let hourlyReadings: [(date: Date, pressure: Double)] // for mini chart
+}
+
+enum PressureTrend: String {
+    case risingFast = "Rising Fast"
+    case rising = "Rising"
+    case stable = "Stable"
+    case falling = "Falling"
+    case fallingFast = "Falling Fast"
+
+    var icon: String {
+        switch self {
+        case .risingFast: return "arrow.up.circle.fill"
+        case .rising: return "arrow.up.right.circle.fill"
+        case .stable: return "equal.circle.fill"
+        case .falling: return "arrow.down.right.circle.fill"
+        case .fallingFast: return "arrow.down.circle.fill"
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .risingFast: return "60A5FA"   // blue
+        case .rising: return "34D399"       // green
+        case .stable: return "A0AEC0"       // gray
+        case .falling: return "FBBF24"      // yellow
+        case .fallingFast: return "F87171"  // red
+        }
+    }
+
+    /// Classify based on hPa change over 10 hours
+    /// Meteorological convention: >6 hPa/10h = fast, 2-6 = gradual, <2 = stable
+    static func from(change: Double) -> PressureTrend {
+        switch change {
+        case 6...: return .risingFast
+        case 2..<6: return .rising
+        case -2..<2: return .stable
+        case -6 ..< -2: return .falling
+        default: return .fallingFast
+        }
+    }
+}
+
 struct HourlyForecast: Identifiable {
     let id = UUID()
     let time: Date
