@@ -33,6 +33,7 @@
 		A10024 /* AirQualityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10025 /* AirQualityView.swift */; };
 		A10025 /* PressureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10026 /* PressureView.swift */; };
 		A10026 /* WindGaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10027 /* WindGaugeView.swift */; };
+		A10027 /* SunriseSunsetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10028 /* SunriseSunsetView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +65,7 @@
 		B10025 /* AirQualityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirQualityView.swift; sourceTree = "<group>"; };
 		B10026 /* PressureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressureView.swift; sourceTree = "<group>"; };
 		B10027 /* WindGaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindGaugeView.swift; sourceTree = "<group>"; };
+		B10028 /* SunriseSunsetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SunriseSunsetView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +153,7 @@
 			B10025 /* AirQualityView.swift */,
 			B10026 /* PressureView.swift */,
 			B10027 /* WindGaugeView.swift */,
+			B10028 /* SunriseSunsetView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -277,6 +280,7 @@
 			A10024 /* AirQualityView.swift in Sources */,
 			A10025 /* PressureView.swift in Sources */,
 			A10026 /* WindGaugeView.swift in Sources */,
+			A10027 /* SunriseSunsetView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

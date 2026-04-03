@@ -19,6 +19,10 @@ class WeatherViewModel: ObservableObject {
     @Published var todayLow: Double = 0
     @Published var sunrise: String = ""
     @Published var sunset: String = ""
+    @Published var sunriseDate: Date?
+    @Published var sunsetDate: Date?
+    @Published var tomorrowSunriseDate: Date?
+    @Published var tomorrowSunsetDate: Date?
     @Published var lastUpdated: Date?
     @Published var todayUVIndex: Double = 0
     @Published var airQuality: AirQualityInfo?
@@ -126,6 +130,14 @@ class WeatherViewModel: ObservableObject {
         if !daily.sunrise.isEmpty {
             sunrise = formatTimeFromAPI(daily.sunrise[0])
             sunset = formatTimeFromAPI(daily.sunset[0])
+            sunriseDate = hourlyDateFormatter.date(from: daily.sunrise[0])
+            sunsetDate = hourlyDateFormatter.date(from: daily.sunset[0])
+
+            // Tomorrow's sunrise/sunset for "next sunrise" at night
+            if daily.sunrise.count > 1 {
+                tomorrowSunriseDate = hourlyDateFormatter.date(from: daily.sunrise[1])
+                tomorrowSunsetDate = hourlyDateFormatter.date(from: daily.sunset[1])
+            }
         }
     }
 

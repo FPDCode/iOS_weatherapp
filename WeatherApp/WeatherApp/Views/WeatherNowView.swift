@@ -84,6 +84,19 @@ struct WeatherNowView: View {
                     )
                 }
 
+                // Sunrise & Sunset
+                if let rise = weatherViewModel.sunriseDate,
+                   let set = weatherViewModel.sunsetDate {
+                    GlassCard {
+                        SunriseSunsetView(
+                            sunriseDate: rise,
+                            sunsetDate: set,
+                            tomorrowSunrise: weatherViewModel.tomorrowSunriseDate,
+                            tomorrowSunset: weatherViewModel.tomorrowSunsetDate
+                        )
+                    }
+                }
+
                 // Wind Gauge
                 if let wind = weatherViewModel.windInfo {
                     GlassCard {
