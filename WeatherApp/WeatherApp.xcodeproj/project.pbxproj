@@ -46,6 +46,7 @@
 		A10037 /* RadarMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10038 /* RadarMapView.swift */; };
 		A10038 /* TileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10039 /* TileCache.swift */; };
 		A10039 /* SavedLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10040 /* SavedLocation.swift */; };
+		A10040 /* RadarPreviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10041 /* RadarPreviewCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -90,6 +91,7 @@
 		B10038 /* RadarMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarMapView.swift; sourceTree = "<group>"; };
 		B10039 /* TileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileCache.swift; sourceTree = "<group>"; };
 		B10040 /* SavedLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedLocation.swift; sourceTree = "<group>"; };
+		B10041 /* RadarPreviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarPreviewCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +189,7 @@
 			B10033 /* GardeningView.swift */,
 			B10035 /* WeatherWarningsView.swift */,
 			B10038 /* RadarMapView.swift */,
+			B10041 /* RadarPreviewCard.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -329,6 +332,7 @@
 			A10037 /* RadarMapView.swift in Sources */,
 			A10038 /* TileCache.swift in Sources */,
 			A10039 /* SavedLocation.swift in Sources */,
+			A10040 /* RadarPreviewCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,6 +6,7 @@ struct WeatherNowView: View {
     @ObservedObject var locationStore = LocationStore.shared
     @State private var showSearch = false
     @State private var showLocationPicker = false
+    var switchToRadar: (() -> Void)?
 
     var body: some View {
         NavigationStack {
@@ -137,6 +138,18 @@ struct WeatherNowView: View {
                     HourlyForecastView(
                         forecasts: weatherViewModel.hourlyForecasts
                     )
+                }
+
+                // Radar preview map
+                if let lat = locationService.latitude, let lon = locationService.longitude {
+                    GlassCard {
+                        RadarPreviewCard(
+                            latitude: lat,
+                            longitude: lon,
+                            isCurrentLocation: locationStore.isUsingCurrentLocation,
+                            onTap: { switchToRadar?() }
+                        )
+                    }
                 }
 
                 GlassCard {

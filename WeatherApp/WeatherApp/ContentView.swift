@@ -8,7 +8,7 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            WeatherNowView()
+            WeatherNowView(switchToRadar: { selectedTab = 2 })
                 .tabItem {
                     Label("Now", systemImage: "cloud.sun.fill")
                 }
