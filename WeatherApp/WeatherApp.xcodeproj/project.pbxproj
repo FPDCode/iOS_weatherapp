@@ -39,6 +39,8 @@
 		A10030 /* ComfortIndexView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10031 /* ComfortIndexView.swift */; };
 		A10031 /* CloudCoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10032 /* CloudCoverView.swift */; };
 		A10032 /* GardeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10033 /* GardeningView.swift */; };
+		A10033 /* AlertsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10034 /* AlertsService.swift */; };
+		A10034 /* WeatherWarningsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10035 /* WeatherWarningsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -76,6 +78,8 @@
 		B10031 /* ComfortIndexView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfortIndexView.swift; sourceTree = "<group>"; };
 		B10032 /* CloudCoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudCoverView.swift; sourceTree = "<group>"; };
 		B10033 /* GardeningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GardeningView.swift; sourceTree = "<group>"; };
+		B10034 /* AlertsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsService.swift; sourceTree = "<group>"; };
+		B10035 /* WeatherWarningsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWarningsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +173,7 @@
 			B10031 /* ComfortIndexView.swift */,
 			B10032 /* CloudCoverView.swift */,
 			B10033 /* GardeningView.swift */,
+			B10035 /* WeatherWarningsView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -181,6 +186,7 @@
 			B10016 /* CitySearchService.swift */,
 			B10020 /* CalendarService.swift */,
 			B10021 /* ActivityScorer.swift */,
+			B10034 /* AlertsService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -301,6 +307,8 @@
 			A10030 /* ComfortIndexView.swift in Sources */,
 			A10031 /* CloudCoverView.swift in Sources */,
 			A10032 /* GardeningView.swift in Sources */,
+			A10033 /* AlertsService.swift in Sources */,
+			A10034 /* WeatherWarningsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -36,6 +36,8 @@ class WeatherViewModel: ObservableObject {
     @Published var stormRisk: StormRiskInfo?
     @Published var todaySunshineDuration: Double = 0
     @Published var todayPrecipHours: Double = 0
+    @Published var nwsAlerts: [NWSAlert] = []
+    @Published var smartWarnings: [SmartWarning] = []
 
     private let weatherService = WeatherService.shared
 
@@ -63,6 +65,7 @@ class WeatherViewModel: ObservableObject {
         do {
             async let weatherTask = weatherService.fetchWeather(latitude: latitude, longitude: longitude)
             async let aqTask = weatherService.fetchAirQuality(latitude: latitude, longitude: longitude)
+            async let nwsTask = NWSAlertsService.shared.fetchAlerts(latitude: latitude, longitude: longitude)
 
             let response = try await weatherTask
             processResponse(response)
@@ -71,6 +74,24 @@ class WeatherViewModel: ObservableObject {
             if let aqResponse = try? await aqTask {
                 processAirQuality(aqResponse)
             }
+
+            // NWS alerts — best-effort
+            if let alerts = try? await nwsTask {
+                nwsAlerts = alerts
+            }
+
+            // Generate smart warnings from all collected data
+            smartWarnings = SmartWarningEngine.analyze(
+                hourlyForecasts: hourlyForecasts,
+                pressureInfo: pressureInfo,
+                windInfo: windInfo,
+                airQuality: airQuality,
+                stormRisk: stormRisk,
+                gardeningInfo: gardeningInfo,
+                todayUVIndex: todayUVIndex,
+                todayHigh: todayHigh,
+                todayLow: todayLow
+            )
 
             lastUpdated = Date()
         } catch {

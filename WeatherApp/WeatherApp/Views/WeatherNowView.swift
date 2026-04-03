@@ -65,6 +65,16 @@ struct WeatherNowView: View {
                     lastUpdated: weatherViewModel.lastUpdated
                 )
 
+                // Weather Warnings (NWS + Smart)
+                if !weatherViewModel.nwsAlerts.isEmpty || !weatherViewModel.smartWarnings.isEmpty {
+                    GlassCard {
+                        WeatherWarningsView(
+                            nwsAlerts: weatherViewModel.nwsAlerts,
+                            smartWarnings: weatherViewModel.smartWarnings
+                        )
+                    }
+                }
+
                 // Precipitation Timeline (next 2 hours)
                 if let precip = weatherViewModel.precipTimeline {
                     GlassCard {
