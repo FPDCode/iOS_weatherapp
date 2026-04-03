@@ -90,6 +90,13 @@ struct PlanYourDayView: View {
                     }
                 }
 
+                // Sunshine planner
+                if let plan = weatherViewModel.sunshinePlan {
+                    GlassCard {
+                        SunshinePlannerView(plan: plan)
+                    }
+                }
+
                 // Activity planner
                 GlassCard {
                     ActivityPlannerSection(

@@ -128,6 +128,27 @@ struct WeatherNowView: View {
                     }
                 }
 
+                // Comfort Index
+                if let comfort = weatherViewModel.comfortInfo {
+                    GlassCard {
+                        ComfortIndexView(comfort: comfort)
+                    }
+                }
+
+                // Cloud Cover + Storm Risk
+                if let clouds = weatherViewModel.cloudCoverInfo {
+                    GlassCard {
+                        CloudCoverView(info: clouds, stormRisk: weatherViewModel.stormRisk)
+                    }
+                }
+
+                // Gardening
+                if let garden = weatherViewModel.gardeningInfo {
+                    GlassCard {
+                        GardeningView(info: garden)
+                    }
+                }
+
                 Text("Data from Open-Meteo.com")
                     .font(.caption2)
                     .foregroundStyle(.secondary)

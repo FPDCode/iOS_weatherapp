@@ -54,6 +54,15 @@ struct HourlyData: Codable {
     let windGusts10m: [Double]?
     let windDirection10m: [Int]?
     let uvIndex: [Double]?
+    let dewPoint2m: [Double]?
+    let cloudCover: [Int]?
+    let cloudCoverLow: [Int]?
+    let cloudCoverMid: [Int]?
+    let cloudCoverHigh: [Int]?
+    let shortwaveRadiation: [Double]?
+    let cape: [Double]?
+    let soilTemperature0cm: [Double]?
+    let soilMoisture0to1cm: [Double]?
 
     enum CodingKeys: String, CodingKey {
         case time
@@ -69,6 +78,15 @@ struct HourlyData: Codable {
         case windGusts10m = "wind_gusts_10m"
         case windDirection10m = "wind_direction_10m"
         case uvIndex = "uv_index"
+        case dewPoint2m = "dew_point_2m"
+        case cloudCover = "cloud_cover"
+        case cloudCoverLow = "cloud_cover_low"
+        case cloudCoverMid = "cloud_cover_mid"
+        case cloudCoverHigh = "cloud_cover_high"
+        case shortwaveRadiation = "shortwave_radiation"
+        case cape
+        case soilTemperature0cm = "soil_temperature_0cm"
+        case soilMoisture0to1cm = "soil_moisture_0_to_1cm"
     }
 }
 
@@ -84,6 +102,10 @@ struct DailyData: Codable {
     let windSpeed10mMax: [Double]?
     let windGusts10mMax: [Double]?
     let windDirection10mDominant: [Int]?
+    let sunshineDuration: [Double]?
+    let daylightDuration: [Double]?
+    let precipitationSum: [Double]?
+    let precipitationHours: [Double]?
 
     enum CodingKeys: String, CodingKey {
         case time
@@ -96,6 +118,10 @@ struct DailyData: Codable {
         case windSpeed10mMax = "wind_speed_10m_max"
         case windGusts10mMax = "wind_gusts_10m_max"
         case windDirection10mDominant = "wind_direction_10m_dominant"
+        case sunshineDuration = "sunshine_duration"
+        case daylightDuration = "daylight_duration"
+        case precipitationSum = "precipitation_sum"
+        case precipitationHours = "precipitation_hours"
     }
 }
 
@@ -497,6 +523,143 @@ enum PollenLevel: Int, Comparable {
         case 25..<50: return .moderate
         case 50..<100: return .high
         default: return .veryHigh
+        }
+    }
+}
+
+// MARK: - Comfort Index
+
+struct ComfortInfo {
+    let dewPoint: Double
+    let humidity: Int
+    let level: ComfortLevel
+}
+
+enum ComfortLevel: String {
+    case dry = "Dry"
+    case comfortable = "Comfortable"
+    case pleasant = "Pleasant"
+    case sticky = "Slightly Humid"
+    case humid = "Humid"
+    case muggy = "Muggy"
+    case oppressive = "Oppressive"
+
+    var icon: String {
+        switch self {
+        case .dry: return "drop.triangle"
+        case .comfortable, .pleasant: return "face.smiling"
+        case .sticky: return "humidity"
+        case .humid, .muggy: return "humidity.fill"
+        case .oppressive: return "thermometer.sun.fill"
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .dry: return "FB923C"
+        case .comfortable: return "34D399"
+        case .pleasant: return "60A5FA"
+        case .sticky: return "FBBF24"
+        case .humid: return "FB923C"
+        case .muggy: return "F87171"
+        case .oppressive: return "A855F7"
+        }
+    }
+
+    /// Based on dew point in Fahrenheit
+    static func from(dewPointF: Double) -> ComfortLevel {
+        switch dewPointF {
+        case ..<40: return .dry
+        case 40..<50: return .comfortable
+        case 50..<55: return .pleasant
+        case 55..<60: return .sticky
+        case 60..<65: return .humid
+        case 65..<70: return .muggy
+        default: return .oppressive
+        }
+    }
+}
+
+// MARK: - Cloud Cover
+
+struct CloudCoverInfo {
+    let total: Int
+    let low: Int
+    let mid: Int
+    let high: Int
+    let hourlyReadings: [(date: Date, total: Int, low: Int, mid: Int, high: Int)]
+}
+
+// MARK: - Sunshine Planner
+
+struct SunshineSlot: Identifiable {
+    let id = UUID()
+    let time: Date
+    let cloudCover: Int
+    let radiation: Double
+    let isSunny: Bool // cloud cover < 40%
+}
+
+struct SunshinePlan {
+    let todaySunshineDuration: Double // seconds
+    let todayDaylightDuration: Double // seconds
+    let sunshinePercent: Double
+    let slots: [SunshineSlot]
+    let bestWindow: (start: Date, end: Date)?
+    let summary: String
+}
+
+// MARK: - Soil / Gardening
+
+struct GardeningInfo {
+    let soilTemp: Double
+    let soilMoisture: Double // volumetric %
+    let frostRisk: Bool
+    let wateringAdvice: String
+    let plantingAdvice: String
+}
+
+// MARK: - Storm Risk
+
+struct StormRiskInfo {
+    let cape: Double // J/kg
+    let level: StormRiskLevel
+}
+
+enum StormRiskLevel: String {
+    case none = "None"
+    case marginal = "Marginal"
+    case slight = "Slight"
+    case moderate = "Moderate"
+    case high = "High"
+
+    var color: String {
+        switch self {
+        case .none: return "34D399"
+        case .marginal: return "60A5FA"
+        case .slight: return "FBBF24"
+        case .moderate: return "FB923C"
+        case .high: return "F87171"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .none: return "cloud.fill"
+        case .marginal: return "cloud.bolt"
+        case .slight: return "cloud.bolt.fill"
+        case .moderate, .high: return "cloud.bolt.rain.fill"
+        }
+    }
+
+    /// CAPE thresholds in J/kg
+    static func from(cape: Double) -> StormRiskLevel {
+        switch cape {
+        case ..<300: return .none
+        case 300..<1000: return .marginal
+        case 1000..<2500: return .slight
+        case 2500..<4000: return .moderate
+        default: return .high
         }
     }
 }

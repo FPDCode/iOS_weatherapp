@@ -35,6 +35,10 @@
 		A10026 /* WindGaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10027 /* WindGaugeView.swift */; };
 		A10027 /* SunriseSunsetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10028 /* SunriseSunsetView.swift */; };
 		A10028 /* PrecipTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10029 /* PrecipTimelineView.swift */; };
+		A10029 /* SunshinePlannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10030 /* SunshinePlannerView.swift */; };
+		A10030 /* ComfortIndexView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10031 /* ComfortIndexView.swift */; };
+		A10031 /* CloudCoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10032 /* CloudCoverView.swift */; };
+		A10032 /* GardeningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10033 /* GardeningView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +72,10 @@
 		B10027 /* WindGaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindGaugeView.swift; sourceTree = "<group>"; };
 		B10028 /* SunriseSunsetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SunriseSunsetView.swift; sourceTree = "<group>"; };
 		B10029 /* PrecipTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrecipTimelineView.swift; sourceTree = "<group>"; };
+		B10030 /* SunshinePlannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SunshinePlannerView.swift; sourceTree = "<group>"; };
+		B10031 /* ComfortIndexView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComfortIndexView.swift; sourceTree = "<group>"; };
+		B10032 /* CloudCoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudCoverView.swift; sourceTree = "<group>"; };
+		B10033 /* GardeningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GardeningView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,6 +165,10 @@
 			B10027 /* WindGaugeView.swift */,
 			B10028 /* SunriseSunsetView.swift */,
 			B10029 /* PrecipTimelineView.swift */,
+			B10030 /* SunshinePlannerView.swift */,
+			B10031 /* ComfortIndexView.swift */,
+			B10032 /* CloudCoverView.swift */,
+			B10033 /* GardeningView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -285,6 +297,10 @@
 			A10026 /* WindGaugeView.swift in Sources */,
 			A10027 /* SunriseSunsetView.swift in Sources */,
 			A10028 /* PrecipTimelineView.swift in Sources */,
+			A10029 /* SunshinePlannerView.swift in Sources */,
+			A10030 /* ComfortIndexView.swift in Sources */,
+			A10031 /* CloudCoverView.swift in Sources */,
+			A10032 /* GardeningView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

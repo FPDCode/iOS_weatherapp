@@ -29,6 +29,13 @@ class WeatherViewModel: ObservableObject {
     @Published var pressureInfo: PressureInfo?
     @Published var windInfo: WindInfo?
     @Published var precipTimeline: PrecipitationTimeline?
+    @Published var comfortInfo: ComfortInfo?
+    @Published var cloudCoverInfo: CloudCoverInfo?
+    @Published var sunshinePlan: SunshinePlan?
+    @Published var gardeningInfo: GardeningInfo?
+    @Published var stormRisk: StormRiskInfo?
+    @Published var todaySunshineDuration: Double = 0
+    @Published var todayPrecipHours: Double = 0
 
     private let weatherService = WeatherService.shared
 
@@ -94,6 +101,11 @@ class WeatherViewModel: ObservableObject {
             processTodayPhases(hourly)
             processPressureTrend(hourly)
             processCurrentWind(hourly, current: response.currentWeather)
+            processComfort(hourly)
+            processCloudCover(hourly)
+            processSunshinePlan(hourly, daily: response.daily)
+            processGardening(hourly)
+            processStormRisk(hourly)
         }
     }
 
@@ -130,6 +142,13 @@ class WeatherViewModel: ObservableObject {
 
         if let uv = daily.uvIndexMax?.first {
             todayUVIndex = uv
+        }
+
+        if let sunshine = daily.sunshineDuration?.first {
+            todaySunshineDuration = sunshine
+        }
+        if let precipH = daily.precipitationHours?.first {
+            todayPrecipHours = precipH
         }
 
         if !daily.sunrise.isEmpty {
@@ -491,6 +510,202 @@ class WeatherViewModel: ObservableObject {
             pm10: currentPM10 ?? 0,
             level: AQILevel.from(usAqi: aqi),
             pollenSummary: pollenSummary
+        )
+    }
+
+    private func processComfort(_ hourly: HourlyData) {
+        guard let dewPoints = hourly.dewPoint2m else { comfortInfo = nil; return }
+        let now = Date()
+        let calendar = Calendar.current
+
+        for i in 0..<hourly.time.count {
+            guard let date = hourlyDateFormatter.date(from: hourly.time[i]),
+                  calendar.isDate(date, equalTo: now, toGranularity: .hour) else { continue }
+            guard i < dewPoints.count else { break }
+
+            let dewPt = dewPoints[i]
+            let dewPtF = UnitSettings.shared.toFahrenheit(dewPt)
+            let humidity = hourly.relativeHumidity2m[safe: i] ?? 0
+
+            comfortInfo = ComfortInfo(
+                dewPoint: dewPt,
+                humidity: humidity,
+                level: ComfortLevel.from(dewPointF: dewPtF)
+            )
+            return
+        }
+    }
+
+    private func processCloudCover(_ hourly: HourlyData) {
+        guard let clouds = hourly.cloudCover else { cloudCoverInfo = nil; return }
+        let now = Date()
+        let calendar = Calendar.current
+
+        var currentTotal = 0, currentLow = 0, currentMid = 0, currentHigh = 0
+        var readings: [(date: Date, total: Int, low: Int, mid: Int, high: Int)] = []
+
+        for i in 0..<hourly.time.count {
+            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+            guard let oneHourAgo = calendar.date(byAdding: .hour, value: -1, to: now),
+                  date >= oneHourAgo else { continue }
+            if readings.count >= 24 { break }
+
+            let total = clouds[safe: i] ?? 0
+            let low = hourly.cloudCoverLow?[safe: i] ?? 0
+            let mid = hourly.cloudCoverMid?[safe: i] ?? 0
+            let high = hourly.cloudCoverHigh?[safe: i] ?? 0
+
+            if readings.isEmpty {
+                currentTotal = total
+                currentLow = low
+                currentMid = mid
+                currentHigh = high
+            }
+            readings.append((date: date, total: total, low: low, mid: mid, high: high))
+        }
+
+        cloudCoverInfo = CloudCoverInfo(
+            total: currentTotal, low: currentLow, mid: currentMid, high: currentHigh,
+            hourlyReadings: readings
+        )
+    }
+
+    private func processSunshinePlan(_ hourly: HourlyData, daily: DailyData?) {
+        guard let clouds = hourly.cloudCover else { sunshinePlan = nil; return }
+        let now = Date()
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: now)
+
+        let sunshineSecs = daily?.sunshineDuration?.first ?? 0
+        let daylightSecs = daily?.daylightDuration?.first ?? 1
+
+        var slots: [SunshineSlot] = []
+
+        // Only daytime hours (6am-9pm)
+        for i in 0..<hourly.time.count {
+            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+            guard calendar.isDate(date, inSameDayAs: today) else {
+                if date > calendar.date(byAdding: .day, value: 1, to: today)! { break }
+                continue
+            }
+
+            let hour = calendar.component(.hour, from: date)
+            guard (6...21).contains(hour) else { continue }
+
+            let cloud = clouds[safe: i] ?? 100
+            let radiation = hourly.shortwaveRadiation?[safe: i] ?? 0
+
+            slots.append(SunshineSlot(
+                time: date,
+                cloudCover: cloud,
+                radiation: radiation,
+                isSunny: cloud < 40
+            ))
+        }
+
+        // Find best consecutive sunny window
+        var bestStart = 0, bestLen = 0, curStart = 0, curLen = 0
+        for (i, slot) in slots.enumerated() {
+            if slot.isSunny {
+                if curLen == 0 { curStart = i }
+                curLen += 1
+                if curLen > bestLen { bestLen = curLen; bestStart = curStart }
+            } else {
+                curLen = 0
+            }
+        }
+
+        let bestWindow: (start: Date, end: Date)?
+        if bestLen >= 2, bestStart < slots.count {
+            let endIdx = min(bestStart + bestLen - 1, slots.count - 1)
+            bestWindow = (slots[bestStart].time, slots[endIdx].time.addingTimeInterval(3600))
+        } else {
+            bestWindow = nil
+        }
+
+        let sunnyHours = slots.filter(\.isSunny).count
+        let summary: String
+        if sunnyHours == 0 {
+            summary = "Overcast all day — no clear sunshine expected"
+        } else if sunnyHours >= slots.count - 2 {
+            summary = "Mostly sunny — great day for outdoor activities"
+        } else {
+            summary = "\(sunnyHours) hours of sunshine expected today"
+        }
+
+        sunshinePlan = SunshinePlan(
+            todaySunshineDuration: sunshineSecs,
+            todayDaylightDuration: daylightSecs,
+            sunshinePercent: daylightSecs > 0 ? (sunshineSecs / daylightSecs) * 100 : 0,
+            slots: slots,
+            bestWindow: bestWindow,
+            summary: summary
+        )
+    }
+
+    private func processGardening(_ hourly: HourlyData) {
+        guard let soilTemps = hourly.soilTemperature0cm,
+              let soilMoistures = hourly.soilMoisture0to1cm else {
+            gardeningInfo = nil
+            return
+        }
+
+        let now = Date()
+        let calendar = Calendar.current
+
+        for i in 0..<hourly.time.count {
+            guard let date = hourlyDateFormatter.date(from: hourly.time[i]),
+                  calendar.isDate(date, equalTo: now, toGranularity: .hour) else { continue }
+
+            let temp = soilTemps[safe: i] ?? 0
+            let moisture = (soilMoistures[safe: i] ?? 0) * 100 // Convert to percentage
+
+            let tempF = UnitSettings.shared.toFahrenheit(temp)
+            let frostRisk = tempF <= 32
+
+            let wateringAdvice: String
+            if moisture > 40 { wateringAdvice = "Soil is well-hydrated — no watering needed" }
+            else if moisture > 25 { wateringAdvice = "Soil moisture is adequate" }
+            else if moisture > 15 { wateringAdvice = "Consider watering your garden" }
+            else { wateringAdvice = "Soil is dry — water your plants today" }
+
+            let plantingAdvice: String
+            if frostRisk { plantingAdvice = "Frost risk — protect sensitive plants" }
+            else if tempF < 45 { plantingAdvice = "Too cold for most planting" }
+            else if tempF < 60 { plantingAdvice = "Good for cool-season crops" }
+            else if tempF < 85 { plantingAdvice = "Ideal conditions for planting" }
+            else { plantingAdvice = "Hot soil — water after planting" }
+
+            gardeningInfo = GardeningInfo(
+                soilTemp: temp,
+                soilMoisture: moisture,
+                frostRisk: frostRisk,
+                wateringAdvice: wateringAdvice,
+                plantingAdvice: plantingAdvice
+            )
+            return
+        }
+    }
+
+    private func processStormRisk(_ hourly: HourlyData) {
+        guard let capeValues = hourly.cape else { stormRisk = nil; return }
+        let now = Date()
+        let calendar = Calendar.current
+
+        // Find max CAPE in the next 12 hours
+        var maxCape: Double = 0
+        var count = 0
+        for i in 0..<hourly.time.count {
+            guard let date = hourlyDateFormatter.date(from: hourly.time[i]),
+                  date >= now else { continue }
+            if count >= 12 { break }
+            if let c = capeValues[safe: i] { maxCape = max(maxCape, c) }
+            count += 1
+        }
+
+        stormRisk = StormRiskInfo(
+            cape: maxCape,
+            level: StormRiskLevel.from(cape: maxCape)
         )
     }
 
