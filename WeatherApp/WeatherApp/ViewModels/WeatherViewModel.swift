@@ -19,6 +19,13 @@ class WeatherViewModel: ObservableObject {
     @Published var todayLow: Double = 0
     @Published var sunrise: String = ""
     @Published var sunset: String = ""
+    @Published var lastUpdated: Date?
+
+    @AppStorage("temperatureUnit") var temperatureUnit: String = TemperatureUnit.fahrenheit.rawValue
+
+    var selectedUnit: TemperatureUnit {
+        TemperatureUnit(rawValue: temperatureUnit) ?? .fahrenheit
+    }
 
     private let weatherService = WeatherService.shared
     private let isoFormatter: ISO8601DateFormatter = {
@@ -37,8 +44,13 @@ class WeatherViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let response = try await weatherService.fetchWeather(latitude: latitude, longitude: longitude)
+            let response = try await weatherService.fetchWeather(
+                latitude: latitude,
+                longitude: longitude,
+                temperatureUnit: selectedUnit.apiValue
+            )
             processResponse(response)
+            lastUpdated = Date()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -47,7 +59,6 @@ class WeatherViewModel: ObservableObject {
     }
 
     private func processResponse(_ response: WeatherResponse) {
-        // Current weather
         if let current = response.currentWeather {
             currentTemp = current.temperature
             currentWeatherCode = current.weathercode
@@ -55,12 +66,10 @@ class WeatherViewModel: ObservableObject {
             isDay = current.isDay == 1
         }
 
-        // Daily data
         if let daily = response.daily {
             processDailyData(daily)
         }
 
-        // Hourly data
         if let hourly = response.hourly {
             processHourlyData(hourly)
             processTodayPhases(hourly)
@@ -69,7 +78,14 @@ class WeatherViewModel: ObservableObject {
 
     private func processDailyData(_ daily: DailyData) {
         var forecasts: [DailyForecast] = []
-        let count = min(daily.time.count, 10)
+        let count = min(
+            daily.time.count,
+            daily.weathercode.count,
+            daily.temperature2mMax.count,
+            daily.temperature2mMin.count,
+            daily.precipitationProbabilityMax.count,
+            10
+        )
 
         for i in 0..<count {
             if let date = dayFormatter.date(from: daily.time[i]) {
@@ -85,13 +101,11 @@ class WeatherViewModel: ObservableObject {
 
         dailyForecasts = forecasts
 
-        // Today's high/low
         if !daily.temperature2mMax.isEmpty {
             todayHigh = daily.temperature2mMax[0]
             todayLow = daily.temperature2mMin[0]
         }
 
-        // Sunrise/sunset
         if !daily.sunrise.isEmpty {
             sunrise = formatTimeFromISO(daily.sunrise[0])
             sunset = formatTimeFromISO(daily.sunset[0])
@@ -103,11 +117,23 @@ class WeatherViewModel: ObservableObject {
         let now = Date()
         let calendar = Calendar.current
 
-        for i in 0..<hourly.time.count {
+        let safeCount = min(
+            hourly.time.count,
+            hourly.temperature2m.count,
+            hourly.apparentTemperature.count,
+            hourly.precipitationProbability.count,
+            hourly.precipitation.count,
+            hourly.weathercode.count,
+            hourly.relativehumidity2m.count,
+            hourly.visibility.count,
+            hourly.windspeed10m.count
+        )
+
+        for i in 0..<safeCount {
             guard let date = isoFormatter.date(from: hourly.time[i]) else { continue }
 
-            // Only include hours from now through 48 hours
-            if date < calendar.date(byAdding: .hour, value: -1, to: now)! { continue }
+            guard let oneHourAgo = calendar.date(byAdding: .hour, value: -1, to: now),
+                  date >= oneHourAgo else { continue }
             if forecasts.count >= 48 { break }
 
             forecasts.append(HourlyForecast(
@@ -119,7 +145,8 @@ class WeatherViewModel: ObservableObject {
                 weatherCode: hourly.weathercode[i],
                 pressure: hourly.pressure?[i] ?? 0,
                 humidity: hourly.relativehumidity2m[i],
-                visibility: hourly.visibility[i]
+                visibility: hourly.visibility[i],
+                windSpeed: hourly.windspeed10m[i]
             ))
         }
 
@@ -139,6 +166,7 @@ class WeatherViewModel: ObservableObject {
             var precips: [Int] = []
             var humids: [Int] = []
             var codes: [Int] = []
+            var winds: [Double] = []
 
             for hour in range {
                 let actualHour = hour % 24
@@ -147,15 +175,15 @@ class WeatherViewModel: ObservableObject {
                       let targetHour = calendar.date(byAdding: .hour, value: actualHour, to: targetDate)
                 else { continue }
 
-                // Find matching hour in data
                 for i in 0..<hourly.time.count {
                     if let date = isoFormatter.date(from: hourly.time[i]),
                        calendar.isDate(date, equalTo: targetHour, toGranularity: .hour) {
-                        temps.append(hourly.temperature2m[i])
-                        feels.append(hourly.apparentTemperature[i])
-                        precips.append(hourly.precipitationProbability[i])
-                        humids.append(hourly.relativehumidity2m[i])
-                        codes.append(hourly.weathercode[i])
+                        if i < hourly.temperature2m.count { temps.append(hourly.temperature2m[i]) }
+                        if i < hourly.apparentTemperature.count { feels.append(hourly.apparentTemperature[i]) }
+                        if i < hourly.precipitationProbability.count { precips.append(hourly.precipitationProbability[i]) }
+                        if i < hourly.relativehumidity2m.count { humids.append(hourly.relativehumidity2m[i]) }
+                        if i < hourly.weathercode.count { codes.append(hourly.weathercode[i]) }
+                        if i < hourly.windspeed10m.count { winds.append(hourly.windspeed10m[i]) }
                         break
                     }
                 }
@@ -163,12 +191,12 @@ class WeatherViewModel: ObservableObject {
 
             guard !temps.isEmpty else { continue }
 
-            // Use the most common weather code
             let avgTemp = temps.reduce(0, +) / Double(temps.count)
             let avgFeels = feels.reduce(0, +) / Double(feels.count)
             let maxPrecip = precips.max() ?? 0
-            let avgHumid = humids.reduce(0, +) / humids.count
+            let avgHumid = humids.isEmpty ? 0 : humids.reduce(0, +) / humids.count
             let dominantCode = mostFrequent(codes) ?? 0
+            let avgWind = winds.isEmpty ? nil : winds.reduce(0, +) / Double(winds.count)
 
             phases.append(DayPhaseWeather(
                 phase: phase,
@@ -177,7 +205,7 @@ class WeatherViewModel: ObservableObject {
                 weatherCode: dominantCode,
                 precipChance: maxPrecip,
                 humidity: avgHumid,
-                windSpeed: nil
+                windSpeed: avgWind
             ))
         }
 

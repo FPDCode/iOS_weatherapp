@@ -2,6 +2,7 @@ import Foundation
 import CoreLocation
 import SwiftUI
 
+@MainActor
 class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
 
@@ -63,10 +64,16 @@ class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
 
+    func setManualLocation(latitude: Double, longitude: Double, cityName: String) {
+        self.latitude = latitude
+        self.longitude = longitude
+        self.cityName = cityName
+    }
+
     private func reverseGeocode(location: CLLocation) {
         let geocoder = CLGeocoder()
-        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
-            DispatchQueue.main.async {
+        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, _ in
+            Task { @MainActor in
                 if let placemark = placemarks?.first {
                     self?.cityName = placemark.locality ?? placemark.administrativeArea ?? "Unknown"
                 }

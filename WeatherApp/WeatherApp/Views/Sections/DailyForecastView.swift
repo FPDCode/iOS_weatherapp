@@ -13,18 +13,26 @@ struct DailyForecastView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(title: "10-Day Forecast", icon: "calendar")
 
-            VStack(spacing: 0) {
-                ForEach(Array(forecasts.enumerated()), id: \.element.id) { index, forecast in
-                    DailyRow(
-                        forecast: forecast,
-                        globalMin: tempRange.min,
-                        globalMax: tempRange.max,
-                        isFirst: index == 0
-                    )
+            if forecasts.isEmpty {
+                Text("No daily data available")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 20)
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(forecasts.enumerated()), id: \.element.id) { index, forecast in
+                        DailyRow(
+                            forecast: forecast,
+                            globalMin: tempRange.min,
+                            globalMax: tempRange.max,
+                            isFirst: index == 0
+                        )
 
-                    if index < forecasts.count - 1 {
-                        Divider()
-                            .background(.white.opacity(0.1))
+                        if index < forecasts.count - 1 {
+                            Divider()
+                                .background(.white.opacity(0.1))
+                        }
                     }
                 }
             }
@@ -55,6 +63,7 @@ struct DailyRow: View {
                 .symbolRenderingMode(.multicolor)
                 .font(.body)
                 .frame(width: 32)
+                .accessibilityLabel(WeatherCodeInfo.description(for: forecast.weatherCode))
 
             // Precip chance
             HStack(spacing: 2) {

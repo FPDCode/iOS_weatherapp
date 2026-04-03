@@ -20,6 +20,9 @@
 		A10011 /* TodayPhasesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10011 /* TodayPhasesView.swift */; };
 		A10012 /* HourlyForecastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10012 /* HourlyForecastView.swift */; };
 		A10013 /* DailyForecastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10013 /* DailyForecastView.swift */; };
+		A10014 /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10015 /* SettingsSheet.swift */; };
+		A10015 /* CitySearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10016 /* CitySearchService.swift */; };
+		A10016 /* CitySearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10017 /* CitySearchSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +41,9 @@
 		B10012 /* HourlyForecastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourlyForecastView.swift; sourceTree = "<group>"; };
 		B10013 /* DailyForecastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyForecastView.swift; sourceTree = "<group>"; };
 		B10014 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B10015 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
+		B10016 /* CitySearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchService.swift; sourceTree = "<group>"; };
+		B10017 /* CitySearchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +110,8 @@
 			isa = PBXGroup;
 			children = (
 				B10009 /* GlassCard.swift */,
+			B10015 /* SettingsSheet.swift */,
+			B10017 /* CitySearchSheet.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -124,6 +132,7 @@
 			children = (
 				B10006 /* WeatherService.swift */,
 				B10007 /* LocationService.swift */,
+			B10016 /* CitySearchService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -225,6 +234,9 @@
 				A10011 /* TodayPhasesView.swift in Sources */,
 				A10012 /* HourlyForecastView.swift in Sources */,
 				A10013 /* DailyForecastView.swift in Sources */,
+			A10014 /* SettingsSheet.swift in Sources */,
+			A10015 /* CitySearchService.swift in Sources */,
+			A10016 /* CitySearchSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

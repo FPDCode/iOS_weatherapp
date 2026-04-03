@@ -10,6 +10,7 @@ struct CurrentWeatherHeader: View {
     let isDay: Bool
     let sunrise: String
     let sunset: String
+    let lastUpdated: Date?
 
     var body: some View {
         VStack(spacing: 4) {
@@ -44,6 +45,14 @@ struct CurrentWeatherHeader: View {
                     .foregroundStyle(.orange.opacity(0.8))
             }
             .padding(.top, 8)
+
+            // Last updated
+            if let lastUpdated {
+                Text("Updated \(lastUpdated, style: .relative) ago")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .padding(.top, 4)
+            }
         }
         .padding(.top, 40)
         .padding(.bottom, 20)

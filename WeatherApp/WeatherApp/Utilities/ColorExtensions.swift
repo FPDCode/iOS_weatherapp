@@ -24,6 +24,19 @@ extension Color {
     }
 }
 
+// MARK: - iOS 26 Liquid Glass Adaptive Modifier
+
+extension View {
+    @ViewBuilder
+    func adaptiveGlass() -> some View {
+        if #available(iOS 26, *) {
+            self.glassEffect()
+        } else {
+            self.background(.ultraThinMaterial)
+        }
+    }
+}
+
 // MARK: - Background Gradients
 
 struct BackgroundGradient {
@@ -59,6 +72,21 @@ struct BackgroundGradient {
     }
 }
 
+// MARK: - Temperature Unit
+
+enum TemperatureUnit: String, CaseIterable {
+    case fahrenheit
+    case celsius
+
+    var symbol: String {
+        self == .fahrenheit ? "F" : "C"
+    }
+
+    var apiValue: String {
+        rawValue
+    }
+}
+
 // MARK: - Formatters
 
 struct WeatherFormatters {
@@ -66,8 +94,8 @@ struct WeatherFormatters {
         "\(Int(round(temp)))°"
     }
 
-    static func temperatureFull(_ temp: Double) -> String {
-        "\(Int(round(temp)))°F"
+    static func temperatureFull(_ temp: Double, unit: TemperatureUnit = .fahrenheit) -> String {
+        "\(Int(round(temp)))°\(unit.symbol)"
     }
 
     static func percent(_ value: Int) -> String {
@@ -97,22 +125,38 @@ struct WeatherFormatters {
         "\(value)%"
     }
 
+    static func windSpeed(_ mph: Double) -> String {
+        "\(Int(round(mph))) mph"
+    }
+
+    private static let hourFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "ha"
+        return f
+    }()
+
+    private static let dayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "EEE"
+        return f
+    }()
+
+    private static let fullDayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "EEEE"
+        return f
+    }()
+
     static func hourTime(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "ha"
-        return formatter.string(from: date).lowercased()
+        hourFormatter.string(from: date).lowercased()
     }
 
     static func dayOfWeek(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEE"
-        return formatter.string(from: date)
+        dayFormatter.string(from: date)
     }
 
     static func fullDay(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE"
-        return formatter.string(from: date)
+        fullDayFormatter.string(from: date)
     }
 
     static func isToday(_ date: Date) -> Bool {

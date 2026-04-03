@@ -5,6 +5,7 @@ import SwiftUI
 enum HourlyMetric: String, CaseIterable {
     case temperature = "Temp"
     case precipitation = "Precip"
+    case wind = "Wind"
     case pressure = "Pressure"
     case humidity = "Humidity"
     case visibility = "Visibility"
@@ -13,6 +14,7 @@ enum HourlyMetric: String, CaseIterable {
         switch self {
         case .temperature: return "thermometer"
         case .precipitation: return "cloud.rain"
+        case .wind: return "wind"
         case .pressure: return "gauge.medium"
         case .humidity: return "humidity"
         case .visibility: return "eye"
@@ -28,35 +30,44 @@ struct HourlyForecastView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(title: "48-Hour Forecast", icon: "calendar.badge.clock")
 
-            // Metric picker
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(HourlyMetric.allCases, id: \.self) { metric in
-                        MetricPill(
-                            metric: metric,
-                            isSelected: selectedMetric == metric
-                        )
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                selectedMetric = metric
+            if forecasts.isEmpty {
+                Text("No hourly data available")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 20)
+            } else {
+                // Metric picker
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(HourlyMetric.allCases, id: \.self) { metric in
+                            MetricPill(
+                                metric: metric,
+                                isSelected: selectedMetric == metric
+                            )
+                            .onTapGesture {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    selectedMetric = metric
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            // Hourly scroll
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 0) {
-                    ForEach(Array(forecasts.enumerated()), id: \.element.id) { index, forecast in
-                        HourlyCell(
-                            forecast: forecast,
-                            metric: selectedMetric,
-                            showDayDivider: shouldShowDayDivider(at: index)
-                        )
+                // Hourly scroll
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 0) {
+                        ForEach(Array(forecasts.enumerated()), id: \.element.id) { index, forecast in
+                            HourlyCell(
+                                forecast: forecast,
+                                metric: selectedMetric,
+                                showDayDivider: shouldShowDayDivider(at: index)
+                            )
+                        }
                     }
+                    .padding(.horizontal, 4)
                 }
-                .padding(.horizontal, 4)
             }
         }
     }
@@ -116,6 +127,7 @@ struct HourlyCell: View {
                     .font(.body)
                     .symbolRenderingMode(.multicolor)
                     .frame(height: 24)
+                    .accessibilityLabel(WeatherCodeInfo.description(for: forecast.weatherCode))
 
                 // Metric-specific content
                 metricContent
@@ -151,6 +163,16 @@ struct HourlyCell: View {
                     .foregroundStyle(forecast.precipChance > 50 ? .blue : .primary)
                 Text(WeatherFormatters.precipitation(forecast.precipAmount))
                     .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+            }
+
+        case .wind:
+            VStack(spacing: 2) {
+                Text(WeatherFormatters.windSpeed(forecast.windSpeed))
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                Image(systemName: "wind")
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
 

@@ -41,6 +41,7 @@ struct HourlyData: Codable {
     let pressure: [Double]?
     let relativehumidity2m: [Int]
     let visibility: [Double]
+    let windspeed10m: [Double]
 
     enum CodingKeys: String, CodingKey {
         case time
@@ -52,6 +53,7 @@ struct HourlyData: Codable {
         case pressure = "surface_pressure"
         case relativehumidity2m = "relativehumidity_2m"
         case visibility
+        case windspeed10m = "windspeed_10m"
     }
 }
 
@@ -109,15 +111,6 @@ enum DayPhase: String, CaseIterable {
         case .night: return 22...29 // wraps to next day 0-5
         }
     }
-
-    var gradient: [String] {
-        switch self {
-        case .morning: return ["FFA751", "FFE259"]
-        case .afternoon: return ["2196F3", "73C8F5"]
-        case .evening: return ["FC5C7D", "6A82FB"]
-        case .night: return ["0F2027", "2C5364"]
-        }
-    }
 }
 
 struct HourlyForecast: Identifiable {
@@ -131,6 +124,7 @@ struct HourlyForecast: Identifiable {
     let pressure: Double
     let humidity: Int
     let visibility: Double
+    let windSpeed: Double
 }
 
 struct DailyForecast: Identifiable {
@@ -196,20 +190,6 @@ struct WeatherCodeInfo {
             return "cloud.bolt.rain.fill"
         default:
             return "questionmark.circle"
-        }
-    }
-
-    static func color(for code: Int) -> String {
-        switch code {
-        case 0, 1: return "FFD700"
-        case 2, 3: return "A0AEC0"
-        case 45, 48: return "CBD5E0"
-        case 51...57: return "63B3ED"
-        case 61...67: return "4299E1"
-        case 71...77: return "E2E8F0"
-        case 80...86: return "2B6CB0"
-        case 95, 96, 99: return "805AD5"
-        default: return "A0AEC0"
         }
     }
 }

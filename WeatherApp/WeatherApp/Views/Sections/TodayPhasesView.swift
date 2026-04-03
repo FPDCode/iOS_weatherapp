@@ -8,9 +8,17 @@ struct TodayPhasesView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionHeader(title: "Today's Forecast", icon: "clock.fill")
 
-            HStack(spacing: 10) {
-                ForEach(phases) { phase in
-                    PhaseCard(phase: phase, isDay: isDay)
+            if phases.isEmpty {
+                Text("No forecast data available")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 20)
+            } else {
+                HStack(spacing: 10) {
+                    ForEach(phases) { phase in
+                        PhaseCard(phase: phase, isDay: isDay)
+                    }
                 }
             }
         }
@@ -41,6 +49,7 @@ struct PhaseCard: View {
             Image(systemName: WeatherCodeInfo.sfSymbol(for: phase.weatherCode, isDay: phase.phase != .night))
                 .font(.title2)
                 .symbolRenderingMode(.multicolor)
+                .accessibilityLabel(WeatherCodeInfo.description(for: phase.weatherCode))
 
             Text(WeatherFormatters.temperature(phase.temperature))
                 .font(.title3)
@@ -65,6 +74,17 @@ struct PhaseCard: View {
                             .font(.caption2)
                             .foregroundStyle(.blue)
                     }
+                }
+
+                if let wind = phase.windSpeed {
+                    Label {
+                        Text(WeatherFormatters.windSpeed(wind))
+                            .font(.caption2)
+                    } icon: {
+                        Image(systemName: "wind")
+                            .font(.caption2)
+                    }
+                    .foregroundStyle(.secondary)
                 }
             }
         }

@@ -3,26 +3,69 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var locationService: LocationService
     @EnvironmentObject var weatherViewModel: WeatherViewModel
-    @State private var showRefreshHint = false
+    @AppStorage("temperatureUnit") var temperatureUnit: String = TemperatureUnit.fahrenheit.rawValue
+    @State private var showSettings = false
+    @State private var showSearch = false
 
     var body: some View {
-        ZStack {
-            // Dynamic background
-            BackgroundGradient.forTimeOfDay(
-                isDay: weatherViewModel.isDay,
-                weatherCode: weatherViewModel.currentWeatherCode
-            )
-            .ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                // Dynamic background
+                BackgroundGradient.forTimeOfDay(
+                    isDay: weatherViewModel.isDay,
+                    weatherCode: weatherViewModel.currentWeatherCode
+                )
+                .ignoresSafeArea()
 
-            if weatherViewModel.isLoading {
-                loadingView
-            } else if let error = weatherViewModel.errorMessage {
-                errorView(error)
-            } else {
-                mainContent
+                if weatherViewModel.isLoading {
+                    loadingView
+                        .transition(.opacity)
+                } else if let error = weatherViewModel.errorMessage {
+                    errorView(error)
+                        .transition(.opacity)
+                } else {
+                    mainContent
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.4), value: weatherViewModel.isLoading)
+            .animation(.easeInOut(duration: 0.4), value: weatherViewModel.errorMessage)
+            .preferredColorScheme(.dark)
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        showSearch = true
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                    .accessibilityLabel("Search location")
+
+                    Button {
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                    .accessibilityLabel("Settings")
+                }
+            }
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .sheet(isPresented: $showSettings) {
+                SettingsSheet()
+            }
+            .sheet(isPresented: $showSearch) {
+                CitySearchSheet()
+                    .environmentObject(locationService)
+                    .environmentObject(weatherViewModel)
+            }
+            .onChange(of: temperatureUnit) { _, _ in
+                if let lat = locationService.latitude,
+                   let lon = locationService.longitude {
+                    Task {
+                        await weatherViewModel.fetchWeather(latitude: lat, longitude: lon)
+                    }
+                }
             }
         }
-        .preferredColorScheme(.dark)
     }
 
     // MARK: - Main Content
@@ -30,7 +73,6 @@ struct ContentView: View {
     private var mainContent: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
-                // Current weather header
                 CurrentWeatherHeader(
                     cityName: locationService.cityName,
                     temperature: weatherViewModel.currentTemp,
@@ -40,10 +82,10 @@ struct ContentView: View {
                     weatherCode: weatherViewModel.currentWeatherCode,
                     isDay: weatherViewModel.isDay,
                     sunrise: weatherViewModel.sunrise,
-                    sunset: weatherViewModel.sunset
+                    sunset: weatherViewModel.sunset,
+                    lastUpdated: weatherViewModel.lastUpdated
                 )
 
-                // Today's phases
                 GlassCard {
                     TodayPhasesView(
                         phases: weatherViewModel.todayPhases,
@@ -51,21 +93,18 @@ struct ContentView: View {
                     )
                 }
 
-                // 48-hour forecast
                 GlassCard {
                     HourlyForecastView(
                         forecasts: weatherViewModel.hourlyForecasts
                     )
                 }
 
-                // 10-day forecast
                 GlassCard {
                     DailyForecastView(
                         forecasts: weatherViewModel.dailyForecasts
                     )
                 }
 
-                // Attribution
                 Text("Data from Open-Meteo.com")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -86,9 +125,10 @@ struct ContentView: View {
 
     private var loadingView: some View {
         VStack(spacing: 20) {
-            ProgressView()
-                .scaleEffect(1.5)
-                .tint(.white)
+            Image(systemName: "cloud.sun.rain.fill")
+                .font(.system(size: 50))
+                .symbolRenderingMode(.multicolor)
+                .symbolEffect(.pulse)
             Text("Fetching weather...")
                 .font(.headline)
                 .foregroundStyle(.secondary)
