@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "ios-26-platform": {
+      "source": "johnrogers/claude-swift-engineering",
+      "sourceType": "github",
+      "computedHash": "b412dae43dd70da1617b500a1f510f2ea4e7cf6d50218a20229660631c91057d"
+    }
+  }
+}
