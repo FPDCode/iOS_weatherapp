@@ -5,6 +5,7 @@ struct DayDetailSheet: View {
     @Binding var selectedDate: Date
     let forecasts: [DailyForecast]
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedActivity: OutdoorActivity = .running
 
     private var selectedForecast: DailyForecast? {
         let calendar = Calendar.current
@@ -13,6 +14,24 @@ struct DayDetailSheet: View {
 
     private var hourlyData: [HourlyForecast] {
         weatherViewModel.hourlyForDate(selectedDate)
+    }
+
+    private var activityWindows: [ScoredActivityWindow] {
+        guard !hourlyData.isEmpty else { return [] }
+        // Create 2-hour slots from 6am to 10pm
+        let calendar = Calendar.current
+        let dayStart = calendar.startOfDay(for: selectedDate)
+        var slots: [FreeTimeSlot] = []
+        for h in stride(from: 6, to: 22, by: 1) {
+            guard let start = calendar.date(byAdding: .hour, value: h, to: dayStart),
+                  let end = calendar.date(byAdding: .hour, value: h + 2, to: dayStart) else { continue }
+            slots.append(FreeTimeSlot(start: start, end: end, source: .default))
+        }
+        return ActivityScorer.scoreActivities(
+            slots: slots,
+            hourlyForecasts: hourlyData,
+            activities: [selectedActivity]
+        )
     }
 
     var body: some View {
@@ -63,6 +82,16 @@ struct DayDetailSheet: View {
                             if !hourlyData.isEmpty {
                                 GlassCard {
                                     ConditionsGridSection(hourly: hourlyData)
+                                }
+                            }
+
+                            // Best time for activities
+                            if !hourlyData.isEmpty {
+                                GlassCard {
+                                    DayActivitySection(
+                                        selectedActivity: $selectedActivity,
+                                        windows: activityWindows
+                                    )
                                 }
                             }
                         } else {
@@ -457,5 +486,163 @@ struct StatBox: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Day Activity Section
+
+struct DayActivitySection: View {
+    @Binding var selectedActivity: OutdoorActivity
+    let windows: [ScoredActivityWindow]
+
+    private var bestWindow: ScoredActivityWindow? {
+        windows.first
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeader(title: "Best Time For Activities", icon: "figure.run")
+
+            // Activity picker
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(OutdoorActivity.allCases) { activity in
+                        HStack(spacing: 4) {
+                            Image(systemName: activity.icon)
+                                .font(.caption2)
+                            Text(activity.rawValue)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule()
+                                .fill(selectedActivity == activity ? .white.opacity(0.25) : .white.opacity(0.08))
+                        )
+                        .overlay(
+                            Capsule()
+                                .stroke(.white.opacity(selectedActivity == activity ? 0.4 : 0.1), lineWidth: 1)
+                        )
+                        .onTapGesture {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                selectedActivity = activity
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Best pick highlight
+            if let best = bestWindow, best.score >= 40 {
+                HStack(spacing: 10) {
+                    Image(systemName: "star.fill")
+                        .font(.body)
+                        .foregroundStyle(.yellow)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Best: \(WeatherFormatters.shortTime(best.slot.start)) – \(WeatherFormatters.shortTime(best.slot.end))")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+
+                        HStack(spacing: 6) {
+                            Text(best.rating.rawValue)
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundStyle(Color(hex: best.rating.color))
+                            Text("Score: \(Int(best.score))")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    Spacer()
+
+                    // Weather at that time
+                    VStack(spacing: 2) {
+                        Image(systemName: WeatherCodeInfo.sfSymbol(for: best.weatherCode))
+                            .symbolRenderingMode(.multicolor)
+                        Text(WeatherFormatters.temperature(best.avgTemp))
+                            .font(.caption)
+                            .fontWeight(.medium)
+                    }
+                }
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(.yellow.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(.yellow.opacity(0.15), lineWidth: 1)
+                        )
+                )
+            }
+
+            // All windows ranked
+            if windows.isEmpty {
+                Text("No suitable windows for \(selectedActivity.rawValue.lowercased()) this day")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 8)
+            } else {
+                ForEach(windows.prefix(5)) { window in
+                    DayActivityRow(window: window)
+                }
+            }
+        }
+    }
+}
+
+struct DayActivityRow: View {
+    let window: ScoredActivityWindow
+
+    var body: some View {
+        HStack(spacing: 10) {
+            // Score circle
+            ZStack {
+                Circle()
+                    .fill(Color(hex: window.rating.color).opacity(0.15))
+                    .frame(width: 36, height: 36)
+                Text("\(Int(window.score))")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Color(hex: window.rating.color))
+            }
+
+            // Time + weather
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(WeatherFormatters.shortTime(window.slot.start)) – \(WeatherFormatters.shortTime(window.slot.end))")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+
+                HStack(spacing: 6) {
+                    Image(systemName: WeatherCodeInfo.sfSymbol(for: window.weatherCode))
+                        .font(.caption2)
+                        .symbolRenderingMode(.multicolor)
+                    Text(WeatherFormatters.temperature(window.avgTemp))
+                        .font(.caption)
+                    if window.maxPrecipChance > 5 {
+                        Label("\(window.maxPrecipChance)%", systemImage: "drop.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.blue)
+                    }
+                    Label(WeatherFormatters.windSpeed(window.avgWind), systemImage: "wind")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Spacer()
+
+            // Top reason
+            if let reason = window.reasons.first {
+                Text(reason)
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.trailing)
+                    .frame(maxWidth: 90)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
