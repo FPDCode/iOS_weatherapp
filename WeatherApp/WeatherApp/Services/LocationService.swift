@@ -44,7 +44,11 @@ class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
         guard let location = locations.first else { return }
         latitude = location.coordinate.latitude
         longitude = location.coordinate.longitude
-        reverseGeocode(location: location)
+        reverseGeocode(location: location) { [weak self] name in
+            // Update the "Current Location" entry in the store
+            guard let self, let lat = self.latitude, let lon = self.longitude else { return }
+            LocationStore.shared.updateCurrentLocation(latitude: lat, longitude: lon, name: name)
+        }
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -70,13 +74,13 @@ class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
         self.cityName = cityName
     }
 
-    private func reverseGeocode(location: CLLocation) {
+    private func reverseGeocode(location: CLLocation, completion: ((String) -> Void)? = nil) {
         let geocoder = CLGeocoder()
         geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, _ in
             Task { @MainActor in
-                if let placemark = placemarks?.first {
-                    self?.cityName = placemark.locality ?? placemark.administrativeArea ?? "Unknown"
-                }
+                let name = placemarks?.first?.locality ?? placemarks?.first?.administrativeArea ?? "Unknown"
+                self?.cityName = name
+                completion?(name)
             }
         }
     }

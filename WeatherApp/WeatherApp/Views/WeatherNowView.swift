@@ -3,7 +3,9 @@ import SwiftUI
 struct WeatherNowView: View {
     @EnvironmentObject var locationService: LocationService
     @EnvironmentObject var weatherViewModel: WeatherViewModel
+    @ObservedObject var locationStore = LocationStore.shared
     @State private var showSearch = false
+    @State private var showLocationPicker = false
 
     var body: some View {
         NavigationStack {
@@ -29,13 +31,41 @@ struct WeatherNowView: View {
             .animation(.easeInOut(duration: 0.4), value: weatherViewModel.errorMessage)
             .preferredColorScheme(.dark)
             .toolbar {
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    // Location switcher
+                    if locationStore.savedLocations.count > 1 {
+                        Menu {
+                            ForEach(locationStore.savedLocations) { location in
+                                Button {
+                                    switchLocation(location)
+                                } label: {
+                                    Label(
+                                        location.name,
+                                        systemImage: location.isCurrentLocation ? "location.fill" : "mappin.circle.fill"
+                                    )
+                                    if location.id == locationStore.activeLocationId {
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: locationStore.isUsingCurrentLocation ? "location.fill" : "mappin.circle.fill")
+                                    .font(.caption)
+                                Image(systemName: "chevron.down")
+                                    .font(.system(size: 8, weight: .bold))
+                            }
+                        }
+                        .accessibilityLabel("Switch location")
+                    }
+                }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
                         showSearch = true
                     } label: {
-                        Image(systemName: "magnifyingglass")
+                        Image(systemName: "plus.circle")
                     }
-                    .accessibilityLabel("Search location")
+                    .accessibilityLabel("Add location")
                 }
             }
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -44,6 +74,20 @@ struct WeatherNowView: View {
                     .environmentObject(locationService)
                     .environmentObject(weatherViewModel)
             }
+        }
+    }
+
+    private func switchLocation(_ location: SavedLocation) {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        locationStore.switchTo(location)
+        if location.isCurrentLocation {
+            locationService.requestLocation()
+        } else {
+            locationService.setManualLocation(
+                latitude: location.latitude,
+                longitude: location.longitude,
+                cityName: location.name
+            )
         }
     }
 
