@@ -404,7 +404,7 @@ class WeatherViewModel: ObservableObject {
 
             let speed = hourly.windSpeed10m?[safe: i] ?? current?.windspeed ?? 0
             let gusts = hourly.windGusts10m?[safe: i] ?? speed
-            let direction = hourly.windDirection10m?[safe: i] ?? Int(current?.winddirection ?? 0)
+            let direction = Int(hourly.windDirection10m?[safe: i] ?? current?.winddirection ?? 0)
 
             let speedMph = UnitSettings.shared.toMph(speed)
             let beaufort = BeaufortScale.from(speedMph: speedMph)
