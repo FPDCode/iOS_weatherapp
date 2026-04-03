@@ -23,6 +23,11 @@
 		A10014 /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10015 /* SettingsSheet.swift */; };
 		A10015 /* CitySearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10016 /* CitySearchService.swift */; };
 		A10016 /* CitySearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10017 /* CitySearchSheet.swift */; };
+		A10017 /* WeatherNowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10018 /* WeatherNowView.swift */; };
+		A10018 /* PlanYourDayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10019 /* PlanYourDayView.swift */; };
+		A10019 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10020 /* CalendarService.swift */; };
+		A10020 /* ActivityScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10021 /* ActivityScorer.swift */; };
+		A10021 /* MorningBriefing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10022 /* MorningBriefing.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +49,11 @@
 		B10015 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
 		B10016 /* CitySearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchService.swift; sourceTree = "<group>"; };
 		B10017 /* CitySearchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchSheet.swift; sourceTree = "<group>"; };
+		B10018 /* WeatherNowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherNowView.swift; sourceTree = "<group>"; };
+		B10019 /* PlanYourDayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanYourDayView.swift; sourceTree = "<group>"; };
+		B10020 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
+		B10021 /* ActivityScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityScorer.swift; sourceTree = "<group>"; };
+		B10022 /* MorningBriefing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningBriefing.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				B10004 /* WeatherModels.swift */,
+			B10022 /* MorningBriefing.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -100,6 +111,7 @@
 		E10005 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B10018 /* WeatherNowView.swift */,
 				E10006 /* Components */,
 				E10010 /* Sections */,
 			);
@@ -123,6 +135,7 @@
 				B10011 /* TodayPhasesView.swift */,
 				B10012 /* HourlyForecastView.swift */,
 				B10013 /* DailyForecastView.swift */,
+			B10019 /* PlanYourDayView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -133,6 +146,8 @@
 				B10006 /* WeatherService.swift */,
 				B10007 /* LocationService.swift */,
 			B10016 /* CitySearchService.swift */,
+			B10020 /* CalendarService.swift */,
+			B10021 /* ActivityScorer.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -237,6 +252,11 @@
 			A10014 /* SettingsSheet.swift in Sources */,
 			A10015 /* CitySearchService.swift in Sources */,
 			A10016 /* CitySearchSheet.swift in Sources */,
+			A10017 /* WeatherNowView.swift in Sources */,
+			A10018 /* PlanYourDayView.swift in Sources */,
+			A10019 /* CalendarService.swift in Sources */,
+			A10020 /* ActivityScorer.swift in Sources */,
+			A10021 /* MorningBriefing.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,6 +393,7 @@
 				INFOPLIST_FILE = WeatherApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Weather;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Access your calendar to find the best weather windows in your free time for outdoor activities.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you local weather conditions.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -407,6 +428,7 @@
 				INFOPLIST_FILE = WeatherApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Weather;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Access your calendar to find the best weather windows in your free time for outdoor activities.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you local weather conditions.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
