@@ -65,6 +65,13 @@ struct WeatherNowView: View {
                     lastUpdated: weatherViewModel.lastUpdated
                 )
 
+                // Precipitation Timeline (next 2 hours)
+                if let precip = weatherViewModel.precipTimeline {
+                    GlassCard {
+                        PrecipTimelineView(timeline: precip)
+                    }
+                }
+
                 GlassCard {
                     TodayPhasesView(
                         phases: weatherViewModel.todayPhases,

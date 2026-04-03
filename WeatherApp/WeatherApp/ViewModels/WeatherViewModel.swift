@@ -28,6 +28,7 @@ class WeatherViewModel: ObservableObject {
     @Published var airQuality: AirQualityInfo?
     @Published var pressureInfo: PressureInfo?
     @Published var windInfo: WindInfo?
+    @Published var precipTimeline: PrecipitationTimeline?
 
     private let weatherService = WeatherService.shared
 
@@ -82,6 +83,10 @@ class WeatherViewModel: ObservableObject {
 
         if let daily = response.daily {
             processDailyData(daily)
+        }
+
+        if let minutely = response.minutely15 {
+            processMinutelyPrecip(minutely)
         }
 
         if let hourly = response.hourly {
@@ -244,6 +249,92 @@ class WeatherViewModel: ObservableObject {
         }
 
         todayPhases = phases
+    }
+
+    private func processMinutelyPrecip(_ minutely: Minutely15Data) {
+        let now = Date()
+        let calendar = Calendar.current
+
+        var slots: [PrecipSlot] = []
+
+        // minutely_15 uses same "yyyy-MM-dd'T'HH:mm" format
+        let count = min(minutely.time.count, minutely.precipitation.count)
+
+        for i in 0..<count {
+            guard let date = hourlyDateFormatter.date(from: minutely.time[i]) else { continue }
+
+            // Only include from now to +2 hours (8 slots of 15 min)
+            guard date >= calendar.date(byAdding: .minute, value: -15, to: now)! else { continue }
+            if slots.count >= 8 { break }
+
+            let precip = minutely.precipitation[i]
+            let rain = minutely.rain?[safe: i] ?? precip
+            let snow = minutely.snowfall?[safe: i] ?? 0
+
+            slots.append(PrecipSlot(
+                time: date,
+                precipitation: precip,
+                rain: rain,
+                snowfall: snow,
+                intensity: PrecipIntensity.from(mmPer15min: precip)
+            ))
+        }
+
+        guard !slots.isEmpty else {
+            precipTimeline = nil
+            return
+        }
+
+        let isCurrentlyRaining = slots.first.map { $0.precipitation >= 0.1 } ?? false
+        let maxIntensity = slots.map(\.precipitation).max() ?? 0
+
+        // Find next change: if raining, when does it stop? If dry, when does it start?
+        var nextChangeTime: Date?
+        var nextChangeLabel: String?
+
+        if isCurrentlyRaining {
+            // Find first dry slot
+            if let drySlot = slots.first(where: { $0.precipitation < 0.1 }) {
+                nextChangeTime = drySlot.time
+                let minutes = Int(drySlot.time.timeIntervalSince(now) / 60)
+                nextChangeLabel = "Stopping in \(minutes) min"
+            } else {
+                nextChangeLabel = "Rain for the next 2 hours"
+            }
+        } else {
+            // Find first wet slot
+            if let wetSlot = slots.first(where: { $0.precipitation >= 0.1 }) {
+                nextChangeTime = wetSlot.time
+                let minutes = Int(wetSlot.time.timeIntervalSince(now) / 60)
+                if minutes <= 0 {
+                    nextChangeLabel = "Rain starting now"
+                } else {
+                    nextChangeLabel = "Rain in \(minutes) min"
+                }
+            } else {
+                nextChangeLabel = "No rain for 2 hours"
+            }
+        }
+
+        // Build summary
+        let summary: String
+        if maxIntensity < 0.1 {
+            summary = "Clear skies — no precipitation expected in the next 2 hours"
+        } else {
+            let hasSnow = slots.contains { $0.snowfall > 0.1 }
+            let precipType = hasSnow ? "snow" : "rain"
+            let maxLevel = PrecipIntensity.from(mmPer15min: maxIntensity)
+            summary = "\(maxLevel.rawValue) \(precipType) expected"
+        }
+
+        precipTimeline = PrecipitationTimeline(
+            slots: slots,
+            summary: summary,
+            isRaining: isCurrentlyRaining,
+            nextChangeTime: nextChangeTime,
+            nextChangeLabel: nextChangeLabel,
+            maxIntensity: maxIntensity
+        )
     }
 
     private func processCurrentWind(_ hourly: HourlyData, current: CurrentWeather?) {

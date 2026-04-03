@@ -6,14 +6,23 @@ struct WeatherResponse: Codable {
     let latitude: Double
     let longitude: Double
     let currentWeather: CurrentWeather?
+    let minutely15: Minutely15Data?
     let hourly: HourlyData?
     let daily: DailyData?
 
     enum CodingKeys: String, CodingKey {
         case latitude, longitude
         case currentWeather = "current_weather"
+        case minutely15 = "minutely_15"
         case hourly, daily
     }
+}
+
+struct Minutely15Data: Codable {
+    let time: [String]
+    let precipitation: [Double]
+    let rain: [Double]?
+    let snowfall: [Double]?
 }
 
 struct CurrentWeather: Codable {
@@ -161,6 +170,52 @@ enum DayPhase: String, CaseIterable {
         case .afternoon: return 12...17
         case .evening: return 18...21
         case .night: return 22...29
+        }
+    }
+}
+
+// MARK: - Precipitation Timeline
+
+struct PrecipitationTimeline {
+    let slots: [PrecipSlot]
+    let summary: String
+    let isRaining: Bool
+    let nextChangeTime: Date?
+    let nextChangeLabel: String?
+    let maxIntensity: Double
+}
+
+struct PrecipSlot: Identifiable {
+    let id = UUID()
+    let time: Date
+    let precipitation: Double // total (rain + snow) in user's unit
+    let rain: Double
+    let snowfall: Double
+    let intensity: PrecipIntensity
+}
+
+enum PrecipIntensity: String {
+    case none = "None"
+    case light = "Light"
+    case moderate = "Moderate"
+    case heavy = "Heavy"
+
+    /// Threshold in mm (API always returns mm for minutely_15 regardless of unit param)
+    static func from(mmPer15min: Double) -> PrecipIntensity {
+        switch mmPer15min {
+        case ..<0.1: return .none
+        case 0.1..<0.5: return .light
+        case 0.5..<2.0: return .moderate
+        default: return .heavy
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .none: return "4A5568"
+        case .light: return "63B3ED"
+        case .moderate: return "4299E1"
+        case .heavy: return "2B6CB0"
         }
     }
 }
