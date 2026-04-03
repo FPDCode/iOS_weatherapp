@@ -63,20 +63,17 @@ class WeatherViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            async let weatherTask = weatherService.fetchWeather(latitude: latitude, longitude: longitude)
-            async let aqTask = weatherService.fetchAirQuality(latitude: latitude, longitude: longitude)
-            async let nwsTask = NWSAlertsService.shared.fetchAlerts(latitude: latitude, longitude: longitude)
-
-            let response = try await weatherTask
+            // Fetch weather first — this is critical
+            let response = try await weatherService.fetchWeather(latitude: latitude, longitude: longitude)
             processResponse(response)
 
             // Air quality is best-effort — don't fail if it errors
-            if let aqResponse = try? await aqTask {
+            if let aqResponse = try? await weatherService.fetchAirQuality(latitude: latitude, longitude: longitude) {
                 processAirQuality(aqResponse)
             }
 
             // NWS alerts — best-effort
-            if let alerts = try? await nwsTask {
+            if let alerts = try? await NWSAlertsService.shared.fetchAlerts(latitude: latitude, longitude: longitude) {
                 nwsAlerts = alerts
             }
 
