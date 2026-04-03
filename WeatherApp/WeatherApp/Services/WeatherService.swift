@@ -39,8 +39,14 @@ actor WeatherService {
             throw WeatherError.invalidResponse
         }
 
-        let decoder = JSONDecoder()
-        return try decoder.decode(WeatherResponse.self, from: data)
+        do {
+            let decoder = JSONDecoder()
+            return try decoder.decode(WeatherResponse.self, from: data)
+        } catch {
+            // Log the actual decoding error for debugging
+            print("WeatherService decode error: \(error)")
+            throw error
+        }
     }
 
     func fetchAirQuality(latitude: Double, longitude: Double) async throws -> AirQualityResponse {

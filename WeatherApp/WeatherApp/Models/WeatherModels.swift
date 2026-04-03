@@ -20,7 +20,7 @@ struct WeatherResponse: Codable {
 
 struct Minutely15Data: Codable {
     let time: [String]
-    let precipitation: [Double]
+    let precipitation: [Double]?
     let rain: [Double]?
     let snowfall: [Double]?
 }
@@ -42,23 +42,23 @@ struct CurrentWeather: Codable {
 
 struct HourlyData: Codable {
     let time: [String]
-    let temperature2m: [Double]
-    let apparentTemperature: [Double]
-    let precipitationProbability: [Int]
-    let precipitation: [Double]
-    let weatherCode: [Int]
+    let temperature2m: [Double]?
+    let apparentTemperature: [Double]?
+    let precipitationProbability: [Double]? // API may return as Double
+    let precipitation: [Double]?
+    let weatherCode: [Double]? // API returns as number, could be Double
     let surfacePressure: [Double]?
-    let relativeHumidity2m: [Int]
-    let visibility: [Double]
-    let windSpeed10m: [Double]
+    let relativeHumidity2m: [Double]? // API may return as Double
+    let visibility: [Double]?
+    let windSpeed10m: [Double]?
     let windGusts10m: [Double]?
-    let windDirection10m: [Int]?
+    let windDirection10m: [Double]? // API returns as number
     let uvIndex: [Double]?
     let dewPoint2m: [Double]?
-    let cloudCover: [Int]?
-    let cloudCoverLow: [Int]?
-    let cloudCoverMid: [Int]?
-    let cloudCoverHigh: [Int]?
+    let cloudCover: [Double]?
+    let cloudCoverLow: [Double]?
+    let cloudCoverMid: [Double]?
+    let cloudCoverHigh: [Double]?
     let shortwaveRadiation: [Double]?
     let cape: [Double]?
     let soilTemperature0cm: [Double]?
@@ -88,20 +88,30 @@ struct HourlyData: Codable {
         case soilTemperature0cm = "soil_temperature_0cm"
         case soilMoisture0to1cm = "soil_moisture_0_to_1cm"
     }
+
+    // MARK: - Safe accessors (convert Double arrays to Int where needed)
+    var weatherCodeInts: [Int] { weatherCode?.map { Int($0) } ?? [] }
+    var precipProbabilityInts: [Int] { precipitationProbability?.map { Int($0) } ?? [] }
+    var humidityInts: [Int] { relativeHumidity2m?.map { Int($0) } ?? [] }
+    var windDirectionInts: [Int] { windDirection10m?.map { Int($0) } ?? [] }
+    var cloudCoverInts: [Int] { cloudCover?.map { Int($0) } ?? [] }
+    var cloudCoverLowInts: [Int] { cloudCoverLow?.map { Int($0) } ?? [] }
+    var cloudCoverMidInts: [Int] { cloudCoverMid?.map { Int($0) } ?? [] }
+    var cloudCoverHighInts: [Int] { cloudCoverHigh?.map { Int($0) } ?? [] }
 }
 
 struct DailyData: Codable {
     let time: [String]
-    let weatherCode: [Int]
-    let temperature2mMax: [Double]
-    let temperature2mMin: [Double]
-    let precipitationProbabilityMax: [Int]
-    let sunrise: [String]
-    let sunset: [String]
+    let weatherCode: [Double]? // API returns numbers
+    let temperature2mMax: [Double]?
+    let temperature2mMin: [Double]?
+    let precipitationProbabilityMax: [Double]?
+    let sunrise: [String]?
+    let sunset: [String]?
     let uvIndexMax: [Double]?
     let windSpeed10mMax: [Double]?
     let windGusts10mMax: [Double]?
-    let windDirection10mDominant: [Int]?
+    let windDirection10mDominant: [Double]?
     let sunshineDuration: [Double]?
     let daylightDuration: [Double]?
     let precipitationSum: [Double]?
@@ -123,6 +133,15 @@ struct DailyData: Codable {
         case precipitationSum = "precipitation_sum"
         case precipitationHours = "precipitation_hours"
     }
+
+    // Safe accessors
+    var weatherCodeInts: [Int] { weatherCode?.map { Int($0) } ?? [] }
+    var precipProbMaxInts: [Int] { precipitationProbabilityMax?.map { Int($0) } ?? [] }
+    var windDirDominantInts: [Int] { windDirection10mDominant?.map { Int($0) } ?? [] }
+    var sunriseStrings: [String] { sunrise ?? [] }
+    var sunsetStrings: [String] { sunset ?? [] }
+    var tempMaxValues: [Double] { temperature2mMax ?? [] }
+    var tempMinValues: [Double] { temperature2mMin ?? [] }
 }
 
 // MARK: - Open-Meteo Air Quality API Response
@@ -214,7 +233,7 @@ struct PrecipitationTimeline {
 struct PrecipSlot: Identifiable {
     let id = UUID()
     let time: Date
-    let precipitation: Double // total (rain + snow) in user's unit
+    let precipitation: Double
     let rain: Double
     let snowfall: Double
     let intensity: PrecipIntensity
@@ -226,7 +245,6 @@ enum PrecipIntensity: String {
     case moderate = "Moderate"
     case heavy = "Heavy"
 
-    /// Threshold in mm (API always returns mm for minutely_15 regardless of unit param)
     static func from(mmPer15min: Double) -> PrecipIntensity {
         switch mmPer15min {
         case ..<0.1: return .none
@@ -251,7 +269,7 @@ enum PrecipIntensity: String {
 struct WindInfo {
     let speed: Double
     let gusts: Double
-    let direction: Int // degrees
+    let direction: Int
     let beaufort: BeaufortScale
 
     var compassDirection: String {
@@ -266,21 +284,11 @@ struct WindInfo {
     }
 }
 
-/// Beaufort Wind Scale (thresholds in mph)
 enum BeaufortScale: Int, CaseIterable {
-    case calm = 0
-    case lightAir = 1
-    case lightBreeze = 2
-    case gentleBreeze = 3
-    case moderateBreeze = 4
-    case freshBreeze = 5
-    case strongBreeze = 6
-    case nearGale = 7
-    case gale = 8
-    case strongGale = 9
-    case storm = 10
-    case violentStorm = 11
-    case hurricane = 12
+    case calm = 0, lightAir = 1, lightBreeze = 2, gentleBreeze = 3
+    case moderateBreeze = 4, freshBreeze = 5, strongBreeze = 6
+    case nearGale = 7, gale = 8, strongGale = 9
+    case storm = 10, violentStorm = 11, hurricane = 12
 
     var name: String {
         switch self {
@@ -320,17 +328,12 @@ enum BeaufortScale: Int, CaseIterable {
 
     var icon: String {
         switch self {
-        case .calm: return "wind"
-        case .lightAir, .lightBreeze: return "wind"
-        case .gentleBreeze, .moderateBreeze: return "wind"
-        case .freshBreeze, .strongBreeze: return "wind"
-        case .nearGale, .gale: return "wind"
+        case .calm, .lightAir, .lightBreeze, .gentleBreeze, .moderateBreeze, .freshBreeze, .strongBreeze, .nearGale, .gale: return "wind"
         case .strongGale, .storm: return "tropicalstorm"
         case .violentStorm, .hurricane: return "hurricane"
         }
     }
 
-    /// Classify wind speed. Input is in the user's chosen unit — normalize to mph first.
     static func from(speedMph: Double) -> BeaufortScale {
         switch speedMph {
         case ..<1: return .calm
@@ -353,10 +356,10 @@ enum BeaufortScale: Int, CaseIterable {
 // MARK: - Pressure Trend
 
 struct PressureInfo {
-    let currentPressure: Double // hPa from API
+    let currentPressure: Double
     let pressureIn10h: Double
     let trend: PressureTrend
-    let hourlyReadings: [(date: Date, pressure: Double)] // for mini chart
+    let hourlyReadings: [(date: Date, pressure: Double)]
 }
 
 enum PressureTrend: String {
@@ -378,16 +381,14 @@ enum PressureTrend: String {
 
     var color: String {
         switch self {
-        case .risingFast: return "60A5FA"   // blue
-        case .rising: return "34D399"       // green
-        case .stable: return "A0AEC0"       // gray
-        case .falling: return "FBBF24"      // yellow
-        case .fallingFast: return "F87171"  // red
+        case .risingFast: return "60A5FA"
+        case .rising: return "34D399"
+        case .stable: return "A0AEC0"
+        case .falling: return "FBBF24"
+        case .fallingFast: return "F87171"
         }
     }
 
-    /// Classify based on hPa change over 10 hours
-    /// Meteorological convention: >6 hPa/10h = fast, 2-6 = gradual, <2 = stable
     static func from(change: Double) -> PressureTrend {
         switch change {
         case 6...: return .risingFast
@@ -422,8 +423,8 @@ struct DailyForecast: Identifiable {
     let tempLow: Double
     let precipChance: Int
     let uvIndexMax: Double
-    let sunshineDuration: Double // seconds
-    let daylightDuration: Double // seconds
+    let sunshineDuration: Double
+    let daylightDuration: Double
     let precipSum: Double
     let precipHours: Double
     let windSpeedMax: Double
@@ -465,9 +466,7 @@ enum AQILevel: String {
         case .good: return "aqi.low"
         case .fair: return "aqi.medium"
         case .moderate: return "aqi.medium"
-        case .poor: return "aqi.high"
-        case .veryPoor: return "aqi.high"
-        case .hazardous: return "aqi.high"
+        case .poor, .veryPoor, .hazardous: return "aqi.high"
         }
     }
 
@@ -494,15 +493,9 @@ struct PollenSummary {
 }
 
 enum PollenLevel: Int, Comparable {
-    case none = 0
-    case low = 1
-    case moderate = 2
-    case high = 3
-    case veryHigh = 4
+    case none = 0, low = 1, moderate = 2, high = 3, veryHigh = 4
 
-    static func < (lhs: PollenLevel, rhs: PollenLevel) -> Bool {
-        lhs.rawValue < rhs.rawValue
-    }
+    static func < (lhs: PollenLevel, rhs: PollenLevel) -> Bool { lhs.rawValue < rhs.rawValue }
 
     var label: String {
         switch self {
@@ -524,7 +517,6 @@ enum PollenLevel: Int, Comparable {
         }
     }
 
-    /// Grains/m³ thresholds (approximate, varies by species)
     static func from(grainsPerM3: Double) -> PollenLevel {
         switch grainsPerM3 {
         case ..<1: return .none
@@ -535,8 +527,6 @@ enum PollenLevel: Int, Comparable {
         }
     }
 }
-
-// MARK: - Comfort Index
 
 struct ComfortInfo {
     let dewPoint: Double
@@ -575,7 +565,6 @@ enum ComfortLevel: String {
         }
     }
 
-    /// Based on dew point in Fahrenheit
     static func from(dewPointF: Double) -> ComfortLevel {
         switch dewPointF {
         case ..<40: return .dry
@@ -589,8 +578,6 @@ enum ComfortLevel: String {
     }
 }
 
-// MARK: - Cloud Cover
-
 struct CloudCoverInfo {
     let total: Int
     let low: Int
@@ -599,39 +586,33 @@ struct CloudCoverInfo {
     let hourlyReadings: [(date: Date, total: Int, low: Int, mid: Int, high: Int)]
 }
 
-// MARK: - Sunshine Planner
-
 struct SunshineSlot: Identifiable {
     let id = UUID()
     let time: Date
     let cloudCover: Int
     let radiation: Double
-    let isSunny: Bool // cloud cover < 40%
+    let isSunny: Bool
 }
 
 struct SunshinePlan {
-    let todaySunshineDuration: Double // seconds
-    let todayDaylightDuration: Double // seconds
+    let todaySunshineDuration: Double
+    let todayDaylightDuration: Double
     let sunshinePercent: Double
     let slots: [SunshineSlot]
     let bestWindow: (start: Date, end: Date)?
     let summary: String
 }
 
-// MARK: - Soil / Gardening
-
 struct GardeningInfo {
     let soilTemp: Double
-    let soilMoisture: Double // volumetric %
+    let soilMoisture: Double
     let frostRisk: Bool
     let wateringAdvice: String
     let plantingAdvice: String
 }
 
-// MARK: - Storm Risk
-
 struct StormRiskInfo {
-    let cape: Double // J/kg
+    let cape: Double
     let level: StormRiskLevel
 }
 
@@ -661,7 +642,6 @@ enum StormRiskLevel: String {
         }
     }
 
-    /// CAPE thresholds in J/kg
     static func from(cape: Double) -> StormRiskLevel {
         switch cape {
         case ..<300: return .none
@@ -699,34 +679,20 @@ struct WeatherCodeInfo {
 
     static func sfSymbol(for code: Int, isDay: Bool = true) -> String {
         switch code {
-        case 0:
-            return isDay ? "sun.max.fill" : "moon.stars.fill"
-        case 1:
-            return isDay ? "sun.min.fill" : "moon.fill"
-        case 2:
-            return isDay ? "cloud.sun.fill" : "cloud.moon.fill"
-        case 3:
-            return "cloud.fill"
-        case 45, 48:
-            return "cloud.fog.fill"
-        case 51, 53, 55:
-            return "cloud.drizzle.fill"
-        case 56, 57:
-            return "cloud.sleet.fill"
-        case 61, 63, 65:
-            return "cloud.rain.fill"
-        case 66, 67:
-            return "cloud.sleet.fill"
-        case 71, 73, 75, 77:
-            return "cloud.snow.fill"
-        case 80, 81, 82:
-            return "cloud.heavyrain.fill"
-        case 85, 86:
-            return "cloud.snow.fill"
-        case 95, 96, 99:
-            return "cloud.bolt.rain.fill"
-        default:
-            return "questionmark.circle"
+        case 0: return isDay ? "sun.max.fill" : "moon.stars.fill"
+        case 1: return isDay ? "sun.min.fill" : "moon.fill"
+        case 2: return isDay ? "cloud.sun.fill" : "cloud.moon.fill"
+        case 3: return "cloud.fill"
+        case 45, 48: return "cloud.fog.fill"
+        case 51, 53, 55: return "cloud.drizzle.fill"
+        case 56, 57: return "cloud.sleet.fill"
+        case 61, 63, 65: return "cloud.rain.fill"
+        case 66, 67: return "cloud.sleet.fill"
+        case 71, 73, 75, 77: return "cloud.snow.fill"
+        case 80, 81, 82: return "cloud.heavyrain.fill"
+        case 85, 86: return "cloud.snow.fill"
+        case 95, 96, 99: return "cloud.bolt.rain.fill"
+        default: return "questionmark.circle"
         }
     }
 }

@@ -134,10 +134,10 @@ class WeatherViewModel: ObservableObject {
         var forecasts: [DailyForecast] = []
         let count = min(
             daily.time.count,
-            daily.weatherCode.count,
-            daily.temperature2mMax.count,
-            daily.temperature2mMin.count,
-            daily.precipitationProbabilityMax.count,
+            daily.weatherCodeInts.count,
+            daily.tempMaxValues.count,
+            daily.tempMinValues.count,
+            daily.precipProbMaxInts.count,
             10
         )
 
@@ -145,10 +145,10 @@ class WeatherViewModel: ObservableObject {
             if let date = dailyDateFormatter.date(from: daily.time[i]) {
                 forecasts.append(DailyForecast(
                     date: date,
-                    weatherCode: daily.weatherCode[i],
-                    tempHigh: daily.temperature2mMax[i],
-                    tempLow: daily.temperature2mMin[i],
-                    precipChance: daily.precipitationProbabilityMax[i],
+                    weatherCode: daily.weatherCodeInts[i],
+                    tempHigh: daily.tempMaxValues[i],
+                    tempLow: daily.tempMinValues[i],
+                    precipChance: daily.precipProbMaxInts[i],
                     uvIndexMax: daily.uvIndexMax?[safe: i] ?? 0,
                     sunshineDuration: daily.sunshineDuration?[safe: i] ?? 0,
                     daylightDuration: daily.daylightDuration?[safe: i] ?? 0,
@@ -156,18 +156,18 @@ class WeatherViewModel: ObservableObject {
                     precipHours: daily.precipitationHours?[safe: i] ?? 0,
                     windSpeedMax: daily.windSpeed10mMax?[safe: i] ?? 0,
                     windGustsMax: daily.windGusts10mMax?[safe: i] ?? 0,
-                    windDirectionDominant: daily.windDirection10mDominant?[safe: i] ?? 0,
-                    sunrise: i < daily.sunrise.count ? daily.sunrise[i] : "",
-                    sunset: i < daily.sunset.count ? daily.sunset[i] : ""
+                    windDirectionDominant: daily.windDirDominantInts[safe: i] ?? 0,
+                    sunrise: i < daily.sunriseStrings.count ? daily.sunriseStrings[i] : "",
+                    sunset: i < daily.sunsetStrings.count ? daily.sunsetStrings[i] : ""
                 ))
             }
         }
 
         dailyForecasts = forecasts
 
-        if !daily.temperature2mMax.isEmpty {
-            todayHigh = daily.temperature2mMax[0]
-            todayLow = daily.temperature2mMin[0]
+        if !daily.tempMaxValues.isEmpty {
+            todayHigh = daily.tempMaxValues[0]
+            todayLow = daily.tempMinValues[0]
         }
 
         if let uv = daily.uvIndexMax?.first {
@@ -181,16 +181,15 @@ class WeatherViewModel: ObservableObject {
             todayPrecipHours = precipH
         }
 
-        if !daily.sunrise.isEmpty {
-            sunrise = formatTimeFromAPI(daily.sunrise[0])
-            sunset = formatTimeFromAPI(daily.sunset[0])
-            sunriseDate = hourlyDateFormatter.date(from: daily.sunrise[0])
-            sunsetDate = hourlyDateFormatter.date(from: daily.sunset[0])
+        if !daily.sunriseStrings.isEmpty {
+            sunrise = formatTimeFromAPI(daily.sunriseStrings[0])
+            sunset = formatTimeFromAPI(daily.sunsetStrings[0])
+            sunriseDate = hourlyDateFormatter.date(from: daily.sunriseStrings[0])
+            sunsetDate = hourlyDateFormatter.date(from: daily.sunsetStrings[0])
 
-            // Tomorrow's sunrise/sunset for "next sunrise" at night
-            if daily.sunrise.count > 1 {
-                tomorrowSunriseDate = hourlyDateFormatter.date(from: daily.sunrise[1])
-                tomorrowSunsetDate = hourlyDateFormatter.date(from: daily.sunset[1])
+            if daily.sunriseStrings.count > 1 {
+                tomorrowSunriseDate = hourlyDateFormatter.date(from: daily.sunriseStrings[1])
+                tomorrowSunsetDate = hourlyDateFormatter.date(from: daily.sunsetStrings[1])
             }
         }
     }
@@ -200,16 +199,18 @@ class WeatherViewModel: ObservableObject {
         let now = Date()
         let calendar = Calendar.current
 
+        let temps = hourly.temperature2m ?? []
+        let feels = hourly.apparentTemperature ?? []
+        let precProb = hourly.precipProbabilityInts
+        let prec = hourly.precipitation ?? []
+        let codes = hourly.weatherCodeInts
+        let humid = hourly.humidityInts
+        let vis = hourly.visibility ?? []
+        let wind = hourly.windSpeed10m ?? []
+
         let safeCount = min(
-            hourly.time.count,
-            hourly.temperature2m.count,
-            hourly.apparentTemperature.count,
-            hourly.precipitationProbability.count,
-            hourly.precipitation.count,
-            hourly.weatherCode.count,
-            hourly.relativeHumidity2m.count,
-            hourly.visibility.count,
-            hourly.windSpeed10m.count
+            hourly.time.count, temps.count, feels.count, precProb.count,
+            prec.count, codes.count, humid.count, vis.count, wind.count
         )
 
         for i in 0..<safeCount {
@@ -221,15 +222,15 @@ class WeatherViewModel: ObservableObject {
 
             forecasts.append(HourlyForecast(
                 time: date,
-                temperature: hourly.temperature2m[i],
-                feelsLike: hourly.apparentTemperature[i],
-                precipChance: hourly.precipitationProbability[i],
-                precipAmount: hourly.precipitation[i],
-                weatherCode: hourly.weatherCode[i],
+                temperature: temps[i],
+                feelsLike: feels[i],
+                precipChance: precProb[i],
+                precipAmount: prec[i],
+                weatherCode: codes[i],
                 pressure: hourly.surfacePressure?[safe: i] ?? 0,
-                humidity: hourly.relativeHumidity2m[i],
-                visibility: hourly.visibility[i],
-                windSpeed: hourly.windSpeed10m[i],
+                humidity: humid[i],
+                visibility: vis[i],
+                windSpeed: wind[i],
                 uvIndex: hourly.uvIndex?[safe: i] ?? 0
             ))
         }
@@ -263,12 +264,18 @@ class WeatherViewModel: ObservableObject {
                 for i in 0..<hourly.time.count {
                     if let date = hourlyDateFormatter.date(from: hourly.time[i]),
                        calendar.isDate(date, equalTo: targetHour, toGranularity: .hour) {
-                        if i < hourly.temperature2m.count { temps.append(hourly.temperature2m[i]) }
-                        if i < hourly.apparentTemperature.count { feels.append(hourly.apparentTemperature[i]) }
-                        if i < hourly.precipitationProbability.count { precips.append(hourly.precipitationProbability[i]) }
-                        if i < hourly.relativeHumidity2m.count { humids.append(hourly.relativeHumidity2m[i]) }
-                        if i < hourly.weatherCode.count { codes.append(hourly.weatherCode[i]) }
-                        if i < hourly.windSpeed10m.count { winds.append(hourly.windSpeed10m[i]) }
+                        let t = hourly.temperature2m ?? []
+                        let f = hourly.apparentTemperature ?? []
+                        let pp = hourly.precipProbabilityInts
+                        let h = hourly.humidityInts
+                        let wc = hourly.weatherCodeInts
+                        let w = hourly.windSpeed10m ?? []
+                        if i < t.count { temps.append(t[i]) }
+                        if i < f.count { feels.append(f[i]) }
+                        if i < pp.count { precips.append(pp[i]) }
+                        if i < h.count { humids.append(h[i]) }
+                        if i < wc.count { codes.append(wc[i]) }
+                        if i < w.count { winds.append(w[i]) }
                         if let uvArr = hourly.uvIndex, i < uvArr.count { uvs.append(uvArr[i]) }
                         break
                     }
@@ -306,17 +313,17 @@ class WeatherViewModel: ObservableObject {
 
         var slots: [PrecipSlot] = []
 
-        // minutely_15 uses same "yyyy-MM-dd'T'HH:mm" format
-        let count = min(minutely.time.count, minutely.precipitation.count)
+        let precipArr = minutely.precipitation ?? []
+        let count = min(minutely.time.count, precipArr.count)
 
         for i in 0..<count {
             guard let date = hourlyDateFormatter.date(from: minutely.time[i]) else { continue }
 
-            // Only include from now to +2 hours (8 slots of 15 min)
-            guard date >= calendar.date(byAdding: .minute, value: -15, to: now)! else { continue }
+            guard let fifteenMinAgo = calendar.date(byAdding: .minute, value: -15, to: now),
+                  date >= fifteenMinAgo else { continue }
             if slots.count >= 8 { break }
 
-            let precip = minutely.precipitation[i]
+            let precip = precipArr[i]
             let rain = minutely.rain?[safe: i] ?? precip
             let snow = minutely.snowfall?[safe: i] ?? 0
 
@@ -395,7 +402,7 @@ class WeatherViewModel: ObservableObject {
             guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
             guard calendar.isDate(date, equalTo: now, toGranularity: .hour) else { continue }
 
-            let speed = hourly.windSpeed10m[safe: i] ?? current?.windspeed ?? 0
+            let speed = hourly.windSpeed10m?[safe: i] ?? current?.windspeed ?? 0
             let gusts = hourly.windGusts10m?[safe: i] ?? speed
             let direction = hourly.windDirection10m?[safe: i] ?? Int(current?.winddirection ?? 0)
 
@@ -555,7 +562,7 @@ class WeatherViewModel: ObservableObject {
 
             let dewPt = dewPoints[i]
             let dewPtF = UnitSettings.shared.toFahrenheit(dewPt)
-            let humidity = hourly.relativeHumidity2m[safe: i] ?? 0
+            let humidity = hourly.humidityInts[safe: i] ?? 0
 
             comfortInfo = ComfortInfo(
                 dewPoint: dewPt,
@@ -567,7 +574,8 @@ class WeatherViewModel: ObservableObject {
     }
 
     private func processCloudCover(_ hourly: HourlyData) {
-        guard let clouds = hourly.cloudCover else { cloudCoverInfo = nil; return }
+        let clouds = hourly.cloudCoverInts
+        guard !clouds.isEmpty else { cloudCoverInfo = nil; return }
         let now = Date()
         let calendar = Calendar.current
 
@@ -581,9 +589,9 @@ class WeatherViewModel: ObservableObject {
             if readings.count >= 24 { break }
 
             let total = clouds[safe: i] ?? 0
-            let low = hourly.cloudCoverLow?[safe: i] ?? 0
-            let mid = hourly.cloudCoverMid?[safe: i] ?? 0
-            let high = hourly.cloudCoverHigh?[safe: i] ?? 0
+            let low = hourly.cloudCoverLowInts[safe: i] ?? 0
+            let mid = hourly.cloudCoverMidInts[safe: i] ?? 0
+            let high = hourly.cloudCoverHighInts[safe: i] ?? 0
 
             if readings.isEmpty {
                 currentTotal = total
@@ -601,7 +609,8 @@ class WeatherViewModel: ObservableObject {
     }
 
     private func processSunshinePlan(_ hourly: HourlyData, daily: DailyData?) {
-        guard let clouds = hourly.cloudCover else { sunshinePlan = nil; return }
+        let clouds = hourly.cloudCoverInts
+        guard !clouds.isEmpty else { sunshinePlan = nil; return }
         let now = Date()
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: now)
