@@ -42,6 +42,8 @@
 		A10033 /* AlertsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10034 /* AlertsService.swift */; };
 		A10034 /* WeatherWarningsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10035 /* WeatherWarningsView.swift */; };
 		A10035 /* DayDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10036 /* DayDetailSheet.swift */; };
+		A10036 /* RadarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10037 /* RadarService.swift */; };
+		A10037 /* RadarMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10038 /* RadarMapView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +84,8 @@
 		B10034 /* AlertsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsService.swift; sourceTree = "<group>"; };
 		B10035 /* WeatherWarningsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWarningsView.swift; sourceTree = "<group>"; };
 		B10036 /* DayDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDetailSheet.swift; sourceTree = "<group>"; };
+		B10037 /* RadarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarService.swift; sourceTree = "<group>"; };
+		B10038 /* RadarMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarMapView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -177,6 +181,7 @@
 			B10032 /* CloudCoverView.swift */,
 			B10033 /* GardeningView.swift */,
 			B10035 /* WeatherWarningsView.swift */,
+			B10038 /* RadarMapView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -190,6 +195,7 @@
 			B10020 /* CalendarService.swift */,
 			B10021 /* ActivityScorer.swift */,
 			B10034 /* AlertsService.swift */,
+			B10037 /* RadarService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -313,6 +319,8 @@
 			A10033 /* AlertsService.swift in Sources */,
 			A10034 /* WeatherWarningsView.swift in Sources */,
 			A10035 /* DayDetailSheet.swift in Sources */,
+			A10036 /* RadarService.swift in Sources */,
+			A10037 /* RadarMapView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
