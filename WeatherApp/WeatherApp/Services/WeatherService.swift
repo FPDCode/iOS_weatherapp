@@ -32,19 +32,23 @@ actor WeatherService {
             throw WeatherError.invalidURL
         }
 
+        print("📡 Requesting: \(url.absoluteString.prefix(200))...")
+
         let (data, response) = try await URLSession.shared.data(from: url)
 
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+        let httpResponse = response as? HTTPURLResponse
+        print("📡 HTTP status: \(httpResponse?.statusCode ?? -1), data size: \(data.count) bytes")
+
+        guard httpResponse?.statusCode == 200 else {
+            if let body = String(data: data.prefix(500), encoding: .utf8) {
+                print("❌ API error body: \(body)")
+            }
             throw WeatherError.invalidResponse
         }
 
-        // Log the raw response for debugging
-        #if DEBUG
         if let raw = String(data: data.prefix(300), encoding: .utf8) {
-            print("📡 API response preview: \(raw)")
+            print("📡 Response preview: \(raw)")
         }
-        #endif
 
         let decoder = JSONDecoder()
         return try decoder.decode(WeatherResponse.self, from: data)

@@ -62,9 +62,11 @@ class WeatherViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
+        print("🌤️ Fetching weather for \(latitude), \(longitude)")
+
         do {
-            // Fetch weather first — this is critical
             let response = try await weatherService.fetchWeather(latitude: latitude, longitude: longitude)
+            print("✅ Weather response received — hourly: \((response.hourly?.time ?? []).count) hours, daily: \((response.daily?.time ?? []).count) days")
             processResponse(response)
 
             // Air quality is best-effort — don't fail if it errors
@@ -92,6 +94,7 @@ class WeatherViewModel: ObservableObject {
 
             lastUpdated = Date()
         } catch {
+            print("❌ Weather fetch failed: \(error)")
             errorMessage = error.localizedDescription
         }
 
