@@ -148,7 +148,14 @@ struct RadarTabView: View {
         }
         .preferredColorScheme(.dark)
         .task {
+            viewModel.userLatitude = locationService.latitude ?? 40.71
+            viewModel.userLongitude = locationService.longitude ?? -74.01
             await viewModel.loadFrames()
+        }
+        .onDisappear {
+            // Stop playback and free memory when leaving the tab
+            if viewModel.isPlaying { viewModel.togglePlayback() }
+            TileCache.shared.clearAll()
         }
     }
 
@@ -229,6 +236,9 @@ class RadarViewModel: ObservableObject {
     private var radarData: RadarData?
     private var playTimer: Timer?
     private let radarService = RadarService.shared
+    private let preloader = TilePreloader()
+    var userLatitude: Double = 40.71
+    var userLongitude: Double = -74.01
 
     var frameCount: Int { frames.count }
 
@@ -275,6 +285,9 @@ class RadarViewModel: ObservableObject {
 
     func switchMode(_ mode: RadarMapMode) {
         guard let data = radarData else { return }
+        // Clear tile cache when switching modes to free memory
+        TileCache.shared.clearAll()
+        Task { await preloader.cancelPreload() }
         switch mode {
         case .radar:
             frames = data.allRadarFrames
@@ -328,6 +341,15 @@ class RadarViewModel: ObservableObject {
 
     private func updateTileURL() {
         currentTileURL = currentFrame?.tileURL
+        // Preload adjacent frames for smooth animation
+        Task {
+            await preloader.preloadAround(
+                index: currentFrameIndex,
+                frames: frames,
+                centerLat: userLatitude,
+                centerLon: userLongitude
+            )
+        }
     }
 }
 
@@ -337,6 +359,11 @@ struct RadarMap: UIViewRepresentable {
     @ObservedObject var viewModel: RadarViewModel
     let latitude: Double
     let longitude: Double
+
+    static func dismantleUIView(_ mapView: MKMapView, coordinator: Coordinator) {
+        coordinator.cleanup(on: mapView)
+        TileCache.shared.clearAll()
+    }
 
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
@@ -370,21 +397,34 @@ struct RadarMap: UIViewRepresentable {
     }
 
     class Coordinator: NSObject, MKMapViewDelegate {
-        private var currentOverlay: MKTileOverlay?
+        private var currentOverlay: CachedTileOverlay?
+        private var currentURL: String?
 
         func updateOverlay(on mapView: MKMapView, tileURL: String) {
+            // Skip if same frame (avoids flicker during re-renders)
+            guard tileURL != currentURL else { return }
+            currentURL = tileURL
+
             // Remove existing overlay
             if let existing = currentOverlay {
                 mapView.removeOverlay(existing)
             }
 
-            // Add new tile overlay
-            let overlay = MKTileOverlay(urlTemplate: tileURL)
+            // Add new cached tile overlay
+            let overlay = CachedTileOverlay(urlTemplate: tileURL)
             overlay.canReplaceMapContent = false
             overlay.minimumZ = 1
             overlay.maximumZ = 12
             mapView.addOverlay(overlay, level: .aboveRoads)
             currentOverlay = overlay
+        }
+
+        func cleanup(on mapView: MKMapView) {
+            if let existing = currentOverlay {
+                mapView.removeOverlay(existing)
+            }
+            currentOverlay = nil
+            currentURL = nil
         }
 
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
