@@ -4,7 +4,6 @@ struct WeatherNowView: View {
     @EnvironmentObject var locationService: LocationService
     @EnvironmentObject var weatherViewModel: WeatherViewModel
     @ObservedObject var locationStore = LocationStore.shared
-    @State private var showSearch = false
     @State private var showLocationPicker = false
     var switchToRadar: (() -> Void)?
 
@@ -60,21 +59,8 @@ struct WeatherNowView: View {
                         .accessibilityLabel("Switch location")
                     }
                 }
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        showSearch = true
-                    } label: {
-                        Image(systemName: "plus.circle")
-                    }
-                    .accessibilityLabel("Add location")
-                }
             }
             .toolbarBackground(.hidden, for: .navigationBar)
-            .sheet(isPresented: $showSearch) {
-                CitySearchSheet()
-                    .environmentObject(locationService)
-                    .environmentObject(weatherViewModel)
-            }
         }
     }
 
