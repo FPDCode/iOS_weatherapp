@@ -21,12 +21,6 @@ class WeatherViewModel: ObservableObject {
     @Published var sunset: String = ""
     @Published var lastUpdated: Date?
 
-    @AppStorage("temperatureUnit") var temperatureUnit: String = TemperatureUnit.fahrenheit.rawValue
-
-    var selectedUnit: TemperatureUnit {
-        TemperatureUnit(rawValue: temperatureUnit) ?? .fahrenheit
-    }
-
     private let weatherService = WeatherService.shared
     private let isoFormatter: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
@@ -46,8 +40,7 @@ class WeatherViewModel: ObservableObject {
         do {
             let response = try await weatherService.fetchWeather(
                 latitude: latitude,
-                longitude: longitude,
-                temperatureUnit: selectedUnit.apiValue
+                longitude: longitude
             )
             processResponse(response)
             lastUpdated = Date()

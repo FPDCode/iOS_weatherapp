@@ -20,7 +20,7 @@
 		A10011 /* TodayPhasesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10011 /* TodayPhasesView.swift */; };
 		A10012 /* HourlyForecastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10012 /* HourlyForecastView.swift */; };
 		A10013 /* DailyForecastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10013 /* DailyForecastView.swift */; };
-		A10014 /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10015 /* SettingsSheet.swift */; };
+		A10014 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10015 /* SettingsView.swift */; };
 		A10015 /* CitySearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10016 /* CitySearchService.swift */; };
 		A10016 /* CitySearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10017 /* CitySearchSheet.swift */; };
 		A10017 /* WeatherNowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10018 /* WeatherNowView.swift */; };
@@ -28,6 +28,8 @@
 		A10019 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10020 /* CalendarService.swift */; };
 		A10020 /* ActivityScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10021 /* ActivityScorer.swift */; };
 		A10021 /* MorningBriefing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10022 /* MorningBriefing.swift */; };
+		A10022 /* UnitSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10023 /* UnitSettings.swift */; };
+		A10023 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10024 /* OnboardingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,7 +48,7 @@
 		B10012 /* HourlyForecastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourlyForecastView.swift; sourceTree = "<group>"; };
 		B10013 /* DailyForecastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyForecastView.swift; sourceTree = "<group>"; };
 		B10014 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B10015 /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
+		B10015 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B10016 /* CitySearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchService.swift; sourceTree = "<group>"; };
 		B10017 /* CitySearchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchSheet.swift; sourceTree = "<group>"; };
 		B10018 /* WeatherNowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherNowView.swift; sourceTree = "<group>"; };
@@ -54,6 +56,8 @@
 		B10020 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 		B10021 /* ActivityScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityScorer.swift; sourceTree = "<group>"; };
 		B10022 /* MorningBriefing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningBriefing.swift; sourceTree = "<group>"; };
+		B10023 /* UnitSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitSettings.swift; sourceTree = "<group>"; };
+		B10024 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +100,7 @@
 			children = (
 				B10004 /* WeatherModels.swift */,
 			B10022 /* MorningBriefing.swift */,
+			B10023 /* UnitSettings.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -112,6 +117,7 @@
 			isa = PBXGroup;
 			children = (
 				B10018 /* WeatherNowView.swift */,
+				B10024 /* OnboardingView.swift */,
 				E10006 /* Components */,
 				E10010 /* Sections */,
 			);
@@ -122,7 +128,6 @@
 			isa = PBXGroup;
 			children = (
 				B10009 /* GlassCard.swift */,
-			B10015 /* SettingsSheet.swift */,
 			B10017 /* CitySearchSheet.swift */,
 			);
 			path = Components;
@@ -136,6 +141,7 @@
 				B10012 /* HourlyForecastView.swift */,
 				B10013 /* DailyForecastView.swift */,
 			B10019 /* PlanYourDayView.swift */,
+			B10015 /* SettingsView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -249,7 +255,7 @@
 				A10011 /* TodayPhasesView.swift in Sources */,
 				A10012 /* HourlyForecastView.swift in Sources */,
 				A10013 /* DailyForecastView.swift in Sources */,
-			A10014 /* SettingsSheet.swift in Sources */,
+			A10014 /* SettingsView.swift in Sources */,
 			A10015 /* CitySearchService.swift in Sources */,
 			A10016 /* CitySearchSheet.swift in Sources */,
 			A10017 /* WeatherNowView.swift in Sources */,
@@ -257,6 +263,8 @@
 			A10019 /* CalendarService.swift in Sources */,
 			A10020 /* ActivityScorer.swift in Sources */,
 			A10021 /* MorningBriefing.swift in Sources */,
+			A10022 /* UnitSettings.swift in Sources */,
+			A10023 /* OnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

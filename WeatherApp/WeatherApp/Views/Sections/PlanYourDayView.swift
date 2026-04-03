@@ -371,12 +371,6 @@ struct ActivityPill: View {
 struct ActivityWindowRow: View {
     let window: ScoredActivityWindow
 
-    private static let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "h:mm a"
-        return f
-    }()
-
     var body: some View {
         HStack(spacing: 12) {
             // Score badge
@@ -397,7 +391,7 @@ struct ActivityWindowRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 // Time range
                 HStack(spacing: 4) {
-                    Text("\(Self.timeFormatter.string(from: window.slot.start)) – \(Self.timeFormatter.string(from: window.slot.end))")
+                    Text("\(WeatherFormatters.shortTime(window.slot.start)) – \(WeatherFormatters.shortTime(window.slot.end))")
                         .font(.subheadline)
                         .fontWeight(.medium)
 
@@ -425,7 +419,7 @@ struct ActivityWindowRow: View {
                     HStack(spacing: 2) {
                         Image(systemName: "wind")
                             .font(.system(size: 8))
-                        Text("\(Int(window.avgWind)) mph")
+                        Text(WeatherFormatters.windSpeed(window.avgWind))
                             .font(.caption)
                     }
                     .foregroundStyle(.secondary)
@@ -472,12 +466,6 @@ struct QuickPickRow: View {
     let activity: OutdoorActivity
     let window: ScoredActivityWindow
 
-    private static let shortTimeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "h a"
-        return f
-    }()
-
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: activity.icon)
@@ -489,7 +477,7 @@ struct QuickPickRow: View {
 
             Spacer()
 
-            Text("\(Self.shortTimeFormatter.string(from: window.slot.start))")
+            Text(WeatherFormatters.hourTime(window.slot.start))
                 .font(.subheadline)
                 .fontWeight(.medium)
 

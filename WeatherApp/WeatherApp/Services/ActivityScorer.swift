@@ -143,27 +143,34 @@ struct ActivityScorer {
         forecasts: [HourlyForecast]
     ) -> ScoredActivityWindow {
 
+        // Display values (in user's chosen unit)
         let avgTemp = forecasts.map(\.temperature).reduce(0, +) / Double(forecasts.count)
         let avgFeels = forecasts.map(\.feelsLike).reduce(0, +) / Double(forecasts.count)
         let maxPrecip = forecasts.map(\.precipChance).max() ?? 0
         let avgWind = forecasts.map(\.windSpeed).reduce(0, +) / Double(forecasts.count)
         let dominantCode = mostFrequent(forecasts.map(\.weatherCode)) ?? 0
 
+        // Normalize to Fahrenheit/mph for internal scoring (thresholds are in F/mph)
+        let settings = UnitSettings.shared
+        let tempF = settings.toFahrenheit(avgTemp)
+        let feelsF = settings.toFahrenheit(avgFeels)
+        let windMph = settings.toMph(avgWind)
+
         var score: Double = 100
         var reasons: [String] = []
 
-        // Temperature scoring (0-35 points)
+        // Temperature scoring (0-35 points) — compare in Fahrenheit
         let tempRange = activity.idealTempRange
-        if tempRange.contains(avgTemp) {
-            reasons.append("\(Int(avgTemp))° — ideal temperature")
-        } else if avgTemp < tempRange.lowerBound {
-            let diff = tempRange.lowerBound - avgTemp
+        if tempRange.contains(tempF) {
+            reasons.append("\(WeatherFormatters.temperature(avgTemp)) — ideal temperature")
+        } else if tempF < tempRange.lowerBound {
+            let diff = tempRange.lowerBound - tempF
             score -= min(diff * 1.5, 35)
-            reasons.append("\(Int(avgTemp))° — cooler than ideal")
+            reasons.append("\(WeatherFormatters.temperature(avgTemp)) — cooler than ideal")
         } else {
-            let diff = avgTemp - tempRange.upperBound
+            let diff = tempF - tempRange.upperBound
             score -= min(diff * 1.5, 35)
-            reasons.append("\(Int(avgTemp))° — warmer than ideal")
+            reasons.append("\(WeatherFormatters.temperature(avgTemp)) — warmer than ideal")
         }
 
         // Precipitation scoring (0-30 points)
@@ -177,22 +184,22 @@ struct ActivityScorer {
             reasons.append("\(maxPrecip)% rain — risky")
         }
 
-        // Wind scoring (0-20 points)
-        if avgWind <= activity.maxWindMph * 0.5 {
+        // Wind scoring (0-20 points) — compare in mph
+        if windMph <= activity.maxWindMph * 0.5 {
             reasons.append("Calm winds")
-        } else if avgWind <= activity.maxWindMph {
-            score -= (avgWind / activity.maxWindMph) * 10
-            reasons.append("\(Int(avgWind)) mph wind")
+        } else if windMph <= activity.maxWindMph {
+            score -= (windMph / activity.maxWindMph) * 10
+            reasons.append("\(WeatherFormatters.windSpeed(avgWind)) wind")
         } else {
-            score -= 20 + (avgWind - activity.maxWindMph) * 2
-            reasons.append("\(Int(avgWind)) mph — too windy")
+            score -= 20 + (windMph - activity.maxWindMph) * 2
+            reasons.append("\(WeatherFormatters.windSpeed(avgWind)) — too windy")
         }
 
         // Feels-like penalty
-        let feelsLikeDiff = abs(avgTemp - avgFeels)
+        let feelsLikeDiff = abs(tempF - feelsF)
         if feelsLikeDiff > 10 {
             score -= 5
-            reasons.append("Feels like \(Int(avgFeels))°")
+            reasons.append("Feels like \(WeatherFormatters.temperature(avgFeels))")
         }
 
         // Severe weather penalty

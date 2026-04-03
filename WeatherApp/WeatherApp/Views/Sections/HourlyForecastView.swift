@@ -177,12 +177,9 @@ struct HourlyCell: View {
             }
 
         case .pressure:
-            Text(String(format: "%.0f", forecast.pressure))
-                .font(.callout)
+            Text(WeatherFormatters.pressure(forecast.pressure))
+                .font(.caption)
                 .fontWeight(.semibold)
-            Text("hPa")
-                .font(.system(size: 8))
-                .foregroundStyle(.secondary)
 
         case .humidity:
             VStack(spacing: 2) {

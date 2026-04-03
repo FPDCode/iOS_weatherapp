@@ -5,7 +5,13 @@ actor WeatherService {
 
     private let baseURL = "https://api.open-meteo.com/v1/forecast"
 
-    func fetchWeather(latitude: Double, longitude: Double, temperatureUnit: String = "fahrenheit") async throws -> WeatherResponse {
+    func fetchWeather(latitude: Double, longitude: Double) async throws -> WeatherResponse {
+        let settings = await MainActor.run { UnitSettings.shared }
+
+        let tempUnit = await MainActor.run { settings.selectedTemperature.apiValue }
+        let windUnit = await MainActor.run { settings.selectedWindSpeed.apiValue }
+        let precipUnit = await MainActor.run { settings.selectedPrecipitation.apiValue }
+
         var components = URLComponents(string: baseURL)!
         components.queryItems = [
             URLQueryItem(name: "latitude", value: String(latitude)),
@@ -15,8 +21,9 @@ actor WeatherService {
             URLQueryItem(name: "current_weather", value: "true"),
             URLQueryItem(name: "timezone", value: "auto"),
             URLQueryItem(name: "forecast_days", value: "14"),
-            URLQueryItem(name: "temperature_unit", value: temperatureUnit),
-            URLQueryItem(name: "windspeed_unit", value: "mph"),
+            URLQueryItem(name: "temperature_unit", value: tempUnit),
+            URLQueryItem(name: "windspeed_unit", value: windUnit),
+            URLQueryItem(name: "precipitation_unit", value: precipUnit),
         ]
 
         guard let url = components.url else {

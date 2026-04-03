@@ -3,8 +3,6 @@ import SwiftUI
 struct WeatherNowView: View {
     @EnvironmentObject var locationService: LocationService
     @EnvironmentObject var weatherViewModel: WeatherViewModel
-    @AppStorage("temperatureUnit") var temperatureUnit: String = TemperatureUnit.fahrenheit.rawValue
-    @State private var showSettings = false
     @State private var showSearch = false
 
     var body: some View {
@@ -38,31 +36,13 @@ struct WeatherNowView: View {
                         Image(systemName: "magnifyingglass")
                     }
                     .accessibilityLabel("Search location")
-
-                    Button {
-                        showSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
-                    .accessibilityLabel("Settings")
                 }
             }
             .toolbarBackground(.hidden, for: .navigationBar)
-            .sheet(isPresented: $showSettings) {
-                SettingsSheet()
-            }
             .sheet(isPresented: $showSearch) {
                 CitySearchSheet()
                     .environmentObject(locationService)
                     .environmentObject(weatherViewModel)
-            }
-            .onChange(of: temperatureUnit) { _, _ in
-                if let lat = locationService.latitude,
-                   let lon = locationService.longitude {
-                    Task {
-                        await weatherViewModel.fetchWeather(latitude: lat, longitude: lon)
-                    }
-                }
             }
         }
     }

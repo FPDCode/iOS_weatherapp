@@ -30,21 +30,17 @@ struct MorningBriefing {
         )
 
         let calendar = Calendar.current
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "h:mm a"
 
         let commuteOut = hourly.first { forecast in
             calendar.component(.hour, from: forecast.time) == commuteOutHour
         }.map { forecast in
-            let timeStr = timeFormatter.string(from: forecast.time)
-            return CommuteForecast(label: "Departure", time: timeStr, forecast: forecast)
+            return CommuteForecast(label: "Departure", time: WeatherFormatters.shortTime(forecast.time), forecast: forecast)
         }
 
         let commuteReturn = hourly.first { forecast in
             calendar.component(.hour, from: forecast.time) == commuteReturnHour
         }.map { forecast in
-            let timeStr = timeFormatter.string(from: forecast.time)
-            return CommuteForecast(label: "Return", time: timeStr, forecast: forecast)
+            return CommuteForecast(label: "Return", time: WeatherFormatters.shortTime(forecast.time), forecast: forecast)
         }
 
         // Alerts
@@ -53,13 +49,14 @@ struct MorningBriefing {
             alerts.append(WeatherAlert(icon: "cloud.heavyrain.fill", message: "Heavy rain expected today", severity: .warning))
         }
         let maxWind = hourly.prefix(24).map(\.windSpeed).max() ?? 0
-        if maxWind >= 25 {
-            alerts.append(WeatherAlert(icon: "wind", message: "Strong winds up to \(Int(maxWind)) mph", severity: .caution))
+        let settings = UnitSettings.shared
+        if maxWind >= settings.toMph(25) {
+            alerts.append(WeatherAlert(icon: "wind", message: "Strong winds up to \(WeatherFormatters.windSpeed(maxWind))", severity: .caution))
         }
-        if high >= 95 {
+        if high >= settings.threshold(fahrenheit: 95) {
             alerts.append(WeatherAlert(icon: "thermometer.sun.fill", message: "Extreme heat — stay hydrated", severity: .warning))
         }
-        if low <= 32 {
+        if low <= settings.threshold(fahrenheit: 32) {
             alerts.append(WeatherAlert(icon: "thermometer.snowflake", message: "Freezing temperatures expected", severity: .caution))
         }
 
@@ -83,24 +80,31 @@ struct ClothingSuggestion {
     let extras: [String]
 
     static func forConditions(high: Double, low: Double, maxWind: Double, precipChance: Int) -> ClothingSuggestion {
+        let settings = UnitSettings.shared
         let avgTemp = (high + low) / 2
         var extras: [String] = []
 
+        // Thresholds adapt to the user's chosen temperature unit
+        let freezing = settings.threshold(fahrenheit: 32)
+        let cool = settings.threshold(fahrenheit: 50)
+        let mild = settings.threshold(fahrenheit: 65)
+        let warm = settings.threshold(fahrenheit: 80)
+
         let (layers, icon): (String, String)
         switch avgTemp {
-        case ..<32:
+        case ..<freezing:
             layers = "Heavy winter coat, thermal layers"
             icon = "snowflake"
             extras.append("Gloves & hat")
             extras.append("Warm boots")
-        case 32..<50:
+        case freezing..<cool:
             layers = "Warm jacket and long sleeves"
             icon = "cloud.fill"
             extras.append("Scarf recommended")
-        case 50..<65:
+        case cool..<mild:
             layers = "Light jacket or sweater"
             icon = "sun.haze.fill"
-        case 65..<80:
+        case mild..<warm:
             layers = "Light clothing, short sleeves"
             icon = "sun.max.fill"
         default:
@@ -116,7 +120,8 @@ struct ClothingSuggestion {
         if precipChance >= 50 {
             extras.append("Rain jacket")
         }
-        if maxWind >= 20 {
+        // Wind threshold: 20 mph normalized to current unit
+        if maxWind >= settings.toMph(20) {
             extras.append("Windbreaker")
         }
 

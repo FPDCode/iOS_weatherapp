@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var locationService: LocationService
     @EnvironmentObject var weatherViewModel: WeatherViewModel
+    @EnvironmentObject var unitSettings: UnitSettings
     @State private var selectedTab = 0
 
     var body: some View {
@@ -18,6 +19,12 @@ struct ContentView: View {
                     Label("Plan", systemImage: "calendar.badge.clock")
                 }
                 .tag(1)
+
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape")
+                }
+                .tag(2)
         }
         .tint(.white)
         .preferredColorScheme(.dark)
@@ -28,4 +35,5 @@ struct ContentView: View {
     ContentView()
         .environmentObject(LocationService())
         .environmentObject(WeatherViewModel())
+        .environmentObject(UnitSettings.shared)
 }

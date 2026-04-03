@@ -72,91 +72,105 @@ struct BackgroundGradient {
     }
 }
 
-// MARK: - Temperature Unit
-
-enum TemperatureUnit: String, CaseIterable {
-    case fahrenheit
-    case celsius
-
-    var symbol: String {
-        self == .fahrenheit ? "F" : "C"
-    }
-
-    var apiValue: String {
-        rawValue
-    }
-}
-
-// MARK: - Formatters
+// MARK: - Formatters (reads from UnitSettings.shared)
 
 struct WeatherFormatters {
+    private static var settings: UnitSettings { UnitSettings.shared }
+
     static func temperature(_ temp: Double) -> String {
         "\(Int(round(temp)))°"
     }
 
-    static func temperatureFull(_ temp: Double, unit: TemperatureUnit = .fahrenheit) -> String {
-        "\(Int(round(temp)))°\(unit.symbol)"
+    static func temperatureFull(_ temp: Double) -> String {
+        "\(Int(round(temp)))\(settings.selectedTemperature.symbol)"
     }
 
     static func percent(_ value: Int) -> String {
         "\(value)%"
     }
 
-    static func precipitation(_ mm: Double) -> String {
-        if mm < 0.01 { return "0 in" }
-        let inches = mm / 25.4
-        return String(format: "%.2f in", inches)
+    static func precipitation(_ value: Double) -> String {
+        switch settings.selectedPrecipitation {
+        case .mm:
+            if value < 0.1 { return "0 mm" }
+            return String(format: "%.1f mm", value)
+        case .inches:
+            if value < 0.01 { return "0 in" }
+            return String(format: "%.2f in", value)
+        }
     }
 
     static func pressure(_ hPa: Double) -> String {
-        let inHg = hPa * 0.02953
-        return String(format: "%.2f inHg", inHg)
+        switch settings.selectedPressure {
+        case .inHg:
+            let inHg = hPa * 0.02953
+            return String(format: "%.2f inHg", inHg)
+        case .hPa:
+            return String(format: "%.0f hPa", hPa)
+        case .mbar:
+            return String(format: "%.0f mbar", hPa)
+        }
     }
 
     static func visibility(_ meters: Double) -> String {
-        let miles = meters / 1609.344
-        if miles >= 10 {
-            return "\(Int(miles)) mi"
+        switch settings.selectedVisibility {
+        case .miles:
+            let miles = meters / 1609.344
+            if miles >= 10 { return "\(Int(miles)) mi" }
+            return String(format: "%.1f mi", miles)
+        case .km:
+            let km = meters / 1000
+            if km >= 10 { return "\(Int(km)) km" }
+            return String(format: "%.1f km", km)
         }
-        return String(format: "%.1f mi", miles)
     }
 
     static func humidity(_ value: Int) -> String {
         "\(value)%"
     }
 
-    static func windSpeed(_ mph: Double) -> String {
-        "\(Int(round(mph))) mph"
+    static func windSpeed(_ speed: Double) -> String {
+        "\(Int(round(speed))) \(settings.selectedWindSpeed.label)"
     }
 
-    private static let hourFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "ha"
-        return f
-    }()
-
-    private static let dayFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "EEE"
-        return f
-    }()
-
-    private static let fullDayFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "EEEE"
-        return f
-    }()
+    // MARK: - Time Formatters (respect 12h/24h preference)
 
     static func hourTime(_ date: Date) -> String {
-        hourFormatter.string(from: date).lowercased()
+        let f = DateFormatter()
+        f.locale = Locale.current
+        switch settings.selectedTimeFormat {
+        case .twelve:
+            f.dateFormat = "h a"
+        case .twentyFour:
+            f.dateFormat = "HH:mm"
+        }
+        return f.string(from: date).lowercased()
+    }
+
+    static func shortTime(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale.current
+        switch settings.selectedTimeFormat {
+        case .twelve:
+            f.dateFormat = "h:mm a"
+        case .twentyFour:
+            f.dateFormat = "HH:mm"
+        }
+        return f.string(from: date)
     }
 
     static func dayOfWeek(_ date: Date) -> String {
-        dayFormatter.string(from: date)
+        let f = DateFormatter()
+        f.locale = Locale.current
+        f.dateFormat = "EEE"
+        return f.string(from: date)
     }
 
     static func fullDay(_ date: Date) -> String {
-        fullDayFormatter.string(from: date)
+        let f = DateFormatter()
+        f.locale = Locale.current
+        f.dateFormat = "EEEE"
+        return f.string(from: date)
     }
 
     static func isToday(_ date: Date) -> Bool {
