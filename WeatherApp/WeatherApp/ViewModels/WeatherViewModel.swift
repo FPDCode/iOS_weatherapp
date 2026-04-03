@@ -23,6 +23,7 @@ class WeatherViewModel: ObservableObject {
     @Published var todayUVIndex: Double = 0
     @Published var airQuality: AirQualityInfo?
     @Published var pressureInfo: PressureInfo?
+    @Published var windInfo: WindInfo?
 
     private let weatherService = WeatherService.shared
 
@@ -83,6 +84,7 @@ class WeatherViewModel: ObservableObject {
             processHourlyData(hourly)
             processTodayPhases(hourly)
             processPressureTrend(hourly)
+            processCurrentWind(hourly, current: response.currentWeather)
         }
     }
 
@@ -230,6 +232,43 @@ class WeatherViewModel: ObservableObject {
         }
 
         todayPhases = phases
+    }
+
+    private func processCurrentWind(_ hourly: HourlyData, current: CurrentWeather?) {
+        let now = Date()
+        let calendar = Calendar.current
+
+        // Find the current hour in hourly data
+        for i in 0..<hourly.time.count {
+            guard let date = hourlyDateFormatter.date(from: hourly.time[i]) else { continue }
+            guard calendar.isDate(date, equalTo: now, toGranularity: .hour) else { continue }
+
+            let speed = hourly.windSpeed10m[safe: i] ?? current?.windspeed ?? 0
+            let gusts = hourly.windGusts10m?[safe: i] ?? speed
+            let direction = hourly.windDirection10m?[safe: i] ?? Int(current?.winddirection ?? 0)
+
+            let speedMph = UnitSettings.shared.toMph(speed)
+            let beaufort = BeaufortScale.from(speedMph: speedMph)
+
+            windInfo = WindInfo(
+                speed: speed,
+                gusts: gusts,
+                direction: direction,
+                beaufort: beaufort
+            )
+            return
+        }
+
+        // Fallback to current_weather if hourly match not found
+        if let current {
+            let speedMph = UnitSettings.shared.toMph(current.windspeed)
+            windInfo = WindInfo(
+                speed: current.windspeed,
+                gusts: current.windspeed,
+                direction: Int(current.winddirection),
+                beaufort: BeaufortScale.from(speedMph: speedMph)
+            )
+        }
     }
 
     private func processPressureTrend(_ hourly: HourlyData) {

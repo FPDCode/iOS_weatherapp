@@ -42,6 +42,8 @@ struct HourlyData: Codable {
     let relativeHumidity2m: [Int]
     let visibility: [Double]
     let windSpeed10m: [Double]
+    let windGusts10m: [Double]?
+    let windDirection10m: [Int]?
     let uvIndex: [Double]?
 
     enum CodingKeys: String, CodingKey {
@@ -55,6 +57,8 @@ struct HourlyData: Codable {
         case relativeHumidity2m = "relative_humidity_2m"
         case visibility
         case windSpeed10m = "wind_speed_10m"
+        case windGusts10m = "wind_gusts_10m"
+        case windDirection10m = "wind_direction_10m"
         case uvIndex = "uv_index"
     }
 }
@@ -68,6 +72,9 @@ struct DailyData: Codable {
     let sunrise: [String]
     let sunset: [String]
     let uvIndexMax: [Double]?
+    let windSpeed10mMax: [Double]?
+    let windGusts10mMax: [Double]?
+    let windDirection10mDominant: [Int]?
 
     enum CodingKeys: String, CodingKey {
         case time
@@ -77,6 +84,9 @@ struct DailyData: Codable {
         case precipitationProbabilityMax = "precipitation_probability_max"
         case sunrise, sunset
         case uvIndexMax = "uv_index_max"
+        case windSpeed10mMax = "wind_speed_10m_max"
+        case windGusts10mMax = "wind_gusts_10m_max"
+        case windDirection10mDominant = "wind_direction_10m_dominant"
     }
 }
 
@@ -151,6 +161,110 @@ enum DayPhase: String, CaseIterable {
         case .afternoon: return 12...17
         case .evening: return 18...21
         case .night: return 22...29
+        }
+    }
+}
+
+// MARK: - Wind Info
+
+struct WindInfo {
+    let speed: Double
+    let gusts: Double
+    let direction: Int // degrees
+    let beaufort: BeaufortScale
+
+    var compassDirection: String {
+        let directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                          "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+        let index = Int((Double(direction) + 11.25) / 22.5) % 16
+        return directions[index]
+    }
+
+    var directionDescription: String {
+        "\(compassDirection) \(direction)°"
+    }
+}
+
+/// Beaufort Wind Scale (thresholds in mph)
+enum BeaufortScale: Int, CaseIterable {
+    case calm = 0
+    case lightAir = 1
+    case lightBreeze = 2
+    case gentleBreeze = 3
+    case moderateBreeze = 4
+    case freshBreeze = 5
+    case strongBreeze = 6
+    case nearGale = 7
+    case gale = 8
+    case strongGale = 9
+    case storm = 10
+    case violentStorm = 11
+    case hurricane = 12
+
+    var name: String {
+        switch self {
+        case .calm: return "Calm"
+        case .lightAir: return "Light Air"
+        case .lightBreeze: return "Light Breeze"
+        case .gentleBreeze: return "Gentle Breeze"
+        case .moderateBreeze: return "Moderate Breeze"
+        case .freshBreeze: return "Fresh Breeze"
+        case .strongBreeze: return "Strong Breeze"
+        case .nearGale: return "Near Gale"
+        case .gale: return "Gale"
+        case .strongGale: return "Strong Gale"
+        case .storm: return "Storm"
+        case .violentStorm: return "Violent Storm"
+        case .hurricane: return "Hurricane"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .calm: return "Smoke rises vertically"
+        case .lightAir: return "Smoke drifts slowly"
+        case .lightBreeze: return "Wind felt on face, leaves rustle"
+        case .gentleBreeze: return "Leaves and twigs in motion"
+        case .moderateBreeze: return "Raises dust and loose paper"
+        case .freshBreeze: return "Small trees begin to sway"
+        case .strongBreeze: return "Large branches in motion"
+        case .nearGale: return "Whole trees in motion"
+        case .gale: return "Twigs break off trees"
+        case .strongGale: return "Slight structural damage"
+        case .storm: return "Trees uprooted"
+        case .violentStorm: return "Widespread damage"
+        case .hurricane: return "Devastation"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .calm: return "wind"
+        case .lightAir, .lightBreeze: return "wind"
+        case .gentleBreeze, .moderateBreeze: return "wind"
+        case .freshBreeze, .strongBreeze: return "wind"
+        case .nearGale, .gale: return "wind"
+        case .strongGale, .storm: return "tropicalstorm"
+        case .violentStorm, .hurricane: return "hurricane"
+        }
+    }
+
+    /// Classify wind speed. Input is in the user's chosen unit — normalize to mph first.
+    static func from(speedMph: Double) -> BeaufortScale {
+        switch speedMph {
+        case ..<1: return .calm
+        case 1..<4: return .lightAir
+        case 4..<8: return .lightBreeze
+        case 8..<13: return .gentleBreeze
+        case 13..<19: return .moderateBreeze
+        case 19..<25: return .freshBreeze
+        case 25..<32: return .strongBreeze
+        case 32..<39: return .nearGale
+        case 39..<47: return .gale
+        case 47..<55: return .strongGale
+        case 55..<64: return .storm
+        case 64..<73: return .violentStorm
+        default: return .hurricane
         }
     }
 }

@@ -84,6 +84,13 @@ struct WeatherNowView: View {
                     )
                 }
 
+                // Wind Gauge
+                if let wind = weatherViewModel.windInfo {
+                    GlassCard {
+                        WindGaugeView(wind: wind)
+                    }
+                }
+
                 // Air Pressure
                 if let pressure = weatherViewModel.pressureInfo {
                     GlassCard {

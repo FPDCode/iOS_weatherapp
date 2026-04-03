@@ -32,6 +32,7 @@
 		A10023 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10024 /* OnboardingView.swift */; };
 		A10024 /* AirQualityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10025 /* AirQualityView.swift */; };
 		A10025 /* PressureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10026 /* PressureView.swift */; };
+		A10026 /* WindGaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10027 /* WindGaugeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +63,7 @@
 		B10024 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		B10025 /* AirQualityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirQualityView.swift; sourceTree = "<group>"; };
 		B10026 /* PressureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressureView.swift; sourceTree = "<group>"; };
+		B10027 /* WindGaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindGaugeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,6 +150,7 @@
 			B10015 /* SettingsView.swift */,
 			B10025 /* AirQualityView.swift */,
 			B10026 /* PressureView.swift */,
+			B10027 /* WindGaugeView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -273,6 +276,7 @@
 			A10023 /* OnboardingView.swift in Sources */,
 			A10024 /* AirQualityView.swift in Sources */,
 			A10025 /* PressureView.swift in Sources */,
+			A10026 /* WindGaugeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
