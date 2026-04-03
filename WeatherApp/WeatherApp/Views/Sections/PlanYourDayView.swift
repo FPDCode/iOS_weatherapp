@@ -27,9 +27,9 @@ struct PlanYourDayView: View {
                 }
             }
             .preferredColorScheme(.dark)
-            .navigationTitle("Plan Your Day")
+            .navigationTitle(locationService.cityName)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         }
         .onAppear {
             calendarService.requestAccess()

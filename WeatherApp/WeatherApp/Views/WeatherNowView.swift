@@ -5,6 +5,7 @@ struct WeatherNowView: View {
     @EnvironmentObject var weatherViewModel: WeatherViewModel
     @ObservedObject var locationStore = LocationStore.shared
     @State private var showLocationPicker = false
+    @State private var showNavTitle = false
     var switchToRadar: (() -> Void)?
 
     var body: some View {
@@ -60,7 +61,9 @@ struct WeatherNowView: View {
                     }
                 }
             }
-            .toolbarBackground(.hidden, for: .navigationBar)
+            .navigationTitle(showNavTitle ? locationService.cityName : "")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(showNavTitle ? .visible : .hidden, for: .navigationBar)
         }
     }
 
@@ -94,6 +97,12 @@ struct WeatherNowView: View {
                     sunrise: weatherViewModel.sunrise,
                     sunset: weatherViewModel.sunset,
                     lastUpdated: weatherViewModel.lastUpdated
+                )
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .preference(key: ScrollOffsetKey.self, value: geo.frame(in: .named("scroll")).minY)
+                    }
                 )
 
                 // Weather Warnings (NWS + Smart)
@@ -210,6 +219,13 @@ struct WeatherNowView: View {
             }
             .padding(.horizontal, 16)
         }
+        .coordinateSpace(name: "scroll")
+        .onPreferenceChange(ScrollOffsetKey.self) { offset in
+            // Show nav title when the header scrolls past the top
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showNavTitle = offset < -20
+            }
+        }
         .refreshable {
             if let lat = locationService.latitude,
                let lon = locationService.longitude {
@@ -257,5 +273,14 @@ struct WeatherNowView: View {
             .tint(.white)
         }
         .padding()
+    }
+}
+
+// MARK: - Scroll Offset Preference Key
+
+private struct ScrollOffsetKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
