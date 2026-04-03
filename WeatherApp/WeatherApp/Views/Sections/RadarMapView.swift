@@ -7,6 +7,7 @@ struct RadarTabView: View {
     @EnvironmentObject var locationService: LocationService
     @StateObject private var viewModel = RadarViewModel()
     @State private var mapMode: RadarMapMode = .radar
+    @State private var showHeadingCone: Bool = true
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -14,7 +15,8 @@ struct RadarTabView: View {
             RadarMap(
                 viewModel: viewModel,
                 latitude: locationService.latitude ?? 40.7128,
-                longitude: locationService.longitude ?? -74.006
+                longitude: locationService.longitude ?? -74.006,
+                showHeadingCone: showHeadingCone
             )
             .ignoresSafeArea()
 
@@ -135,10 +137,31 @@ struct RadarTabView: View {
                 .background(.ultraThinMaterial)
             }
 
-            // Legend
+            // Legend + controls overlay
             VStack {
                 HStack {
+                    // Re-center / heading button
+                    VStack(spacing: 8) {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showHeadingCone.toggle()
+                            }
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        } label: {
+                            Image(systemName: showHeadingCone ? "location.north.fill" : "location.fill")
+                                .font(.body)
+                                .foregroundStyle(showHeadingCone ? .blue : .white)
+                                .frame(width: 40, height: 40)
+                                .background(.ultraThinMaterial)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .accessibilityLabel(showHeadingCone ? "Disable heading" : "Show heading direction")
+                    }
+                    .padding(.top, 110)
+                    .padding(.leading, 16)
+
                     Spacer()
+
                     RadarLegend(mode: mapMode)
                         .padding(.top, 110)
                         .padding(.trailing, 16)
@@ -359,6 +382,7 @@ struct RadarMap: UIViewRepresentable {
     @ObservedObject var viewModel: RadarViewModel
     let latitude: Double
     let longitude: Double
+    let showHeadingCone: Bool
 
     static func dismantleUIView(_ mapView: MKMapView, coordinator: Coordinator) {
         coordinator.cleanup(on: mapView)
@@ -370,10 +394,13 @@ struct RadarMap: UIViewRepresentable {
         mapView.delegate = context.coordinator
         mapView.mapType = .mutedStandard
         mapView.showsUserLocation = true
-        mapView.isRotateEnabled = false
+        mapView.isRotateEnabled = true
 
         // Dark map style
         mapView.overrideUserInterfaceStyle = .dark
+
+        // Enable heading cone — this shows the blue beam like Apple Maps
+        mapView.userTrackingMode = .followWithHeading
 
         // Center on user location
         let region = MKCoordinateRegion(
@@ -389,6 +416,12 @@ struct RadarMap: UIViewRepresentable {
         // Update the tile overlay when the frame changes
         if let tileURL = viewModel.currentTileURL {
             context.coordinator.updateOverlay(on: mapView, tileURL: tileURL)
+        }
+
+        // Toggle heading cone on/off
+        let desiredMode: MKUserTrackingMode = showHeadingCone ? .followWithHeading : .follow
+        if mapView.userTrackingMode != desiredMode {
+            mapView.setUserTrackingMode(desiredMode, animated: true)
         }
     }
 
