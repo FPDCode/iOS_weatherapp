@@ -148,7 +148,7 @@ struct RadarPreviewMap: UIViewRepresentable {
             let overlay = CachedTileOverlay(urlTemplate: tileURL)
             overlay.canReplaceMapContent = false
             overlay.minimumZ = 1
-            overlay.maximumZ = 10
+            overlay.maximumZ = 7
             mapView.addOverlay(overlay, level: .aboveRoads)
             currentOverlay = overlay
         }

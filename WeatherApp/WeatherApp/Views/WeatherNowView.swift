@@ -193,7 +193,14 @@ struct WeatherNowView: View {
                 // Comfort Index
                 if let comfort = weatherViewModel.comfortInfo {
                     GlassCard {
-                        ComfortIndexView(comfort: comfort)
+                        ComfortIndexView(
+                            comfort: comfort,
+                            temp: weatherViewModel.currentTemp,
+                            windSpeed: weatherViewModel.windInfo?.speed,
+                            uvIndex: weatherViewModel.todayUVIndex,
+                            isDay: weatherViewModel.isDay,
+                            weatherCode: weatherViewModel.currentWeatherCode
+                        )
                     }
                 }
 
