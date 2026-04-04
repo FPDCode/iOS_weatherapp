@@ -402,6 +402,14 @@ struct RadarMap: UIViewRepresentable {
         // Enable heading cone — this shows the blue beam like Apple Maps
         mapView.userTrackingMode = .followWithHeading
 
+        // Limit zoom range — RainViewer tiles only go to zoom 7, so cap the
+        // map at ~zoom 9 to keep upscaled radar tiles reasonably sharp.
+        let zoomRange = MKMapView.CameraZoomRange(
+            minCenterCoordinateDistance: 15_000,  // ~zoom 9, prevents excessive zoom-in
+            maxCenterCoordinateDistance: 10_000_000  // ~zoom 3, wide country view
+        )
+        mapView.setCameraZoomRange(zoomRange, animated: false)
+
         // Center on user location
         let region = MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
@@ -444,10 +452,13 @@ struct RadarMap: UIViewRepresentable {
             }
 
             // Add new cached tile overlay
+            // RainViewer supports up to zoom level 7 for radar/satellite tiles.
+            // Setting maximumZ = 7 tells MapKit to upscale level-7 tiles for
+            // deeper zooms instead of requesting unsupported tile levels.
             let overlay = CachedTileOverlay(urlTemplate: tileURL)
             overlay.canReplaceMapContent = false
             overlay.minimumZ = 1
-            overlay.maximumZ = 12
+            overlay.maximumZ = 7
             mapView.addOverlay(overlay, level: .aboveRoads)
             currentOverlay = overlay
         }

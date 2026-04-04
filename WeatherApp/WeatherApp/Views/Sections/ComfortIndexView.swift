@@ -2,6 +2,13 @@ import SwiftUI
 
 struct ComfortIndexView: View {
     let comfort: ComfortInfo
+    var temp: Double = 0
+    var windSpeed: Double? = nil
+    var uvIndex: Double? = nil
+    var isDay: Bool = true
+    var weatherCode: Int = 0
+
+    @StateObject private var clothingAdvisor = ClothingAdvisor()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -35,8 +42,19 @@ struct ComfortIndexView: View {
                 }
             }
 
+            // Clothing advice
+            ClothingAdviceRow(advisor: clothingAdvisor)
+
             // Comfort scale
             ComfortScaleBar(level: comfort.level)
+        }
+        .task(id: "\(comfort.level)\(Int(temp))") {
+            clothingAdvisor.generate(
+                temp: temp, humidity: comfort.humidity,
+                dewPoint: comfort.dewPoint, comfortLevel: comfort.level,
+                windSpeed: windSpeed, uvIndex: uvIndex,
+                isDay: isDay, weatherCode: weatherCode
+            )
         }
     }
 
@@ -107,6 +125,34 @@ struct ComfortScaleBar: View {
                 Text("Oppressive")
                     .font(.system(size: 7))
                     .foregroundStyle(.tertiary)
+            }
+        }
+    }
+}
+
+// MARK: - Clothing Advice Row
+
+private struct ClothingAdviceRow: View {
+    @ObservedObject var advisor: ClothingAdvisor
+
+    var body: some View {
+        if advisor.isGenerating {
+            HStack(spacing: 6) {
+                ProgressView()
+                    .controlSize(.mini)
+                Text("Thinking about what to wear…")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        } else if let suggestion = advisor.suggestion {
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: "tshirt.fill")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(suggestion)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
