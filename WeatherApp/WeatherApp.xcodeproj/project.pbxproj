@@ -48,6 +48,7 @@
 		A10039 /* SavedLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10040 /* SavedLocation.swift */; };
 		A10040 /* RadarPreviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10041 /* RadarPreviewCard.swift */; };
 		A10041 /* SearchTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10042 /* SearchTabView.swift */; };
+		A10042 /* ClothingAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10043 /* ClothingAdvisor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,6 +94,7 @@
 		B10040 /* SavedLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedLocation.swift; sourceTree = "<group>"; };
 		B10041 /* RadarPreviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarPreviewCard.swift; sourceTree = "<group>"; };
 		B10042 /* SearchTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTabView.swift; sourceTree = "<group>"; };
+		B10043 /* ClothingAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClothingAdvisor.swift; sourceTree = "<group>"; };
 		C10001 /* WeatherApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -182,6 +184,7 @@
 				B10034 /* AlertsService.swift */,
 				B10037 /* RadarService.swift */,
 				B10039 /* TileCache.swift */,
+			B10043 /* ClothingAdvisor.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -337,6 +340,7 @@
 				A10039 /* SavedLocation.swift in Sources */,
 				A10040 /* RadarPreviewCard.swift in Sources */,
 				A10041 /* SearchTabView.swift in Sources */,
+			A10042 /* ClothingAdvisor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
