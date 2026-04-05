@@ -7,11 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02518C5CEA1D50BB512351C8 /* BestTimeForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFBD90D0B843140002EBC7D /* BestTimeForWidget.swift */; };
 		1567122D2F825C9000D9F201 /* WeatherHorizon.metal in Sources */ = {isa = PBXBuildFile; fileRef = 1567122B2F825C9000D9F201 /* WeatherHorizon.metal */; };
 		157C28652F825020004A6F3B /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28642F825020004A6F3B /* SharedWeatherData.swift */; };
 		157C28662F825020004A6F3B /* RainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28632F825020004A6F3B /* RainActivityAttributes.swift */; };
 		157C28682F825048004A6F3B /* RainActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28672F825048004A6F3B /* RainActivityService.swift */; };
 		157C286C2F825072004A6F3B /* HorizonHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C286B2F825072004A6F3B /* HorizonHeaderView.swift */; };
+		2D40F988769C5942610E93A7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 643A34BCDD9C0516DC85340B /* Foundation.framework */; };
+		457403CBFD70EA7B5D9334F8 /* RainActivityWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7A50A1CC762A4D70A551D3BF /* RainActivityWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		510D487425969E14C34F3C7E /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28642F825020004A6F3B /* SharedWeatherData.swift */; };
+		5C874DE8959B568F6C33742B /* WeatherWidgetHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F21264459FF13C3257937A /* WeatherWidgetHelpers.swift */; };
+		735A2D9C852B629FC06CB995 /* HourlyForecastWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43582FBFBA208675AD895E62 /* HourlyForecastWidget.swift */; };
+		75BD9AC102EEEF69FBC730AB /* RainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28632F825020004A6F3B /* RainActivityAttributes.swift */; };
+		91B6A0401DC81D74D54AC546 /* DailyForecastWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C64DF38A12889A592DB2ADF /* DailyForecastWidget.swift */; };
 		A10001 /* WeatherAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10001 /* WeatherAppApp.swift */; };
 		A10002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10002 /* ContentView.swift */; };
 		A10003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10003 /* Assets.xcassets */; };
@@ -54,15 +62,50 @@
 		A10040 /* RadarPreviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10041 /* RadarPreviewCard.swift */; };
 		A10041 /* SearchTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10042 /* SearchTabView.swift */; };
 		A10042 /* ClothingAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10043 /* ClothingAdvisor.swift */; };
+		A302201B6E4F8E560997081B /* RainActivityLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7F27BDBC893A4E5E083A3A /* RainActivityLiveActivity.swift */; };
+		F2959169AFEB87037211FD44 /* CurrentConditionsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB15046B28FABB167E2CFB47 /* CurrentConditionsWidget.swift */; };
+		F55413A72A35773CC37797BD /* RainActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFDE195B98E2D0575A97A35 /* RainActivityBundle.swift */; };
+		FC9F91270CB788E73BB09A78 /* RainTimelineWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58166559898BE56B0C631CE /* RainTimelineWidget.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3E785E6172F1700A3F9E0994 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = H10001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F1288FB69B0616B622BDBF39;
+			remoteInfo = RainActivityWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		415572CFF93CFE87E2318AFA /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				457403CBFD70EA7B5D9334F8 /* RainActivityWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		0C7F27BDBC893A4E5E083A3A /* RainActivityLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/RainActivityLiveActivity.swift; sourceTree = SOURCE_ROOT; };
 		1567122B2F825C9000D9F201 /* WeatherHorizon.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WeatherHorizon.metal; sourceTree = "<group>"; };
 		157C28632F825020004A6F3B /* RainActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityAttributes.swift; sourceTree = "<group>"; };
 		157C28642F825020004A6F3B /* SharedWeatherData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWeatherData.swift; sourceTree = "<group>"; };
 		157C28672F825048004A6F3B /* RainActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityService.swift; sourceTree = "<group>"; };
 		157C286B2F825072004A6F3B /* HorizonHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizonHeaderView.swift; sourceTree = "<group>"; };
 		15A1510C2F824895001C40EC /* WeatherApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WeatherApp.entitlements; sourceTree = "<group>"; };
+		24F21264459FF13C3257937A /* WeatherWidgetHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/WeatherWidgetHelpers.swift; sourceTree = SOURCE_ROOT; };
+		43582FBFBA208675AD895E62 /* HourlyForecastWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/HourlyForecastWidget.swift; sourceTree = SOURCE_ROOT; };
+		643A34BCDD9C0516DC85340B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		6DFDE195B98E2D0575A97A35 /* RainActivityBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/RainActivityBundle.swift; sourceTree = SOURCE_ROOT; };
+		7A50A1CC762A4D70A551D3BF /* RainActivityWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RainActivityWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C64DF38A12889A592DB2ADF /* DailyForecastWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/DailyForecastWidget.swift; sourceTree = SOURCE_ROOT; };
 		B10001 /* WeatherAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAppApp.swift; sourceTree = "<group>"; };
 		B10002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B10003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -107,9 +150,20 @@
 		B10042 /* SearchTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTabView.swift; sourceTree = "<group>"; };
 		B10043 /* ClothingAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClothingAdvisor.swift; sourceTree = "<group>"; };
 		C10001 /* WeatherApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAFBD90D0B843140002EBC7D /* BestTimeForWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/BestTimeForWidget.swift; sourceTree = SOURCE_ROOT; };
+		D58166559898BE56B0C631CE /* RainTimelineWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/RainTimelineWidget.swift; sourceTree = SOURCE_ROOT; };
+		DB15046B28FABB167E2CFB47 /* CurrentConditionsWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/CurrentConditionsWidget.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		B93D5A201E5C52C51CEF09ED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D40F988769C5942610E93A7 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D10001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,11 +182,37 @@
 			path = Shaders;
 			sourceTree = "<group>";
 		};
+		32E028AE9AE43CD448426061 /* RainActivityWidget */ = {
+			isa = PBXGroup;
+			children = (
+				6DFDE195B98E2D0575A97A35 /* RainActivityBundle.swift */,
+				0C7F27BDBC893A4E5E083A3A /* RainActivityLiveActivity.swift */,
+				DB15046B28FABB167E2CFB47 /* CurrentConditionsWidget.swift */,
+				43582FBFBA208675AD895E62 /* HourlyForecastWidget.swift */,
+				D58166559898BE56B0C631CE /* RainTimelineWidget.swift */,
+				9C64DF38A12889A592DB2ADF /* DailyForecastWidget.swift */,
+				CAFBD90D0B843140002EBC7D /* BestTimeForWidget.swift */,
+				24F21264459FF13C3257937A /* WeatherWidgetHelpers.swift */,
+			);
+			name = RainActivityWidget;
+			path = RainActivityWidget;
+			sourceTree = SOURCE_ROOT;
+		};
+		956EC1F1D173EAE2CC9BC86E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FDAA4BEBD82733E37BE91132 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E10001 = {
 			isa = PBXGroup;
 			children = (
 				E10002 /* WeatherApp */,
 				E10009 /* Products */,
+				956EC1F1D173EAE2CC9BC86E /* Frameworks */,
+				32E028AE9AE43CD448426061 /* RainActivityWidget */,
 			);
 			sourceTree = "<group>";
 		};
@@ -225,6 +305,7 @@
 			isa = PBXGroup;
 			children = (
 				C10001 /* WeatherApp.app */,
+				7A50A1CC762A4D70A551D3BF /* RainActivityWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -256,6 +337,14 @@
 			path = Sections;
 			sourceTree = "<group>";
 		};
+		FDAA4BEBD82733E37BE91132 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				643A34BCDD9C0516DC85340B /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -266,15 +355,34 @@
 				F10002 /* Sources */,
 				D10001 /* Frameworks */,
 				F10003 /* Resources */,
+				415572CFF93CFE87E2318AFA /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DD54F2058B06200930B4829E /* PBXTargetDependency */,
 			);
 			name = WeatherApp;
 			productName = WeatherApp;
 			productReference = C10001 /* WeatherApp.app */;
 			productType = "com.apple.product-type.application";
+		};
+		F1288FB69B0616B622BDBF39 /* RainActivityWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BB45BD40115394F4D9E052A /* Build configuration list for PBXNativeTarget "RainActivityWidgetExtension" */;
+			buildPhases = (
+				FFA8EF91CA9EB10D7BD2615F /* Sources */,
+				B93D5A201E5C52C51CEF09ED /* Frameworks */,
+				73150325A1C2FC047030F26C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RainActivityWidgetExtension;
+			productName = RainActivityWidgetExtension;
+			productReference = 7A50A1CC762A4D70A551D3BF /* RainActivityWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -305,11 +413,19 @@
 			projectRoot = "";
 			targets = (
 				F10001 /* WeatherApp */,
+				F1288FB69B0616B622BDBF39 /* RainActivityWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		73150325A1C2FC047030F26C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F10003 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -374,9 +490,88 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FFA8EF91CA9EB10D7BD2615F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F55413A72A35773CC37797BD /* RainActivityBundle.swift in Sources */,
+				A302201B6E4F8E560997081B /* RainActivityLiveActivity.swift in Sources */,
+				F2959169AFEB87037211FD44 /* CurrentConditionsWidget.swift in Sources */,
+				735A2D9C852B629FC06CB995 /* HourlyForecastWidget.swift in Sources */,
+				FC9F91270CB788E73BB09A78 /* RainTimelineWidget.swift in Sources */,
+				91B6A0401DC81D74D54AC546 /* DailyForecastWidget.swift in Sources */,
+				02518C5CEA1D50BB512351C8 /* BestTimeForWidget.swift in Sources */,
+				5C874DE8959B568F6C33742B /* WeatherWidgetHelpers.swift in Sources */,
+				75BD9AC102EEEF69FBC730AB /* RainActivityAttributes.swift in Sources */,
+				510D487425969E14C34F3C7E /* SharedWeatherData.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		DD54F2058B06200930B4829E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RainActivityWidgetExtension;
+			target = F1288FB69B0616B622BDBF39 /* RainActivityWidgetExtension */;
+			targetProxy = 3E785E6172F1700A3F9E0994 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		05ADBB8A7B858033B53CC42A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MBVPABF8MH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RainActivityWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rain Activity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.betterWeather.RainActivityWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		874312737BB4B7FA98174FEF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MBVPABF8MH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RainActivityWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rain Activity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.betterWeather.RainActivityWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		G10004 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -571,6 +766,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1BB45BD40115394F4D9E052A /* Build configuration list for PBXNativeTarget "RainActivityWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				05ADBB8A7B858033B53CC42A /* Release */,
+				874312737BB4B7FA98174FEF /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		G10001 /* Build configuration list for PBXProject "WeatherApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
