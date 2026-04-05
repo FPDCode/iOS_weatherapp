@@ -229,7 +229,7 @@ struct LocationLabelPicker: View {
                         HStack(spacing: 12) {
                             Image(systemName: label.icon)
                                 .font(.body)
-                                .foregroundStyle(label == .none ? .secondary : .orange)
+                                .foregroundStyle(label == .none ? Color.secondary : Color.orange)
                                 .frame(width: 28)
 
                             Text(label.displayName)
