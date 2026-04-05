@@ -1,5 +1,50 @@
 import Foundation
 
+// MARK: - Location Label
+
+enum LocationLabel: String, Codable, CaseIterable, Identifiable {
+    case none = ""
+    case home = "Home"
+    case work = "Work"
+    case school = "School"
+    case gym = "Gym"
+    case family = "Family"
+    case vacation = "Vacation"
+    case partner = "Partner"
+    case parents = "Parents"
+    case outdoors = "Outdoors"
+    case commute = "Commute"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .none: return "mappin.circle.fill"
+        case .home: return "house.fill"
+        case .work: return "briefcase.fill"
+        case .school: return "graduationcap.fill"
+        case .gym: return "dumbbell.fill"
+        case .family: return "person.2.fill"
+        case .vacation: return "airplane"
+        case .partner: return "heart.fill"
+        case .parents: return "figure.2.and.child"
+        case .outdoors: return "tree.fill"
+        case .commute: return "tram.fill"
+        }
+    }
+
+    var displayName: String {
+        self == .none ? "No Label" : rawValue
+    }
+
+    /// Labels available for picking (excludes .none since that's the default)
+    static var pickable: [LocationLabel] {
+        allCases
+    }
+}
+
+// MARK: - Saved Location
+
 struct SavedLocation: Identifiable, Codable, Equatable {
     let id: UUID
     let name: String
@@ -7,14 +52,30 @@ struct SavedLocation: Identifiable, Codable, Equatable {
     let longitude: Double
     let isCurrentLocation: Bool
     let addedAt: Date
+    var label: LocationLabel
 
-    init(id: UUID = UUID(), name: String, latitude: Double, longitude: Double, isCurrentLocation: Bool = false, addedAt: Date = Date()) {
+    init(id: UUID = UUID(), name: String, latitude: Double, longitude: Double, isCurrentLocation: Bool = false, addedAt: Date = Date(), label: LocationLabel = .none) {
         self.id = id
         self.name = name
         self.latitude = latitude
         self.longitude = longitude
         self.isCurrentLocation = isCurrentLocation
         self.addedAt = addedAt
+        self.label = label
+    }
+
+    /// Icon based on label, falling back to location type
+    var displayIcon: String {
+        if isCurrentLocation { return "location.fill" }
+        return label == .none ? "mappin.circle.fill" : label.icon
+    }
+
+    /// Display name: shows label prefix if set (e.g. "Home — Amsterdam")
+    var displayName: String {
+        if label != .none {
+            return "\(label.rawValue) — \(name)"
+        }
+        return name
     }
 
     static let currentLocationPlaceholder = SavedLocation(
@@ -65,6 +126,12 @@ class LocationStore: ObservableObject {
         saveLocations()
     }
 
+    func updateLabel(for locationId: UUID, label: LocationLabel) {
+        guard let idx = savedLocations.firstIndex(where: { $0.id == locationId }) else { return }
+        savedLocations[idx].label = label
+        saveLocations()
+    }
+
     func removeLocation(_ location: SavedLocation) {
         guard !location.isCurrentLocation else { return } // Can't remove "Current Location"
         savedLocations.removeAll { $0.id == location.id }
@@ -96,7 +163,8 @@ class LocationStore: ObservableObject {
                 latitude: latitude,
                 longitude: longitude,
                 isCurrentLocation: true,
-                addedAt: savedLocations[idx].addedAt
+                addedAt: savedLocations[idx].addedAt,
+                label: savedLocations[idx].label
             )
         } else {
             // First time — add current location entry

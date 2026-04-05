@@ -20,8 +20,9 @@ struct CitySearchSheet: View {
                             SavedLocationRow(
                                 location: location,
                                 isActive: location.id == locationStore.activeLocationId,
-                                onSelect: {
-                                    selectSavedLocation(location)
+                                onSelect: { selectSavedLocation(location) },
+                                onLabelChanged: { newLabel in
+                                    locationStore.updateLabel(for: location.id, label: newLabel)
                                 }
                             )
                         }
@@ -146,11 +147,14 @@ struct SavedLocationRow: View {
     let location: SavedLocation
     let isActive: Bool
     let onSelect: () -> Void
+    var onLabelChanged: ((LocationLabel) -> Void)? = nil
+
+    @State private var showLabelPicker = false
 
     var body: some View {
         Button(action: onSelect) {
             HStack(spacing: 12) {
-                Image(systemName: location.isCurrentLocation ? "location.fill" : "mappin.circle.fill")
+                Image(systemName: location.displayIcon)
                     .font(.title3)
                     .foregroundStyle(location.isCurrentLocation ? .blue : .orange)
                     .frame(width: 30)
@@ -164,6 +168,10 @@ struct SavedLocationRow: View {
                         Text("GPS Location")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                    } else if location.label != .none {
+                        Text(location.label.rawValue)
+                            .font(.caption)
+                            .foregroundStyle(.orange)
                     } else {
                         Text(String(format: "%.2f, %.2f", location.latitude, location.longitude))
                             .font(.caption)
@@ -180,6 +188,71 @@ struct SavedLocationRow: View {
             }
         }
         .deleteDisabled(location.isCurrentLocation)
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+            if !location.isCurrentLocation {
+                Button {
+                    showLabelPicker = true
+                } label: {
+                    Label("Label", systemImage: "tag.fill")
+                }
+                .tint(.orange)
+            }
+        }
+        .sheet(isPresented: $showLabelPicker) {
+            LocationLabelPicker(
+                currentLabel: location.label,
+                locationName: location.name
+            ) { newLabel in
+                onLabelChanged?(newLabel)
+            }
+            .presentationDetents([.medium])
+        }
+    }
+}
+
+// MARK: - Location Label Picker
+
+struct LocationLabelPicker: View {
+    let currentLabel: LocationLabel
+    let locationName: String
+    let onSelect: (LocationLabel) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(LocationLabel.pickable) { label in
+                    Button {
+                        onSelect(label)
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: label.icon)
+                                .font(.body)
+                                .foregroundStyle(label == .none ? .secondary : .orange)
+                                .frame(width: 28)
+
+                            Text(label.displayName)
+                                .foregroundStyle(.primary)
+
+                            Spacer()
+
+                            if label == currentLabel {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Label for \(locationName)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
     }
 }
 

@@ -40,34 +40,42 @@ extension View {
 // MARK: - Background Gradients
 
 struct BackgroundGradient {
+    /// Background gradient that complements the horizon shader header.
+    /// Uses darker, more muted tones since the header provides the atmospheric color.
     static func forTimeOfDay(isDay: Bool, weatherCode: Int) -> LinearGradient {
         let colors: [Color]
 
         if !isDay {
-            colors = [Color(hex: "0F2027"), Color(hex: "203A43"), Color(hex: "2C5364")]
+            colors = [Color(hex: "0A1520"), Color(hex: "0F1D2B"), Color(hex: "0A1218")]
         } else {
             switch weatherCode {
             case 0, 1:
-                colors = [Color(hex: "2196F3"), Color(hex: "64B5F6"), Color(hex: "90CAF9")]
+                // Clear — deep sky blue fading to dark
+                colors = [Color(hex: "0D2137"), Color(hex: "132E4A"), Color(hex: "0F1F30")]
             case 2, 3:
-                colors = [Color(hex: "546E7A"), Color(hex: "78909C"), Color(hex: "90A4AE")]
+                // Cloudy — muted blue-gray
+                colors = [Color(hex: "1A2730"), Color(hex: "1E2F3A"), Color(hex: "15202A")]
             case 45, 48:
-                colors = [Color(hex: "757575"), Color(hex: "9E9E9E"), Color(hex: "BDBDBD")]
+                // Fog — soft gray
+                colors = [Color(hex: "1E2428"), Color(hex: "252B30"), Color(hex: "1A2025")]
             case 51...67:
-                colors = [Color(hex: "37474F"), Color(hex: "455A64"), Color(hex: "546E7A")]
+                // Rain — dark slate
+                colors = [Color(hex: "141D24"), Color(hex: "1A252E"), Color(hex: "111920")]
             case 71...86:
-                colors = [Color(hex: "607D8B"), Color(hex: "90A4AE"), Color(hex: "CFD8DC")]
+                // Snow — cool gray-blue
+                colors = [Color(hex: "1A2530"), Color(hex: "202D38"), Color(hex: "161F28")]
             case 95, 96, 99:
-                colors = [Color(hex: "1A1A2E"), Color(hex: "16213E"), Color(hex: "0F3460")]
+                // Thunderstorm — very dark
+                colors = [Color(hex: "0C0E18"), Color(hex: "10141F"), Color(hex: "080A12")]
             default:
-                colors = [Color(hex: "2196F3"), Color(hex: "64B5F6"), Color(hex: "90CAF9")]
+                colors = [Color(hex: "0D2137"), Color(hex: "132E4A"), Color(hex: "0F1F30")]
             }
         }
 
         return LinearGradient(
             colors: colors,
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
+            startPoint: .top,
+            endPoint: .bottom
         )
     }
 }

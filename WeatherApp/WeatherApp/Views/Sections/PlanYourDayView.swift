@@ -58,8 +58,8 @@ struct PlanYourDayView: View {
             commuteReturnHour: commuteReturnHour
         )
 
-        // Score activities
-        let slots = calendarService.findFreeSlots()
+        // Score activities over the next 36 hours
+        let slots = calendarService.findFreeSlots(forNextHours: 36)
         scoredWindows = ActivityScorer.scoreActivities(
             slots: slots,
             hourlyForecasts: weatherViewModel.hourlyForecasts
@@ -295,7 +295,7 @@ struct ActivityPlannerSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Best Time For", icon: "figure.run")
+            SectionHeader(title: "Best Time For (Next 36h)", icon: "figure.run")
 
             // Activity picker
             ScrollView(.horizontal, showsIndicators: false) {
@@ -334,18 +334,46 @@ struct ActivityPlannerSection: View {
                 .padding(.vertical, 4)
             }
 
-            // Scored windows
+            // Scored windows (next 36 hours)
             if scoredWindows.isEmpty {
-                Text("No suitable time slots found for \(selectedActivity.rawValue.lowercased()) today")
+                Text("No suitable time slots found for \(selectedActivity.rawValue.lowercased()) in the next 36 hours")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 16)
             } else {
-                ForEach(scoredWindows.prefix(4)) { window in
-                    ActivityWindowRow(window: window)
+                let top = Array(scoredWindows.prefix(6))
+                let grouped = Dictionary(grouping: top) { window in
+                    Calendar.current.startOfDay(for: window.slot.start)
+                }
+                let sortedDays = grouped.keys.sorted()
+
+                ForEach(sortedDays, id: \.self) { day in
+                    if sortedDays.count > 1 {
+                        Text(dayLabel(for: day))
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 4)
+                    }
+                    ForEach(grouped[day] ?? []) { window in
+                        ActivityWindowRow(window: window)
+                    }
                 }
             }
+        }
+    }
+
+    private func dayLabel(for day: Date) -> String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(day) {
+            return "Today"
+        } else if calendar.isDateInTomorrow(day) {
+            return "Tomorrow"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE, MMM d"
+            return formatter.string(from: day)
         }
     }
 }
@@ -484,9 +512,16 @@ struct QuickPickRow: View {
 
             Spacer()
 
-            Text(WeatherFormatters.hourTime(window.slot.start))
-                .font(.subheadline)
-                .fontWeight(.medium)
+            VStack(alignment: .trailing, spacing: 1) {
+                if !Calendar.current.isDateInToday(window.slot.start) {
+                    Text(Calendar.current.isDateInTomorrow(window.slot.start) ? "Tomorrow" : window.slot.start.formatted(.dateTime.weekday(.abbreviated)))
+                        .font(.system(size: 9))
+                        .foregroundStyle(.tertiary)
+                }
+                Text(WeatherFormatters.hourTime(window.slot.start))
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+            }
 
             Image(systemName: window.rating.icon)
                 .font(.caption)
