@@ -10,6 +10,10 @@ enum LocationLabel: String, Codable, CaseIterable, Identifiable {
     case gym = "Gym"
     case family = "Family"
     case vacation = "Vacation"
+    case partner = "Partner"
+    case parents = "Parents"
+    case park = "Park"
+    case commute = "Commute"
 
     var id: String { rawValue }
 
@@ -22,6 +26,10 @@ enum LocationLabel: String, Codable, CaseIterable, Identifiable {
         case .gym: return "dumbbell.fill"
         case .family: return "person.2.fill"
         case .vacation: return "airplane"
+        case .partner: return "heart.fill"
+        case .parents: return "figure.2.and.child"
+        case .park: return "leaf.fill"
+        case .commute: return "tram.fill"
         }
     }
 
