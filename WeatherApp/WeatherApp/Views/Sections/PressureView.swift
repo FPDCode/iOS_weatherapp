@@ -73,6 +73,7 @@ struct PressureView: View {
 
                     PressureMiniChart(readings: info.hourlyReadings, trend: info.trend)
                         .frame(height: 50)
+                        .padding(.bottom, 14)
                 }
             }
 
@@ -128,15 +129,37 @@ struct PressureMiniChart: View {
         return (minVal - padding, maxVal + padding)
     }
 
+    /// Indices where we show a time label (every 3 hours, plus first and last)
+    private var labelledIndices: [Int] {
+        guard readings.count > 1 else { return [0] }
+        var indices: [Int] = [0]
+        // Every 3 hours
+        var next = 3
+        while next < readings.count - 1 {
+            indices.append(next)
+            next += 3
+        }
+        indices.append(readings.count - 1)
+        return indices
+    }
+
+    private static let hourFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = UnitSettings.shared.selectedTimeFormat == .twentyFour ? "HH:mm" : "ha"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+
     var body: some View {
         GeometryReader { geo in
             let width = geo.size.width
             let height = geo.size.height
             let range = pressureRange
             let totalRange = max(range.max - range.min, 0.1)
+            let count = max(readings.count - 1, 1)
 
             ZStack(alignment: .topLeading) {
-                // Grid lines
+                // Horizontal grid lines
                 ForEach(0..<3, id: \.self) { i in
                     let y = height * CGFloat(i) / 2
                     Path { path in
@@ -146,29 +169,20 @@ struct PressureMiniChart: View {
                     .stroke(.white.opacity(0.06), lineWidth: 1)
                 }
 
-                // Pressure line
-                Path { path in
-                    for (index, reading) in readings.enumerated() {
-                        let x = width * CGFloat(index) / CGFloat(max(readings.count - 1, 1))
-                        let normalized = (reading.pressure - range.min) / totalRange
-                        let y = height * (1 - CGFloat(normalized))
-
-                        if index == 0 {
-                            path.move(to: CGPoint(x: x, y: y))
-                        } else {
-                            path.addLine(to: CGPoint(x: x, y: y))
-                        }
+                // Vertical grid lines at labelled hours
+                ForEach(labelledIndices.filter { $0 > 0 && $0 < readings.count - 1 }, id: \.self) { idx in
+                    let x = width * CGFloat(idx) / CGFloat(count)
+                    Path { path in
+                        path.move(to: CGPoint(x: x, y: 0))
+                        path.addLine(to: CGPoint(x: x, y: height))
                     }
+                    .stroke(.white.opacity(0.06), lineWidth: 1)
                 }
-                .stroke(
-                    Color(hex: trend.color),
-                    style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
-                )
 
                 // Gradient fill under the line
                 Path { path in
                     for (index, reading) in readings.enumerated() {
-                        let x = width * CGFloat(index) / CGFloat(max(readings.count - 1, 1))
+                        let x = width * CGFloat(index) / CGFloat(count)
                         let normalized = (reading.pressure - range.min) / totalRange
                         let y = height * (1 - CGFloat(normalized))
 
@@ -190,17 +204,45 @@ struct PressureMiniChart: View {
                     )
                 )
 
-                // Time labels
-                HStack {
-                    Text("Now")
-                        .font(.system(size: 8))
-                        .foregroundStyle(.tertiary)
-                    Spacer()
-                    Text("+12h")
-                        .font(.system(size: 8))
-                        .foregroundStyle(.tertiary)
+                // Pressure line
+                Path { path in
+                    for (index, reading) in readings.enumerated() {
+                        let x = width * CGFloat(index) / CGFloat(count)
+                        let normalized = (reading.pressure - range.min) / totalRange
+                        let y = height * (1 - CGFloat(normalized))
+
+                        if index == 0 {
+                            path.move(to: CGPoint(x: x, y: y))
+                        } else {
+                            path.addLine(to: CGPoint(x: x, y: y))
+                        }
+                    }
                 }
-                .offset(y: height + 2)
+                .stroke(
+                    Color(hex: trend.color),
+                    style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round)
+                )
+
+                // Data point dots at labelled hours
+                ForEach(labelledIndices, id: \.self) { idx in
+                    let x = width * CGFloat(idx) / CGFloat(count)
+                    let normalized = (readings[idx].pressure - range.min) / totalRange
+                    let y = height * (1 - CGFloat(normalized))
+                    Circle()
+                        .fill(Color(hex: trend.color))
+                        .frame(width: 4, height: 4)
+                        .position(x: x, y: y)
+                }
+
+                // Time labels along the bottom
+                ForEach(labelledIndices, id: \.self) { idx in
+                    let x = width * CGFloat(idx) / CGFloat(count)
+                    let label = idx == 0 ? "Now" : Self.hourFormatter.string(from: readings[idx].date).lowercased()
+                    Text(label)
+                        .font(.system(size: 8))
+                        .foregroundStyle(.tertiary)
+                        .position(x: x, y: height + 10)
+                }
             }
         }
     }
