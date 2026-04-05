@@ -102,9 +102,9 @@ struct SunriseSunsetView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
-                .offset(y: -10)
+                .offset(y: -20)
             }
-            .frame(height: 130)
+            .frame(height: 200)
             .padding(.horizontal, 8)
 
             // Sunrise + First Light | Sunset + Last Light
@@ -221,10 +221,10 @@ struct SunMoonArcView: View {
             let radius = min(width / 2 - 10, horizonY - 15)
 
             ZStack {
-                // Horizon line
+                // Horizon line — spans only the arc's diameter
                 Path { path in
-                    path.move(to: CGPoint(x: 10, y: horizonY))
-                    path.addLine(to: CGPoint(x: width - 10, y: horizonY))
+                    path.move(to: CGPoint(x: width / 2 - radius, y: horizonY))
+                    path.addLine(to: CGPoint(x: width / 2 + radius, y: horizonY))
                 }
                 .stroke(.white.opacity(0.15), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
 

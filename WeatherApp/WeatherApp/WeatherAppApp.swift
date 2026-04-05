@@ -5,6 +5,7 @@ struct WeatherAppApp: App {
     @StateObject private var locationService = LocationService()
     @StateObject private var weatherViewModel = WeatherViewModel()
     @StateObject private var unitSettings = UnitSettings.shared
+    @Environment(\.scenePhase) private var scenePhase
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
 
     init() {
@@ -36,6 +37,11 @@ struct WeatherAppApp: App {
                     }
                     .onChange(of: unitSettings.apiSignature) { _, _ in
                         fetchWeatherIfReady()
+                    }
+                    .onChange(of: scenePhase) { _, newPhase in
+                        if newPhase == .active {
+                            fetchWeatherIfReady()
+                        }
                     }
             } else {
                 OnboardingView()

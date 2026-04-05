@@ -196,6 +196,7 @@ struct WeatherNowView: View {
                         ComfortIndexView(
                             comfort: comfort,
                             temp: weatherViewModel.currentTemp,
+                            feelsLike: weatherViewModel.hourlyForecasts.first?.feelsLike,
                             windSpeed: weatherViewModel.windInfo?.speed,
                             uvIndex: weatherViewModel.todayUVIndex,
                             isDay: weatherViewModel.isDay,

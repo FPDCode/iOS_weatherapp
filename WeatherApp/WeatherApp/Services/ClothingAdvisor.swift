@@ -19,6 +19,7 @@ final class ClothingAdvisor: ObservableObject {
     /// Generate clothing advice from current weather conditions.
     func generate(
         temp: Double,
+        feelsLike: Double?,
         humidity: Int,
         dewPoint: Double,
         comfortLevel: ComfortLevel,
@@ -27,23 +28,25 @@ final class ClothingAdvisor: ObservableObject {
         isDay: Bool,
         weatherCode: Int
     ) {
-        let inputHash = "\(Int(temp))\(humidity)\(comfortLevel)\(Int(windSpeed ?? 0))\(Int(uvIndex ?? 0))\(isDay)\(weatherCode)".hashValue
+        let inputHash = "\(Int(temp))\(Int(feelsLike ?? temp))\(humidity)\(comfortLevel)\(Int(windSpeed ?? 0))\(Int(uvIndex ?? 0))\(isDay)\(weatherCode)".hashValue
         guard inputHash != lastInputHash else { return }
         lastInputHash = inputHash
 
         #if canImport(FoundationModels)
         if #available(iOS 26, *) {
             generateWithLLM(
-                temp: temp, humidity: humidity, dewPoint: dewPoint,
-                comfortLevel: comfortLevel, windSpeed: windSpeed,
-                uvIndex: uvIndex, isDay: isDay, weatherCode: weatherCode
+                temp: temp, feelsLike: feelsLike, humidity: humidity,
+                dewPoint: dewPoint, comfortLevel: comfortLevel,
+                windSpeed: windSpeed, uvIndex: uvIndex,
+                isDay: isDay, weatherCode: weatherCode
             )
             return
         }
         #endif
         suggestion = Self.staticAdvice(
-            temp: temp, comfortLevel: comfortLevel,
-            windSpeed: windSpeed, uvIndex: uvIndex
+            temp: temp, feelsLike: feelsLike,
+            comfortLevel: comfortLevel, windSpeed: windSpeed,
+            uvIndex: uvIndex
         )
     }
 
@@ -53,6 +56,7 @@ final class ClothingAdvisor: ObservableObject {
     @available(iOS 26, *)
     private func generateWithLLM(
         temp: Double,
+        feelsLike: Double?,
         humidity: Int,
         dewPoint: Double,
         comfortLevel: ComfortLevel,
@@ -70,9 +74,12 @@ final class ClothingAdvisor: ObservableObject {
 
                 let units = UnitSettings.shared
 
-                var conditions = "Temperature: \(WeatherFormatters.temperature(temp)), "
-                conditions += "Humidity: \(humidity)%, "
-                conditions += "Comfort: \(comfortLevel.rawValue)"
+                var conditions = "Temperature: \(WeatherFormatters.temperature(temp))"
+                if let feels = feelsLike {
+                    conditions += ", Feels like: \(WeatherFormatters.temperature(feels))"
+                }
+                conditions += ", Humidity: \(humidity)%"
+                conditions += ", Comfort: \(comfortLevel.rawValue)"
                 if let wind = windSpeed {
                     conditions += ", Wind: \(Int(wind)) \(units.windSpeed)"
                 }
@@ -84,8 +91,9 @@ final class ClothingAdvisor: ObservableObject {
 
                 let prompt = """
                 You are a concise clothing advisor. Given the current weather, suggest \
-                what to wear in ONE short sentence (max 15 words). Be specific about \
-                clothing items. Do not repeat the weather data back.
+                what to wear in ONE short sentence (max 15 words). Base your advice on \
+                the feels-like temperature rather than the actual temperature. Be specific \
+                about clothing items. Do not repeat the weather data back.
 
                 Current conditions: \(conditions)
                 """
@@ -96,8 +104,9 @@ final class ClothingAdvisor: ObservableObject {
             } catch {
                 // Fall back to static advice on any LLM error
                 self.suggestion = Self.staticAdvice(
-                    temp: temp, comfortLevel: comfortLevel,
-                    windSpeed: windSpeed, uvIndex: uvIndex
+                    temp: temp, feelsLike: feelsLike,
+                    comfortLevel: comfortLevel, windSpeed: windSpeed,
+                    uvIndex: uvIndex
                 )
                 self.isGenerating = false
             }
@@ -109,11 +118,15 @@ final class ClothingAdvisor: ObservableObject {
 
     static func staticAdvice(
         temp: Double,
+        feelsLike: Double?,
         comfortLevel: ComfortLevel,
         windSpeed: Double?,
         uvIndex: Double?
     ) -> String {
-        let tempF = UnitSettings.shared.toFahrenheit(temp)
+        // Use feels-like temperature for clothing decisions — it accounts
+        // for wind chill and heat index, which matter more than raw temp.
+        let effectiveTemp = feelsLike ?? temp
+        let tempF = UnitSettings.shared.toFahrenheit(effectiveTemp)
         let isWindy = (windSpeed ?? 0) > 25
         let highUV = (uvIndex ?? 0) >= 6
 
