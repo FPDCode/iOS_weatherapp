@@ -56,6 +56,8 @@
 		A20003 /* RainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10044 /* RainActivityAttributes.swift */; };
 		A20004 /* RainActivityWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C20001 /* RainActivityWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A10045 /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10046 /* SharedWeatherData.swift */; };
+		A10046 /* HorizonHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10047 /* HorizonHeaderView.swift */; };
+		A10047 /* WeatherHorizon.metal in Sources */ = {isa = PBXBuildFile; fileRef = B10048 /* WeatherHorizon.metal */; };
 		A20005 /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10046 /* SharedWeatherData.swift */; };
 		A20006 /* CurrentConditionsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20003 /* CurrentConditionsWidget.swift */; };
 		A20007 /* HourlyForecastWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20004 /* HourlyForecastWidget.swift */; };
@@ -144,6 +146,8 @@
 		B20007 /* BestTimeForWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BestTimeForWidget.swift; sourceTree = "<group>"; };
 		B20008 /* WeatherWidgetHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWidgetHelpers.swift; sourceTree = "<group>"; };
 		B10046 /* SharedWeatherData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWeatherData.swift; sourceTree = "<group>"; };
+		B10047 /* HorizonHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizonHeaderView.swift; sourceTree = "<group>"; };
+		B10048 /* WeatherHorizon.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WeatherHorizon.metal; sourceTree = "<group>"; };
 		C10001 /* WeatherApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C20001 /* RainActivityWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RainActivityWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -180,6 +184,7 @@
 				E10005 /* Views */,
 				E10007 /* Services */,
 				E10008 /* Utilities */,
+				E10011 /* Shaders */,
 			);
 			path = WeatherApp;
 			sourceTree = "<group>";
@@ -282,8 +287,17 @@
 				B10038 /* RadarMapView.swift */,
 				B10041 /* RadarPreviewCard.swift */,
 				B10042 /* SearchTabView.swift */,
+				B10047 /* HorizonHeaderView.swift */,
 			);
 			path = Sections;
+			sourceTree = "<group>";
+		};
+		E10011 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				B10048 /* WeatherHorizon.metal */,
+			);
+			path = Shaders;
 			sourceTree = "<group>";
 		};
 		E20001 /* RainActivityWidget */ = {
@@ -436,6 +450,8 @@
 			A10043 /* RainActivityAttributes.swift in Sources */,
 			A10044 /* RainActivityService.swift in Sources */,
 			A10045 /* SharedWeatherData.swift in Sources */,
+			A10046 /* HorizonHeaderView.swift in Sources */,
+			A10047 /* WeatherHorizon.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
