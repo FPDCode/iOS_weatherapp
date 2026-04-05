@@ -19,7 +19,10 @@ struct SearchTabView: View {
                             SavedLocationRow(
                                 location: location,
                                 isActive: location.id == locationStore.activeLocationId,
-                                onSelect: { selectSavedLocation(location) }
+                                onSelect: { selectSavedLocation(location) },
+                                onLabelChanged: { newLabel in
+                                    locationStore.updateLabel(for: location.id, label: newLabel)
+                                }
                             )
                         }
                         .onDelete(perform: deleteLocations)

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import WidgetKit
 
 @MainActor
 class WeatherViewModel: ObservableObject {
@@ -91,6 +92,13 @@ class WeatherViewModel: ObservableObject {
                 todayHigh: todayHigh,
                 todayLow: todayLow
             )
+
+            // Update rain Live Activity
+            let locationName = LocationStore.shared.activeLocation?.name ?? "Current Location"
+            RainActivityService.shared.update(with: precipTimeline, locationName: locationName)
+
+            // Write shared data for widgets
+            writeWidgetData(locationName: locationName)
 
             lastUpdated = Date()
         } catch {
@@ -795,6 +803,83 @@ class WeatherViewModel: ObservableObject {
     private func formatTimeFromAPI(_ timeString: String) -> String {
         guard let date = hourlyDateFormatter.date(from: timeString) else { return "" }
         return WeatherFormatters.shortTime(date)
+    }
+
+    // MARK: - Widget Data
+
+    private func writeWidgetData(locationName: String) {
+        let sharedHourly = hourlyForecasts.prefix(12).map { h in
+            SharedHourly(time: h.time, temp: h.temperature, weatherCode: h.weatherCode, precipChance: h.precipChance)
+        }
+
+        let sharedDaily = dailyForecasts.prefix(7).map { d in
+            SharedDaily(date: d.date, weatherCode: d.weatherCode, high: d.tempHigh, low: d.tempLow, precipChance: d.precipChance)
+        }
+
+        let sharedPrecip = precipTimeline?.slots.map { s in
+            SharedPrecipSlot(minuteOffset: Swift.max(0, Int(s.time.timeIntervalSince(Date()) / 60)), precipitation: s.precipitation, intensity: s.intensity.rawValue)
+        } ?? []
+
+        // Build activity windows — score activities using default slots
+        let calendar = Calendar.current
+        let now = Date()
+        var activityWindows: [SharedActivityWindow] = []
+        let defaultBlocks: [(Int, Int)] = [(6,8),(8,10),(10,12),(12,14),(14,16),(16,18),(18,20),(20,22)]
+
+        // Cover today and tomorrow
+        for dayOffset in 0...1 {
+            guard let day = calendar.date(byAdding: .day, value: dayOffset, to: now) else { continue }
+            let isToday = dayOffset == 0
+
+            for (startH, endH) in defaultBlocks {
+                guard let start = calendar.date(bySettingHour: startH, minute: 0, second: 0, of: day),
+                      let end = calendar.date(bySettingHour: endH, minute: 0, second: 0, of: day) else { continue }
+                if isToday && end <= now { continue }
+
+                let effectiveStart = isToday ? Swift.max(start, now) : start
+                let slot = FreeTimeSlot(start: effectiveStart, end: end, source: .default)
+                let scored = ActivityScorer.scoreActivities(
+                    slots: [slot],
+                    hourlyForecasts: hourlyForecasts
+                )
+                for window in scored {
+                    activityWindows.append(SharedActivityWindow(
+                        activity: window.activity.rawValue,
+                        activityIcon: window.activity.icon,
+                        startTime: window.slot.start,
+                        endTime: window.slot.end,
+                        score: window.score,
+                        rating: window.rating.rawValue,
+                        ratingColor: window.rating.color,
+                        temp: window.avgTemp,
+                        precipChance: window.maxPrecipChance,
+                        isToday: isToday
+                    ))
+                }
+            }
+        }
+
+        let data = SharedWeatherData(
+            updatedAt: Date(),
+            locationName: locationName,
+            currentTemp: currentTemp,
+            currentFeelsLike: hourlyForecasts.first?.feelsLike ?? currentTemp,
+            currentWeatherCode: currentWeatherCode,
+            currentCondition: currentCondition,
+            isDay: isDay,
+            todayHigh: todayHigh,
+            todayLow: todayLow,
+            hourly: Array(sharedHourly),
+            daily: Array(sharedDaily),
+            precipSlots: sharedPrecip,
+            precipSummary: precipTimeline?.summary ?? "No precipitation data",
+            isRaining: precipTimeline?.isRaining ?? false,
+            nextRainChange: precipTimeline?.nextChangeLabel,
+            activityWindows: activityWindows
+        )
+
+        WidgetDataStore.write(data)
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
 

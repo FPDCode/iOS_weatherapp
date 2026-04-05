@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1567122D2F825C9000D9F201 /* WeatherHorizon.metal in Sources */ = {isa = PBXBuildFile; fileRef = 1567122B2F825C9000D9F201 /* WeatherHorizon.metal */; };
+		157C28652F825020004A6F3B /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28642F825020004A6F3B /* SharedWeatherData.swift */; };
+		157C28662F825020004A6F3B /* RainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28632F825020004A6F3B /* RainActivityAttributes.swift */; };
+		157C28682F825048004A6F3B /* RainActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28672F825048004A6F3B /* RainActivityService.swift */; };
+		157C286C2F825072004A6F3B /* HorizonHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C286B2F825072004A6F3B /* HorizonHeaderView.swift */; };
 		A10001 /* WeatherAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10001 /* WeatherAppApp.swift */; };
 		A10002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10002 /* ContentView.swift */; };
 		A10003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10003 /* Assets.xcassets */; };
@@ -52,6 +57,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1567122B2F825C9000D9F201 /* WeatherHorizon.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WeatherHorizon.metal; sourceTree = "<group>"; };
+		157C28632F825020004A6F3B /* RainActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityAttributes.swift; sourceTree = "<group>"; };
+		157C28642F825020004A6F3B /* SharedWeatherData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWeatherData.swift; sourceTree = "<group>"; };
+		157C28672F825048004A6F3B /* RainActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityService.swift; sourceTree = "<group>"; };
+		157C286B2F825072004A6F3B /* HorizonHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizonHeaderView.swift; sourceTree = "<group>"; };
+		15A1510C2F824895001C40EC /* WeatherApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WeatherApp.entitlements; sourceTree = "<group>"; };
 		B10001 /* WeatherAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAppApp.swift; sourceTree = "<group>"; };
 		B10002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B10003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -109,6 +120,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1567122C2F825C9000D9F201 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				1567122B2F825C9000D9F201 /* WeatherHorizon.metal */,
+			);
+			path = Shaders;
+			sourceTree = "<group>";
+		};
 		E10001 = {
 			isa = PBXGroup;
 			children = (
@@ -120,6 +139,8 @@
 		E10002 /* WeatherApp */ = {
 			isa = PBXGroup;
 			children = (
+				1567122C2F825C9000D9F201 /* Shaders */,
+				15A1510C2F824895001C40EC /* WeatherApp.entitlements */,
 				B10001 /* WeatherAppApp.swift */,
 				B10002 /* ContentView.swift */,
 				B10014 /* Info.plist */,
@@ -136,6 +157,8 @@
 		E10003 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				157C28632F825020004A6F3B /* RainActivityAttributes.swift */,
+				157C28642F825020004A6F3B /* SharedWeatherData.swift */,
 				B10004 /* WeatherModels.swift */,
 				B10022 /* MorningBriefing.swift */,
 				B10023 /* UnitSettings.swift */,
@@ -176,6 +199,7 @@
 		E10007 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				157C28672F825048004A6F3B /* RainActivityService.swift */,
 				B10006 /* WeatherService.swift */,
 				B10007 /* LocationService.swift */,
 				B10016 /* CitySearchService.swift */,
@@ -184,7 +208,7 @@
 				B10034 /* AlertsService.swift */,
 				B10037 /* RadarService.swift */,
 				B10039 /* TileCache.swift */,
-			B10043 /* ClothingAdvisor.swift */,
+				B10043 /* ClothingAdvisor.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -227,6 +251,7 @@
 				B10038 /* RadarMapView.swift */,
 				B10041 /* RadarPreviewCard.swift */,
 				B10042 /* SearchTabView.swift */,
+				157C286B2F825072004A6F3B /* HorizonHeaderView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -312,12 +337,14 @@
 				A10011 /* TodayPhasesView.swift in Sources */,
 				A10012 /* HourlyForecastView.swift in Sources */,
 				A10013 /* DailyForecastView.swift in Sources */,
+				1567122D2F825C9000D9F201 /* WeatherHorizon.metal in Sources */,
 				A10014 /* SettingsView.swift in Sources */,
 				A10015 /* CitySearchService.swift in Sources */,
 				A10016 /* CitySearchSheet.swift in Sources */,
 				A10017 /* WeatherNowView.swift in Sources */,
 				A10018 /* PlanYourDayView.swift in Sources */,
 				A10019 /* CalendarService.swift in Sources */,
+				157C286C2F825072004A6F3B /* HorizonHeaderView.swift in Sources */,
 				A10020 /* ActivityScorer.swift in Sources */,
 				A10021 /* MorningBriefing.swift in Sources */,
 				A10022 /* UnitSettings.swift in Sources */,
@@ -326,6 +353,8 @@
 				A10025 /* PressureView.swift in Sources */,
 				A10026 /* WindGaugeView.swift in Sources */,
 				A10027 /* SunriseSunsetView.swift in Sources */,
+				157C28652F825020004A6F3B /* SharedWeatherData.swift in Sources */,
+				157C28662F825020004A6F3B /* RainActivityAttributes.swift in Sources */,
 				A10028 /* PrecipTimelineView.swift in Sources */,
 				A10029 /* SunshinePlannerView.swift in Sources */,
 				A10030 /* ComfortIndexView.swift in Sources */,
@@ -334,13 +363,14 @@
 				A10033 /* AlertsService.swift in Sources */,
 				A10034 /* WeatherWarningsView.swift in Sources */,
 				A10035 /* DayDetailSheet.swift in Sources */,
+				157C28682F825048004A6F3B /* RainActivityService.swift in Sources */,
 				A10036 /* RadarService.swift in Sources */,
 				A10037 /* RadarMapView.swift in Sources */,
 				A10038 /* TileCache.swift in Sources */,
 				A10039 /* SavedLocation.swift in Sources */,
 				A10040 /* RadarPreviewCard.swift in Sources */,
 				A10041 /* SearchTabView.swift in Sources */,
-			A10042 /* ClothingAdvisor.swift in Sources */,
+				A10042 /* ClothingAdvisor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,6 +499,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WeatherApp/WeatherApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MBVPABF8MH;
@@ -476,10 +507,10 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WeatherApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Weather;
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Access your calendar to find the best weather windows in your free time for outdoor activities.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you local weather conditions.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -490,7 +521,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.betterWeather;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.WeatherBetter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -505,6 +536,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WeatherApp/WeatherApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MBVPABF8MH;
@@ -512,10 +544,10 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WeatherApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Weather;
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Access your calendar to find the best weather windows in your free time for outdoor activities.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you local weather conditions.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -526,7 +558,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.betterWeather;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.WeatherBetter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
