@@ -86,7 +86,7 @@ struct WeatherNowView: View {
     private var mainContent: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
-                CurrentWeatherHeader(
+                AdaptiveHorizonHeader(
                     cityName: locationService.cityName,
                     temperature: weatherViewModel.currentTemp,
                     condition: weatherViewModel.currentCondition,
@@ -96,6 +96,8 @@ struct WeatherNowView: View {
                     isDay: weatherViewModel.isDay,
                     sunrise: weatherViewModel.sunrise,
                     sunset: weatherViewModel.sunset,
+                    sunriseDate: weatherViewModel.sunriseDate,
+                    sunsetDate: weatherViewModel.sunsetDate,
                     lastUpdated: weatherViewModel.lastUpdated
                 )
                 .background(
