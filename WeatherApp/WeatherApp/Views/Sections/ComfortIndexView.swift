@@ -3,6 +3,7 @@ import SwiftUI
 struct ComfortIndexView: View {
     let comfort: ComfortInfo
     var temp: Double = 0
+    var feelsLike: Double? = nil
     var windSpeed: Double? = nil
     var uvIndex: Double? = nil
     var isDay: Bool = true
@@ -48,12 +49,12 @@ struct ComfortIndexView: View {
             // Comfort scale
             ComfortScaleBar(level: comfort.level)
         }
-        .task(id: "\(comfort.level)\(Int(temp))") {
+        .task(id: "\(comfort.level)\(Int(temp))\(Int(feelsLike ?? temp))") {
             clothingAdvisor.generate(
-                temp: temp, humidity: comfort.humidity,
-                dewPoint: comfort.dewPoint, comfortLevel: comfort.level,
-                windSpeed: windSpeed, uvIndex: uvIndex,
-                isDay: isDay, weatherCode: weatherCode
+                temp: temp, feelsLike: feelsLike,
+                humidity: comfort.humidity, dewPoint: comfort.dewPoint,
+                comfortLevel: comfort.level, windSpeed: windSpeed,
+                uvIndex: uvIndex, isDay: isDay, weatherCode: weatherCode
             )
         }
     }
