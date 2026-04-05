@@ -52,6 +52,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		15A1510C2F824895001C40EC /* WeatherApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WeatherApp.entitlements; sourceTree = "<group>"; };
 		B10001 /* WeatherAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAppApp.swift; sourceTree = "<group>"; };
 		B10002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B10003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -120,6 +121,7 @@
 		E10002 /* WeatherApp */ = {
 			isa = PBXGroup;
 			children = (
+				15A1510C2F824895001C40EC /* WeatherApp.entitlements */,
 				B10001 /* WeatherAppApp.swift */,
 				B10002 /* ContentView.swift */,
 				B10014 /* Info.plist */,
@@ -184,7 +186,7 @@
 				B10034 /* AlertsService.swift */,
 				B10037 /* RadarService.swift */,
 				B10039 /* TileCache.swift */,
-			B10043 /* ClothingAdvisor.swift */,
+				B10043 /* ClothingAdvisor.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -340,7 +342,7 @@
 				A10039 /* SavedLocation.swift in Sources */,
 				A10040 /* RadarPreviewCard.swift in Sources */,
 				A10041 /* SearchTabView.swift in Sources */,
-			A10042 /* ClothingAdvisor.swift in Sources */,
+				A10042 /* ClothingAdvisor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,6 +471,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WeatherApp/WeatherApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MBVPABF8MH;
@@ -479,6 +482,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Access your calendar to find the best weather windows in your free time for outdoor activities.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you local weather conditions.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -489,7 +493,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.WeatherApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.WeatherBetter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -504,6 +508,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = WeatherApp/WeatherApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MBVPABF8MH;
@@ -514,6 +519,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Access your calendar to find the best weather windows in your free time for outdoor activities.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show you local weather conditions.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -524,7 +530,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.WeatherApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.WeatherBetter;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
