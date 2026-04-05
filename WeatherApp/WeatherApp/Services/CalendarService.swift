@@ -26,7 +26,52 @@ class CalendarService: ObservableObject {
 
     func findFreeSlots(forDate date: Date = Date()) -> [FreeTimeSlot] {
         guard hasCalendarAccess else { return generateDefaultSlots(for: date) }
+        return findCalendarFreeSlots(for: date)
+    }
 
+    /// Find free slots spanning the next `hours` hours across multiple days.
+    /// Uses calendar gaps when access is granted, otherwise default 2-hour blocks.
+    func findFreeSlots(forNextHours hours: Int) -> [FreeTimeSlot] {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let horizon = calendar.date(byAdding: .hour, value: hours, to: now) else {
+            return findFreeSlots()
+        }
+
+        // Collect days from today through the horizon date
+        var allSlots: [FreeTimeSlot] = []
+        var day = now
+        while day <= horizon {
+            let daySlots: [FreeTimeSlot]
+            if hasCalendarAccess {
+                daySlots = findCalendarFreeSlots(for: day)
+            } else {
+                daySlots = generateDefaultSlots(for: day)
+            }
+            // Trim slots to the horizon
+            for slot in daySlots {
+                guard slot.start < horizon else { continue }
+                if slot.end <= horizon {
+                    allSlots.append(slot)
+                } else {
+                    allSlots.append(FreeTimeSlot(
+                        start: slot.start,
+                        end: horizon,
+                        source: slot.source
+                    ))
+                }
+            }
+            guard let nextDay = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: day)) else { break }
+            day = nextDay
+        }
+
+        freeSlots = allSlots
+        return allSlots
+    }
+
+    // MARK: - Private
+
+    private func findCalendarFreeSlots(for date: Date) -> [FreeTimeSlot] {
         let calendar = Calendar.current
         let dayStart = calendar.startOfDay(for: date)
         guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else {
@@ -82,7 +127,6 @@ class CalendarService: ObservableObject {
             }
         }
 
-        freeSlots = slots
         return slots
     }
 
@@ -119,7 +163,6 @@ class CalendarService: ObservableObject {
             ))
         }
 
-        freeSlots = slots
         return slots
     }
 }
