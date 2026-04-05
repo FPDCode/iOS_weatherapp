@@ -804,21 +804,6 @@ class WeatherViewModel: ObservableObject {
         guard let date = hourlyDateFormatter.date(from: timeString) else { return "" }
         return WeatherFormatters.shortTime(date)
     }
-}
-
-// MARK: - Safe Array Access
-
-extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}
-
-extension Array where Element == Optional<Int> {
-    subscript(safe index: Int) -> Int? {
-        guard indices.contains(index) else { return nil }
-        return self[index]
-    }
 
     // MARK: - Widget Data
 
@@ -832,7 +817,7 @@ extension Array where Element == Optional<Int> {
         }
 
         let sharedPrecip = precipTimeline?.slots.map { s in
-            SharedPrecipSlot(minuteOffset: max(0, Int(s.time.timeIntervalSince(Date()) / 60)), precipitation: s.precipitation, intensity: s.intensity.rawValue)
+            SharedPrecipSlot(minuteOffset: Swift.max(0, Int(s.time.timeIntervalSince(Date()) / 60)), precipitation: s.precipitation, intensity: s.intensity.rawValue)
         } ?? []
 
         // Build activity windows — score activities using default slots
@@ -851,7 +836,8 @@ extension Array where Element == Optional<Int> {
                       let end = calendar.date(bySettingHour: endH, minute: 0, second: 0, of: day) else { continue }
                 if isToday && end <= now { continue }
 
-                let slot = FreeTimeSlot(start: isToday ? max(start, now) : start, end: end, source: .default)
+                let effectiveStart = isToday ? Swift.max(start, now) : start
+                let slot = FreeTimeSlot(start: effectiveStart, end: end, source: .default)
                 let scored = ActivityScorer.scoreActivities(
                     slots: [slot],
                     hourlyForecasts: hourlyForecasts
@@ -894,6 +880,21 @@ extension Array where Element == Optional<Int> {
 
         WidgetDataStore.write(data)
         WidgetCenter.shared.reloadAllTimelines()
+    }
+}
+
+// MARK: - Safe Array Access
+
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}
+
+extension Array where Element == Optional<Int> {
+    subscript(safe index: Int) -> Int? {
+        guard indices.contains(index) else { return nil }
+        return self[index]
     }
 }
 
