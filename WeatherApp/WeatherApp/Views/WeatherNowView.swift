@@ -41,8 +41,8 @@ struct WeatherNowView: View {
                                     switchLocation(location)
                                 } label: {
                                     Label(
-                                        location.name,
-                                        systemImage: location.isCurrentLocation ? "location.fill" : "mappin.circle.fill"
+                                        location.displayName,
+                                        systemImage: location.displayIcon
                                     )
                                     if location.id == locationStore.activeLocationId {
                                         Image(systemName: "checkmark")
@@ -51,7 +51,7 @@ struct WeatherNowView: View {
                             }
                         } label: {
                             HStack(spacing: 4) {
-                                Image(systemName: locationStore.isUsingCurrentLocation ? "location.fill" : "mappin.circle.fill")
+                                Image(systemName: locationStore.activeLocation?.displayIcon ?? "location.fill")
                                     .font(.caption)
                                 Image(systemName: "chevron.down")
                                     .font(.system(size: 8, weight: .bold))
