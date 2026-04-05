@@ -92,6 +92,10 @@ class WeatherViewModel: ObservableObject {
                 todayLow: todayLow
             )
 
+            // Update rain Live Activity
+            let locationName = LocationStore.shared.activeLocation?.name ?? "Current Location"
+            RainActivityService.shared.update(with: precipTimeline, locationName: locationName)
+
             lastUpdated = Date()
         } catch {
             print("❌ Weather fetch failed: \(error)")
