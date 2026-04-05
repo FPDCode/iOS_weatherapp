@@ -55,6 +55,14 @@
 		A20002 /* RainActivityLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20002 /* RainActivityLiveActivity.swift */; };
 		A20003 /* RainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10044 /* RainActivityAttributes.swift */; };
 		A20004 /* RainActivityWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C20001 /* RainActivityWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A10045 /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10046 /* SharedWeatherData.swift */; };
+		A20005 /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10046 /* SharedWeatherData.swift */; };
+		A20006 /* CurrentConditionsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20003 /* CurrentConditionsWidget.swift */; };
+		A20007 /* HourlyForecastWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20004 /* HourlyForecastWidget.swift */; };
+		A20008 /* RainTimelineWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20005 /* RainTimelineWidget.swift */; };
+		A20009 /* DailyForecastWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20006 /* DailyForecastWidget.swift */; };
+		A20010 /* BestTimeForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20007 /* BestTimeForWidget.swift */; };
+		A20011 /* WeatherWidgetHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20008 /* WeatherWidgetHelpers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -129,6 +137,13 @@
 		B10045 /* RainActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityService.swift; sourceTree = "<group>"; };
 		B20001 /* RainActivityBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityBundle.swift; sourceTree = "<group>"; };
 		B20002 /* RainActivityLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityLiveActivity.swift; sourceTree = "<group>"; };
+		B20003 /* CurrentConditionsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentConditionsWidget.swift; sourceTree = "<group>"; };
+		B20004 /* HourlyForecastWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourlyForecastWidget.swift; sourceTree = "<group>"; };
+		B20005 /* RainTimelineWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainTimelineWidget.swift; sourceTree = "<group>"; };
+		B20006 /* DailyForecastWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyForecastWidget.swift; sourceTree = "<group>"; };
+		B20007 /* BestTimeForWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BestTimeForWidget.swift; sourceTree = "<group>"; };
+		B20008 /* WeatherWidgetHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWidgetHelpers.swift; sourceTree = "<group>"; };
+		B10046 /* SharedWeatherData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWeatherData.swift; sourceTree = "<group>"; };
 		C10001 /* WeatherApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C20001 /* RainActivityWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RainActivityWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -177,6 +192,7 @@
 				B10023 /* UnitSettings.swift */,
 				B10040 /* SavedLocation.swift */,
 				B10044 /* RainActivityAttributes.swift */,
+				B10046 /* SharedWeatherData.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -275,6 +291,12 @@
 			children = (
 				B20001 /* RainActivityBundle.swift */,
 				B20002 /* RainActivityLiveActivity.swift */,
+				B20003 /* CurrentConditionsWidget.swift */,
+				B20004 /* HourlyForecastWidget.swift */,
+				B20005 /* RainTimelineWidget.swift */,
+				B20006 /* DailyForecastWidget.swift */,
+				B20007 /* BestTimeForWidget.swift */,
+				B20008 /* WeatherWidgetHelpers.swift */,
 			);
 			path = RainActivityWidget;
 			sourceTree = "<group>";
@@ -413,6 +435,7 @@
 			A10042 /* ClothingAdvisor.swift in Sources */,
 			A10043 /* RainActivityAttributes.swift in Sources */,
 			A10044 /* RainActivityService.swift in Sources */,
+			A10045 /* SharedWeatherData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -423,6 +446,13 @@
 				A20001 /* RainActivityBundle.swift in Sources */,
 				A20002 /* RainActivityLiveActivity.swift in Sources */,
 				A20003 /* RainActivityAttributes.swift in Sources */,
+				A20005 /* SharedWeatherData.swift in Sources */,
+				A20006 /* CurrentConditionsWidget.swift in Sources */,
+				A20007 /* HourlyForecastWidget.swift in Sources */,
+				A20008 /* RainTimelineWidget.swift in Sources */,
+				A20009 /* DailyForecastWidget.swift in Sources */,
+				A20010 /* BestTimeForWidget.swift in Sources */,
+				A20011 /* WeatherWidgetHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

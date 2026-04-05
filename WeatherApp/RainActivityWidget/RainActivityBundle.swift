@@ -2,8 +2,13 @@ import SwiftUI
 import WidgetKit
 
 @main
-struct RainActivityBundle: WidgetBundle {
+struct WeatherWidgetBundle: WidgetBundle {
     var body: some Widget {
         RainActivityLiveActivity()
+        CurrentConditionsWidget()
+        HourlyForecastWidget()
+        RainTimelineWidget()
+        DailyForecastWidget()
+        BestTimeForWidget()
     }
 }
