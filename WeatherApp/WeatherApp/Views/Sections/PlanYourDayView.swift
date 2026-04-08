@@ -160,14 +160,22 @@ struct AlertsSection: View {
             SectionHeader(title: "Alerts", icon: "exclamationmark.triangle.fill")
 
             ForEach(alerts) { alert in
-                HStack(spacing: 10) {
+                HStack(alignment: .top, spacing: 10) {
                     Image(systemName: alert.icon)
                         .font(.body)
                         .foregroundStyle(alert.severity == .warning ? .red : .orange)
                         .frame(width: 28)
 
-                    Text(alert.message)
-                        .font(.subheadline)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(alert.message)
+                            .font(.subheadline)
+
+                        if let timing = alert.timing {
+                            Text(timing)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
             }
         }

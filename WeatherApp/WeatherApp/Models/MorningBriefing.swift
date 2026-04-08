@@ -43,21 +43,38 @@ struct MorningBriefing {
             return CommuteForecast(label: "Return", time: WeatherFormatters.shortTime(forecast.time), forecast: forecast)
         }
 
-        // Alerts
+        // Alerts — with timing info so user can plan ahead
+        let now = Date()
         var alerts: [WeatherAlert] = []
-        if maxPrecip >= 70 {
-            alerts.append(WeatherAlert(icon: "cloud.heavyrain.fill", message: "Heavy rain expected today", severity: .warning))
-        }
-        let maxWind = hourly.prefix(24).map(\.windSpeed).max() ?? 0
         let settings = UnitSettings.shared
+
+        // Heavy rain alert
+        if maxPrecip >= 70 {
+            let rainStart = hourly.prefix(24).first { $0.precipChance >= 60 }
+            let timing = Self.timingLabel(from: now, to: rainStart?.time)
+            alerts.append(WeatherAlert(icon: "cloud.heavyrain.fill", message: "Heavy rain expected — up to \(maxPrecip)% chance", severity: .warning, timing: timing))
+        }
+
+        // Strong wind alert
+        let maxWind = hourly.prefix(24).map(\.windSpeed).max() ?? 0
         if maxWind >= settings.toMph(25) {
-            alerts.append(WeatherAlert(icon: "wind", message: "Strong winds up to \(WeatherFormatters.windSpeed(maxWind))", severity: .caution))
+            let windStart = hourly.prefix(24).first { $0.windSpeed >= settings.toMph(25) }
+            let timing = Self.timingLabel(from: now, to: windStart?.time)
+            alerts.append(WeatherAlert(icon: "wind", message: "Strong winds up to \(WeatherFormatters.windSpeed(maxWind))", severity: .caution, timing: timing))
         }
+
+        // Extreme heat
         if high >= settings.threshold(fahrenheit: 95) {
-            alerts.append(WeatherAlert(icon: "thermometer.sun.fill", message: "Extreme heat — stay hydrated", severity: .warning))
+            let peakHour = hourly.prefix(24).max(by: { $0.temperature < $1.temperature })
+            let timing = Self.timingLabel(from: now, to: peakHour?.time, verb: "Peaks")
+            alerts.append(WeatherAlert(icon: "thermometer.sun.fill", message: "Extreme heat — stay hydrated", severity: .warning, timing: timing))
         }
+
+        // Freezing temps
         if low <= settings.threshold(fahrenheit: 32) {
-            alerts.append(WeatherAlert(icon: "thermometer.snowflake", message: "Freezing temperatures expected", severity: .caution))
+            let freezeHour = hourly.prefix(24).first { $0.temperature <= settings.threshold(fahrenheit: 32) }
+            let timing = Self.timingLabel(from: now, to: freezeHour?.time)
+            alerts.append(WeatherAlert(icon: "thermometer.snowflake", message: "Freezing temperatures expected", severity: .caution, timing: timing))
         }
 
         return MorningBriefing(
@@ -69,6 +86,24 @@ struct MorningBriefing {
             sunriseSunset: "\(sunrise) → \(sunset)",
             alerts: alerts
         )
+    }
+
+    private static func timingLabel(from now: Date, to target: Date?, verb: String = "Starting") -> String? {
+        guard let target else { return nil }
+        let minutes = Int(target.timeIntervalSince(now) / 60)
+        if minutes <= 0 {
+            return "Happening now"
+        }
+        let timeStr = WeatherFormatters.shortTime(target)
+        if minutes < 60 {
+            return "\(verb) around \(timeStr) — in \(minutes)m"
+        }
+        let hours = minutes / 60
+        let remainMins = minutes % 60
+        if remainMins == 0 {
+            return "\(verb) around \(timeStr) — in \(hours)h"
+        }
+        return "\(verb) around \(timeStr) — in \(hours)h \(remainMins)m"
     }
 }
 
@@ -145,6 +180,7 @@ struct WeatherAlert: Identifiable {
     let icon: String
     let message: String
     let severity: AlertSeverity
+    let timing: String? // e.g. "Starting around 2 PM — in 3h"
 
     enum AlertSeverity {
         case caution
