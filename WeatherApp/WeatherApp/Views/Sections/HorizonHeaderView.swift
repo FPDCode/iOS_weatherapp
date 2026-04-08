@@ -56,27 +56,32 @@ struct HorizonHeaderView: View {
             // Weather info overlay
             weatherOverlay
         }
+        .frame(maxWidth: .infinity)
         .frame(height: 340)
         .clipped()
+        .contentShape(Rectangle())
     }
 
     // MARK: - Sky Shader Canvas
 
     private var skyCanvas: some View {
-        GeometryReader { geo in
-            TimelineView(.animation) { timeline in
-                let time = timeline.date.timeIntervalSince1970
-                Rectangle()
-                    .fill(.white)
-                    .colorEffect(
-                        ShaderLibrary.weatherHorizon(
-                            .float2(geo.size.width, geo.size.height),
-                            .float(timeOfDay),
-                            .float(weatherFactor),
-                            .float(time.truncatingRemainder(dividingBy: 10000))
-                        )
-                    )
+        TimelineView(.animation) { timeline in
+            let time = timeline.date.timeIntervalSince1970
+            Canvas { context, size in
+                // Draw a white rect, then apply the shader
+                context.fill(
+                    Path(CGRect(origin: .zero, size: size)),
+                    with: .color(.white)
+                )
             }
+            .colorEffect(
+                ShaderLibrary.weatherHorizon(
+                    .float2(UIScreen.main.bounds.width - 32, 340),
+                    .float(timeOfDay),
+                    .float(weatherFactor),
+                    .float(time.truncatingRemainder(dividingBy: 10000))
+                )
+            )
         }
     }
 

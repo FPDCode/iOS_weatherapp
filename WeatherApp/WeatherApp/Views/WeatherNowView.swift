@@ -229,6 +229,8 @@ struct WeatherNowView: View {
             }
             .padding(.horizontal, 16)
         }
+        .scrollIndicators(.hidden)
+        .scrollClipDisabled(false)
         .coordinateSpace(name: "scroll")
         .onPreferenceChange(ScrollOffsetKey.self) { offset in
             // Show nav title when the header scrolls past the top
