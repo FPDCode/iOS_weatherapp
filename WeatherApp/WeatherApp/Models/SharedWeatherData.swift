@@ -77,9 +77,17 @@ enum WidgetDataStore {
 
     /// Called by the main app after each weather fetch
     static func write(_ data: SharedWeatherData) {
-        guard let defaults = sharedDefaults,
-              let encoded = try? JSONEncoder().encode(data) else { return }
+        guard let defaults = sharedDefaults else {
+            print("⚠️ Widget: App Group UserDefaults is nil — check entitlement: \(appGroupID)")
+            return
+        }
+        guard let encoded = try? JSONEncoder().encode(data) else {
+            print("⚠️ Widget: Failed to encode SharedWeatherData")
+            return
+        }
         defaults.set(encoded, forKey: dataKey)
+        defaults.synchronize()
+        print("✅ Widget: Wrote \(encoded.count) bytes to App Group")
     }
 
     /// Called by widget extensions to read current weather
