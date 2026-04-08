@@ -61,14 +61,16 @@ struct CloudCoverView: View {
                 // Cloud percentage
                 VStack(spacing: 4) {
                     Text("\(displayTotal)%")
-                        .font(.title)
+                        .font(.title2)
                         .fontWeight(.bold)
                         .contentTransition(.numericText())
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(1)
                     Text(selectedIndex != nil ? displayLabel : "Coverage")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
-                .frame(width: 70)
+                .frame(width: 60)
 
                 // Cloud layers
                 VStack(alignment: .leading, spacing: 6) {
