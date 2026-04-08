@@ -33,7 +33,6 @@ struct CloudCoverView: View {
             if info.hourlyReadings.count >= 4 {
                 Divider().background(.white.opacity(0.1))
                 CloudTimeline(readings: info.hourlyReadings)
-                    .frame(height: 40)
             }
 
             // Storm risk
@@ -98,33 +97,18 @@ struct CloudTimeline: View {
     let readings: [(date: Date, total: Int, low: Int, mid: Int, high: Int)]
 
     var body: some View {
-        VStack(spacing: 2) {
-            GeometryReader { geo in
-                let width = geo.size.width
-                let height = geo.size.height
+        VStack(spacing: 10) {
+            CloudLayerChart(label: "High", values: readings.map(\.high), color: "90CAF9")
+            CloudLayerChart(label: "Mid", values: readings.map(\.mid), color: "78909C")
+            CloudLayerChart(label: "Low", values: readings.map(\.low), color: "546E7A")
 
-                // Stacked area for high/mid/low
-                ZStack {
-                    // High clouds (top layer, lightest)
-                    cloudAreaPath(values: readings.map(\.high), width: width, height: height)
-                        .fill(Color(hex: "90CAF9").opacity(0.2))
-
-                    // Mid clouds
-                    cloudAreaPath(values: readings.map(\.mid), width: width, height: height)
-                        .fill(Color(hex: "78909C").opacity(0.25))
-
-                    // Low clouds (bottom layer, darkest)
-                    cloudAreaPath(values: readings.map(\.low), width: width, height: height)
-                        .fill(Color(hex: "546E7A").opacity(0.3))
-
-                    // Total line on top
-                    cloudLinePath(values: readings.map(\.total), width: width, height: height)
-                        .stroke(.white.opacity(0.4), lineWidth: 1.5)
-                }
-            }
-
+            // Time labels
             HStack {
                 Text("Now")
+                    .font(.system(size: 8))
+                    .foregroundStyle(.tertiary)
+                Spacer()
+                Text("+12h")
                     .font(.system(size: 8))
                     .foregroundStyle(.tertiary)
                 Spacer()
@@ -134,33 +118,61 @@ struct CloudTimeline: View {
             }
         }
     }
+}
 
-    private func cloudAreaPath(values: [Int], width: CGFloat, height: CGFloat) -> Path {
-        Path { path in
-            guard values.count >= 2 else { return }
-            let step = width / CGFloat(values.count - 1)
+private struct CloudLayerChart: View {
+    let label: String
+    let values: [Int]
+    let color: String
 
-            path.move(to: CGPoint(x: 0, y: height))
-            for (i, val) in values.enumerated() {
-                let x = step * CGFloat(i)
-                let y = height * (1 - CGFloat(val) / 100)
-                path.addLine(to: CGPoint(x: x, y: y))
-            }
-            path.addLine(to: CGPoint(x: width, y: height))
-            path.closeSubpath()
-        }
-    }
+    var body: some View {
+        VStack(spacing: 2) {
+            HStack {
+                Text(label)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 30, alignment: .leading)
 
-    private func cloudLinePath(values: [Int], width: CGFloat, height: CGFloat) -> Path {
-        Path { path in
-            guard values.count >= 2 else { return }
-            let step = width / CGFloat(values.count - 1)
+                GeometryReader { geo in
+                    let width = geo.size.width
+                    let height = geo.size.height
 
-            for (i, val) in values.enumerated() {
-                let x = step * CGFloat(i)
-                let y = height * (1 - CGFloat(val) / 100)
-                if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
-                else { path.addLine(to: CGPoint(x: x, y: y)) }
+                    ZStack {
+                        // Area fill
+                        Path { path in
+                            guard values.count >= 2 else { return }
+                            let step = width / CGFloat(values.count - 1)
+                            path.move(to: CGPoint(x: 0, y: height))
+                            for (i, val) in values.enumerated() {
+                                let x = step * CGFloat(i)
+                                let y = height * (1 - CGFloat(val) / 100)
+                                path.addLine(to: CGPoint(x: x, y: y))
+                            }
+                            path.addLine(to: CGPoint(x: width, y: height))
+                            path.closeSubpath()
+                        }
+                        .fill(Color(hex: color).opacity(0.25))
+
+                        // Line
+                        Path { path in
+                            guard values.count >= 2 else { return }
+                            let step = width / CGFloat(values.count - 1)
+                            for (i, val) in values.enumerated() {
+                                let x = step * CGFloat(i)
+                                let y = height * (1 - CGFloat(val) / 100)
+                                if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
+                                else { path.addLine(to: CGPoint(x: x, y: y)) }
+                            }
+                        }
+                        .stroke(Color(hex: color).opacity(0.7), lineWidth: 1.5)
+                    }
+                }
+                .frame(height: 28)
+
+                Text("\(values.first ?? 0)%")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 30, alignment: .trailing)
             }
         }
     }
