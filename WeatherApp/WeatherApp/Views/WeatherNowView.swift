@@ -85,7 +85,8 @@ struct WeatherNowView: View {
 
     private var mainContent: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 20) {
+            VStack(spacing: 0) {
+                // Edge-to-edge horizon shader header
                 AdaptiveHorizonHeader(
                     cityName: locationService.cityName,
                     temperature: weatherViewModel.currentTemp,
@@ -107,127 +108,131 @@ struct WeatherNowView: View {
                     }
                 )
 
-                // Weather Warnings (NWS + Smart)
-                if !weatherViewModel.nwsAlerts.isEmpty || !weatherViewModel.smartWarnings.isEmpty {
+                // Cards section with padding
+                VStack(spacing: 16) {
+                    // Weather Warnings (NWS + Smart)
+                    if !weatherViewModel.nwsAlerts.isEmpty || !weatherViewModel.smartWarnings.isEmpty {
+                        GlassCard {
+                            WeatherWarningsView(
+                                nwsAlerts: weatherViewModel.nwsAlerts,
+                                smartWarnings: weatherViewModel.smartWarnings
+                            )
+                        }
+                    }
+
+                    // Precipitation Timeline (next 2 hours)
+                    if let precip = weatherViewModel.precipTimeline {
+                        GlassCard {
+                            PrecipTimelineView(timeline: precip)
+                        }
+                    }
+
                     GlassCard {
-                        WeatherWarningsView(
-                            nwsAlerts: weatherViewModel.nwsAlerts,
-                            smartWarnings: weatherViewModel.smartWarnings
+                        TodayPhasesView(
+                            phases: weatherViewModel.todayPhases,
+                            isDay: weatherViewModel.isDay
                         )
                     }
-                }
 
-                // Precipitation Timeline (next 2 hours)
-                if let precip = weatherViewModel.precipTimeline {
                     GlassCard {
-                        PrecipTimelineView(timeline: precip)
-                    }
-                }
-
-                GlassCard {
-                    TodayPhasesView(
-                        phases: weatherViewModel.todayPhases,
-                        isDay: weatherViewModel.isDay
-                    )
-                }
-
-                GlassCard {
-                    HourlyForecastView(
-                        forecasts: weatherViewModel.hourlyForecasts
-                    )
-                }
-
-                // Radar preview map
-                if let lat = locationService.latitude, let lon = locationService.longitude {
-                    GlassCard {
-                        RadarPreviewCard(
-                            latitude: lat,
-                            longitude: lon,
-                            isCurrentLocation: locationStore.isUsingCurrentLocation,
-                            onTap: { switchToRadar?() }
+                        HourlyForecastView(
+                            forecasts: weatherViewModel.hourlyForecasts
                         )
                     }
-                }
 
-                GlassCard {
-                    DailyForecastView(
-                        forecasts: weatherViewModel.dailyForecasts
-                    )
-                }
+                    // Radar preview map
+                    if let lat = locationService.latitude, let lon = locationService.longitude {
+                        GlassCard {
+                            RadarPreviewCard(
+                                latitude: lat,
+                                longitude: lon,
+                                isCurrentLocation: locationStore.isUsingCurrentLocation,
+                                onTap: { switchToRadar?() }
+                            )
+                        }
+                    }
 
-                // Sunrise & Sunset
-                if let rise = weatherViewModel.sunriseDate,
-                   let set = weatherViewModel.sunsetDate {
                     GlassCard {
-                        SunriseSunsetView(
-                            sunriseDate: rise,
-                            sunsetDate: set,
-                            tomorrowSunrise: weatherViewModel.tomorrowSunriseDate,
-                            tomorrowSunset: weatherViewModel.tomorrowSunsetDate
+                        DailyForecastView(
+                            forecasts: weatherViewModel.dailyForecasts
                         )
                     }
-                }
 
-                // Wind Gauge
-                if let wind = weatherViewModel.windInfo {
-                    GlassCard {
-                        WindGaugeView(wind: wind)
+                    // Sunrise & Sunset
+                    if let rise = weatherViewModel.sunriseDate,
+                       let set = weatherViewModel.sunsetDate {
+                        GlassCard {
+                            SunriseSunsetView(
+                                sunriseDate: rise,
+                                sunsetDate: set,
+                                tomorrowSunrise: weatherViewModel.tomorrowSunriseDate,
+                                tomorrowSunset: weatherViewModel.tomorrowSunsetDate
+                            )
+                        }
                     }
-                }
 
-                // Air Pressure
-                if let pressure = weatherViewModel.pressureInfo {
-                    GlassCard {
-                        PressureView(info: pressure)
+                    // Wind Gauge
+                    if let wind = weatherViewModel.windInfo {
+                        GlassCard {
+                            WindGaugeView(wind: wind)
+                        }
                     }
-                }
 
-                // Air Quality & UV
-                if let aq = weatherViewModel.airQuality {
-                    GlassCard {
-                        AirQualityView(
-                            airQuality: aq,
-                            uvIndex: weatherViewModel.todayUVIndex
-                        )
+                    // Air Pressure
+                    if let pressure = weatherViewModel.pressureInfo {
+                        GlassCard {
+                            PressureView(info: pressure)
+                        }
                     }
-                }
 
-                // Comfort Index
-                if let comfort = weatherViewModel.comfortInfo {
-                    GlassCard {
-                        ComfortIndexView(
-                            comfort: comfort,
-                            temp: weatherViewModel.currentTemp,
-                            feelsLike: weatherViewModel.hourlyForecasts.first?.feelsLike,
-                            windSpeed: weatherViewModel.windInfo?.speed,
-                            uvIndex: weatherViewModel.todayUVIndex,
-                            isDay: weatherViewModel.isDay,
-                            weatherCode: weatherViewModel.currentWeatherCode
-                        )
+                    // Air Quality & UV
+                    if let aq = weatherViewModel.airQuality {
+                        GlassCard {
+                            AirQualityView(
+                                airQuality: aq,
+                                uvIndex: weatherViewModel.todayUVIndex
+                            )
+                        }
                     }
-                }
 
-                // Cloud Cover + Storm Risk
-                if let clouds = weatherViewModel.cloudCoverInfo {
-                    GlassCard {
-                        CloudCoverView(info: clouds, stormRisk: weatherViewModel.stormRisk)
+                    // Comfort Index
+                    if let comfort = weatherViewModel.comfortInfo {
+                        GlassCard {
+                            ComfortIndexView(
+                                comfort: comfort,
+                                temp: weatherViewModel.currentTemp,
+                                feelsLike: weatherViewModel.hourlyForecasts.first?.feelsLike,
+                                windSpeed: weatherViewModel.windInfo?.speed,
+                                uvIndex: weatherViewModel.todayUVIndex,
+                                isDay: weatherViewModel.isDay,
+                                weatherCode: weatherViewModel.currentWeatherCode
+                            )
+                        }
                     }
-                }
 
-                // Gardening
-                if let garden = weatherViewModel.gardeningInfo {
-                    GlassCard {
-                        GardeningView(info: garden)
+                    // Cloud Cover + Storm Risk
+                    if let clouds = weatherViewModel.cloudCoverInfo {
+                        GlassCard {
+                            CloudCoverView(info: clouds, stormRisk: weatherViewModel.stormRisk)
+                        }
                     }
-                }
 
-                Text("Data from Open-Meteo.com")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 8)
-                    .padding(.bottom, 40)
+                    // Gardening
+                    if let garden = weatherViewModel.gardeningInfo {
+                        GlassCard {
+                            GardeningView(info: garden)
+                        }
+                    }
+
+                    Text("Data from Open-Meteo.com")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 8)
+                        .padding(.bottom, 40)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
             }
-            .padding(.horizontal, 16)
         }
         .coordinateSpace(name: "scroll")
         .onPreferenceChange(ScrollOffsetKey.self) { offset in
