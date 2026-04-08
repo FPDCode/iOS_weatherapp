@@ -17,8 +17,6 @@ struct HorizonHeaderView: View {
     let sunsetDate: Date?
     let lastUpdated: Date?
 
-    @State private var animTime: Double = 0
-    private let timer = Timer.publish(every: 1.0 / 30.0, on: .main, in: .common).autoconnect()
 
     /// Time of day as 0.0–1.0 (midnight → midnight)
     private var timeOfDay: Double {
@@ -60,25 +58,25 @@ struct HorizonHeaderView: View {
         }
         .frame(height: 340)
         .clipped()
-        .onReceive(timer) { _ in
-            animTime += 1.0 / 30.0
-        }
     }
 
     // MARK: - Sky Shader Canvas
 
     private var skyCanvas: some View {
-        Rectangle()
-            .fill(.clear)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .colorEffect(
-                ShaderLibrary.weatherHorizon(
-                    .float2(UIScreen.main.bounds.width, 340),
-                    .float(timeOfDay),
-                    .float(weatherFactor),
-                    .float(animTime)
+        TimelineView(.animation) { timeline in
+            let time = timeline.date.timeIntervalSince1970
+            Rectangle()
+                .fill(.white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .colorEffect(
+                    ShaderLibrary.weatherHorizon(
+                        .float2(UIScreen.main.bounds.width, 340),
+                        .float(timeOfDay),
+                        .float(weatherFactor),
+                        .float(time.truncatingRemainder(dividingBy: 10000))
+                    )
                 )
-            )
+        }
     }
 
     // MARK: - Weather Info Overlay
