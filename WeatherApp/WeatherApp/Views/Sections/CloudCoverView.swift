@@ -3,18 +3,68 @@ import SwiftUI
 struct CloudCoverView: View {
     let info: CloudCoverInfo
     let stormRisk: StormRiskInfo?
+    @State private var selectedIndex: Int? = nil
+
+    /// The reading to display in the metrics area
+    private var displayTotal: Int {
+        if let idx = selectedIndex, idx < info.hourlyReadings.count {
+            return info.hourlyReadings[idx].total
+        }
+        return info.total
+    }
+
+    private var displayHigh: Int {
+        if let idx = selectedIndex, idx < info.hourlyReadings.count {
+            return info.hourlyReadings[idx].high
+        }
+        return info.high
+    }
+
+    private var displayMid: Int {
+        if let idx = selectedIndex, idx < info.hourlyReadings.count {
+            return info.hourlyReadings[idx].mid
+        }
+        return info.mid
+    }
+
+    private var displayLow: Int {
+        if let idx = selectedIndex, idx < info.hourlyReadings.count {
+            return info.hourlyReadings[idx].low
+        }
+        return info.low
+    }
+
+    private var displayLabel: String {
+        if let idx = selectedIndex, idx < info.hourlyReadings.count {
+            return WeatherFormatters.shortTime(info.hourlyReadings[idx].date)
+        }
+        return "Now"
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Cloud Cover", icon: "cloud.fill")
+            // Header with time indicator
+            HStack {
+                SectionHeader(title: "Cloud Cover", icon: "cloud.fill")
+                Spacer()
+                if selectedIndex != nil {
+                    Text(displayLabel)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.orange)
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.15), value: selectedIndex)
 
             HStack(spacing: 16) {
                 // Cloud percentage
                 VStack(spacing: 4) {
-                    Text("\(info.total)%")
+                    Text("\(displayTotal)%")
                         .font(.title)
                         .fontWeight(.bold)
-                    Text("Coverage")
+                        .contentTransition(.numericText())
+                    Text(selectedIndex != nil ? displayLabel : "Coverage")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -22,17 +72,20 @@ struct CloudCoverView: View {
 
                 // Cloud layers
                 VStack(alignment: .leading, spacing: 6) {
-                    CloudLayer(label: "High", value: info.high, color: "90CAF9")
-                    CloudLayer(label: "Mid", value: info.mid, color: "78909C")
-                    CloudLayer(label: "Low", value: info.low, color: "546E7A")
+                    CloudLayer(label: "High", value: displayHigh, color: "90CAF9")
+                    CloudLayer(label: "Mid", value: displayMid, color: "78909C")
+                    CloudLayer(label: "Low", value: displayLow, color: "546E7A")
                 }
                 .frame(maxWidth: .infinity)
             }
 
-            // 24h cloud timeline
+            // 24h interactive cloud timeline
             if info.hourlyReadings.count >= 4 {
                 Divider().background(.white.opacity(0.1))
-                CloudTimeline(readings: info.hourlyReadings)
+                InteractiveCloudTimeline(
+                    readings: info.hourlyReadings,
+                    selectedIndex: $selectedIndex
+                )
             }
 
             // Storm risk
@@ -81,6 +134,7 @@ struct CloudLayer: View {
                     RoundedRectangle(cornerRadius: 3)
                         .fill(Color(hex: color))
                         .frame(width: max(geo.size.width * CGFloat(value) / 100, 2), height: 8)
+                        .animation(.easeInOut(duration: 0.15), value: value)
                 }
             }
             .frame(height: 8)
@@ -89,18 +143,22 @@ struct CloudLayer: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .frame(width: 32, alignment: .trailing)
+                .contentTransition(.numericText())
         }
     }
 }
 
-struct CloudTimeline: View {
+// MARK: - Interactive Cloud Timeline
+
+private struct InteractiveCloudTimeline: View {
     let readings: [(date: Date, total: Int, low: Int, mid: Int, high: Int)]
+    @Binding var selectedIndex: Int?
 
     var body: some View {
         VStack(spacing: 10) {
-            CloudLayerChart(label: "High", values: readings.map(\.high), color: "90CAF9")
-            CloudLayerChart(label: "Mid", values: readings.map(\.mid), color: "78909C")
-            CloudLayerChart(label: "Low", values: readings.map(\.low), color: "546E7A")
+            InteractiveCloudLayerChart(label: "High", values: readings.map(\.high), color: "90CAF9", readings: readings, selectedIndex: $selectedIndex)
+            InteractiveCloudLayerChart(label: "Mid", values: readings.map(\.mid), color: "78909C", readings: readings, selectedIndex: $selectedIndex)
+            InteractiveCloudLayerChart(label: "Low", values: readings.map(\.low), color: "546E7A", readings: readings, selectedIndex: $selectedIndex)
 
             // Time labels
             HStack {
@@ -117,63 +175,108 @@ struct CloudTimeline: View {
                     .foregroundStyle(.tertiary)
             }
         }
+        // Single gesture covering all 3 charts
+        .contentShape(Rectangle())
+        .gesture(
+            LongPressGesture(minimumDuration: 0.15)
+                .sequenced(before: DragGesture(minimumDistance: 0))
+                .onChanged { value in
+                    switch value {
+                    case .second(true, let drag):
+                        if let drag {
+                            // Use the full timeline width
+                            let fraction = drag.location.x / UIScreen.main.bounds.width
+                            let idx = Int(round(fraction * CGFloat(readings.count - 1)))
+                            let clamped = max(0, min(readings.count - 1, idx))
+                            if clamped != selectedIndex {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                selectedIndex = clamped
+                            }
+                        }
+                    default: break
+                    }
+                }
+                .onEnded { _ in
+                    selectedIndex = nil
+                }
+        )
     }
 }
 
-private struct CloudLayerChart: View {
+private struct InteractiveCloudLayerChart: View {
     let label: String
     let values: [Int]
     let color: String
+    let readings: [(date: Date, total: Int, low: Int, mid: Int, high: Int)]
+    @Binding var selectedIndex: Int?
 
     var body: some View {
-        VStack(spacing: 2) {
-            HStack {
-                Text(label)
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 30, alignment: .leading)
+        HStack {
+            Text(label)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundStyle(.secondary)
+                .frame(width: 30, alignment: .leading)
 
-                GeometryReader { geo in
-                    let width = geo.size.width
-                    let height = geo.size.height
+            GeometryReader { geo in
+                let width = geo.size.width
+                let height = geo.size.height
 
-                    ZStack {
-                        // Area fill
-                        Path { path in
-                            guard values.count >= 2 else { return }
-                            let step = width / CGFloat(values.count - 1)
-                            path.move(to: CGPoint(x: 0, y: height))
-                            for (i, val) in values.enumerated() {
-                                let x = step * CGFloat(i)
-                                let y = height * (1 - CGFloat(val) / 100)
-                                path.addLine(to: CGPoint(x: x, y: y))
-                            }
-                            path.addLine(to: CGPoint(x: width, y: height))
-                            path.closeSubpath()
+                ZStack {
+                    // Area fill
+                    Path { path in
+                        guard values.count >= 2 else { return }
+                        let step = width / CGFloat(values.count - 1)
+                        path.move(to: CGPoint(x: 0, y: height))
+                        for (i, val) in values.enumerated() {
+                            let x = step * CGFloat(i)
+                            let y = height * (1 - CGFloat(val) / 100)
+                            path.addLine(to: CGPoint(x: x, y: y))
                         }
-                        .fill(Color(hex: color).opacity(0.25))
+                        path.addLine(to: CGPoint(x: width, y: height))
+                        path.closeSubpath()
+                    }
+                    .fill(Color(hex: color).opacity(0.25))
 
-                        // Line
-                        Path { path in
-                            guard values.count >= 2 else { return }
-                            let step = width / CGFloat(values.count - 1)
-                            for (i, val) in values.enumerated() {
-                                let x = step * CGFloat(i)
-                                let y = height * (1 - CGFloat(val) / 100)
-                                if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
-                                else { path.addLine(to: CGPoint(x: x, y: y)) }
-                            }
+                    // Line
+                    Path { path in
+                        guard values.count >= 2 else { return }
+                        let step = width / CGFloat(values.count - 1)
+                        for (i, val) in values.enumerated() {
+                            let x = step * CGFloat(i)
+                            let y = height * (1 - CGFloat(val) / 100)
+                            if i == 0 { path.move(to: CGPoint(x: x, y: y)) }
+                            else { path.addLine(to: CGPoint(x: x, y: y)) }
                         }
-                        .stroke(Color(hex: color).opacity(0.7), lineWidth: 1.5)
+                    }
+                    .stroke(Color(hex: color).opacity(0.7), lineWidth: 1.5)
+
+                    // Selected indicator line
+                    if let idx = selectedIndex, idx < values.count {
+                        let step = width / CGFloat(max(values.count - 1, 1))
+                        let x = step * CGFloat(idx)
+                        let y = height * (1 - CGFloat(values[idx]) / 100)
+
+                        Path { path in
+                            path.move(to: CGPoint(x: x, y: 0))
+                            path.addLine(to: CGPoint(x: x, y: height))
+                        }
+                        .stroke(.white.opacity(0.3), lineWidth: 1)
+
+                        Circle()
+                            .fill(Color(hex: color))
+                            .frame(width: 6, height: 6)
+                            .position(x: x, y: y)
                     }
                 }
-                .frame(height: 28)
-
-                Text("\(values.first ?? 0)%")
-                    .font(.system(size: 9))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 30, alignment: .trailing)
             }
+            .frame(height: 28)
+
+            // Show selected or current value
+            Text("\(selectedIndex != nil && selectedIndex! < values.count ? values[selectedIndex!] : (values.first ?? 0))%")
+                .font(.system(size: 9))
+                .foregroundStyle(.secondary)
+                .frame(width: 30, alignment: .trailing)
+                .contentTransition(.numericText())
         }
     }
 }
