@@ -85,8 +85,7 @@ struct WeatherNowView: View {
 
     private var mainContent: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 0) {
-                // Edge-to-edge horizon shader header
+            VStack(spacing: 20) {
                 AdaptiveHorizonHeader(
                     cityName: locationService.cityName,
                     temperature: weatherViewModel.currentTemp,
@@ -108,9 +107,7 @@ struct WeatherNowView: View {
                     }
                 )
 
-                // Cards section with padding
-                VStack(spacing: 16) {
-                    // Weather Warnings (NWS + Smart)
+                // Weather Warnings (NWS + Smart)
                     if !weatherViewModel.nwsAlerts.isEmpty || !weatherViewModel.smartWarnings.isEmpty {
                         GlassCard {
                             WeatherWarningsView(
@@ -224,15 +221,13 @@ struct WeatherNowView: View {
                         }
                     }
 
-                    Text("Data from Open-Meteo.com")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 8)
-                        .padding(.bottom, 40)
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
+                Text("Data from Open-Meteo.com")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 8)
+                    .padding(.bottom, 40)
             }
+            .padding(.horizontal, 16)
         }
         .coordinateSpace(name: "scroll")
         .onPreferenceChange(ScrollOffsetKey.self) { offset in

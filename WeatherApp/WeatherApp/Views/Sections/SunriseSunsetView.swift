@@ -246,16 +246,16 @@ struct SunMoonArcView: View {
             // Full arc outline
             Path { path in
                 path.addArc(center: center, radius: radius,
-                           startAngle: .degrees(180), endAngle: .degrees(0), clockwise: true)
+                           startAngle: .degrees(180), endAngle: .degrees(0), clockwise: false)
             }
             .stroke(.white.opacity(0.08), lineWidth: 1.5)
 
             // Lit portion
             if sunProgress > 0 {
                 Path { path in
-                    let endAngle = 180 + (sunProgress * 180)
+                    let endAngle = 180 - (sunProgress * 180)
                     path.addArc(center: center, radius: radius,
-                               startAngle: .degrees(180), endAngle: .degrees(endAngle), clockwise: true)
+                               startAngle: .degrees(180), endAngle: .degrees(endAngle), clockwise: false)
                 }
                 .stroke(
                     LinearGradient(colors: [.orange.opacity(0.6), .yellow.opacity(0.8)],
@@ -282,16 +282,16 @@ struct SunMoonArcView: View {
             // Full arc outline (dimmer for night)
             Path { path in
                 path.addArc(center: center, radius: radius,
-                           startAngle: .degrees(180), endAngle: .degrees(0), clockwise: true)
+                           startAngle: .degrees(180), endAngle: .degrees(0), clockwise: false)
             }
             .stroke(.white.opacity(0.06), lineWidth: 1.5)
 
             // Lit portion (night progress)
             if moonProgress > 0 {
                 Path { path in
-                    let endAngle = 180 + (moonProgress * 180)
+                    let endAngle = 180 - (moonProgress * 180)
                     path.addArc(center: center, radius: radius,
-                               startAngle: .degrees(180), endAngle: .degrees(endAngle), clockwise: true)
+                               startAngle: .degrees(180), endAngle: .degrees(endAngle), clockwise: false)
                 }
                 .stroke(
                     LinearGradient(colors: [.indigo.opacity(0.4), .blue.opacity(0.5)],
@@ -311,9 +311,9 @@ struct SunMoonArcView: View {
 
     private func sunOrMoonIcon(progress: Double, center: CGPoint, radius: CGFloat,
                                 icon: String, glowColor: Color, isDay: Bool) -> some View {
-        let angle = Angle.degrees(180 + (progress * 180))
+        let angle = Angle.degrees(180 - (progress * 180))
         let x = center.x + radius * cos(angle.radians)
-        let y = center.y + radius * sin(angle.radians)
+        let y = center.y - radius * sin(angle.radians)
 
         return ZStack {
             Circle()

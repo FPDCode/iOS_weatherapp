@@ -56,8 +56,7 @@ struct HorizonHeaderView: View {
             // Weather info overlay
             weatherOverlay
         }
-        .frame(height: 400)
-        .frame(maxWidth: .infinity)
+        .frame(height: 340)
         .clipped()
     }
 
@@ -71,7 +70,7 @@ struct HorizonHeaderView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .colorEffect(
                     ShaderLibrary.weatherHorizon(
-                        .float2(UIScreen.main.bounds.width, 400),
+                        .float2(UIScreen.main.bounds.width, 340),
                         .float(timeOfDay),
                         .float(weatherFactor),
                         .float(time.truncatingRemainder(dividingBy: 10000))
