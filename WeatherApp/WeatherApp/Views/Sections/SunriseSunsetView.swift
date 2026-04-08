@@ -104,7 +104,7 @@ struct SunriseSunsetView: View {
                 }
                 .offset(y: -20)
             }
-            .frame(height: 200)
+            .frame(height: 150)
             .padding(.horizontal, 8)
 
             // Sunrise + First Light | Sunset + Last Light
@@ -216,108 +216,94 @@ struct SunMoonArcView: View {
         GeometryReader { geo in
             let width = geo.size.width
             let height = geo.size.height
-            let horizonY = height - 10
-            // Radius = min of half-width and available height, so arc fits as a 180° semi-circle
-            let radius = min(width / 2 - 10, horizonY - 15)
+            let horizonY = height - 6
+            let arcWidth = width - 20        // Horizontal span of the ellipse
+            let arcHeight = height - 24       // Vertical span (flat ellipse)
+            let centerX = width / 2
+            let progress = isDaytime ? sunProgress : moonProgress
 
             ZStack {
-                // Horizon line — spans only the arc's diameter
+                // Horizon dashed line
                 Path { path in
-                    path.move(to: CGPoint(x: width / 2 - radius, y: horizonY))
-                    path.addLine(to: CGPoint(x: width / 2 + radius, y: horizonY))
+                    path.move(to: CGPoint(x: 10, y: horizonY))
+                    path.addLine(to: CGPoint(x: width - 10, y: horizonY))
                 }
                 .stroke(.white.opacity(0.15), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
 
-                if isDaytime {
-                    // Day arc (above horizon)
-                    dayArc(width: width, horizonY: horizonY, radius: radius)
+                // Remaining arc (white, faint — the "to go" portion)
+                ellipticalArc(
+                    centerX: centerX, horizonY: horizonY,
+                    arcWidth: arcWidth, arcHeight: arcHeight,
+                    fromProgress: progress, toProgress: 1.0
+                )
+                .stroke(.white.opacity(0.12), lineWidth: 2)
+
+                // Completed arc (colored — the "past" portion)
+                if progress > 0 {
+                    ellipticalArc(
+                        centerX: centerX, horizonY: horizonY,
+                        arcWidth: arcWidth, arcHeight: arcHeight,
+                        fromProgress: 0, toProgress: progress
+                    )
+                    .stroke(
+                        isDaytime
+                            ? LinearGradient(colors: [.orange.opacity(0.7), .yellow.opacity(0.9)], startPoint: .leading, endPoint: .trailing)
+                            : LinearGradient(colors: [.indigo.opacity(0.5), .blue.opacity(0.6)], startPoint: .leading, endPoint: .trailing),
+                        lineWidth: 2.5
+                    )
+                }
+
+                // Sun/Moon icon at current position
+                iconAtProgress(
+                    progress: min(max(progress, 0.02), 0.98),
+                    centerX: centerX, horizonY: horizonY,
+                    arcWidth: arcWidth, arcHeight: arcHeight
+                )
+            }
+        }
+    }
+
+    /// Build an elliptical arc path from one progress to another (0 = left, 1 = right)
+    private func ellipticalArc(
+        centerX: CGFloat, horizonY: CGFloat,
+        arcWidth: CGFloat, arcHeight: CGFloat,
+        fromProgress: Double, toProgress: Double
+    ) -> Path {
+        Path { path in
+            let steps = 60
+            let startStep = Int(fromProgress * Double(steps))
+            let endStep = Int(toProgress * Double(steps))
+            guard endStep > startStep else { return }
+
+            for i in startStep...endStep {
+                let t = Double(i) / Double(steps)
+                let angle = Double.pi * (1 - t) // π to 0 (left to right)
+                let x = centerX + CGFloat(cos(angle)) * arcWidth / 2
+                let y = horizonY - CGFloat(sin(angle)) * arcHeight
+
+                if i == startStep {
+                    path.move(to: CGPoint(x: x, y: y))
                 } else {
-                    // Night arc (below horizon, inverted)
-                    nightArc(width: width, horizonY: horizonY, radius: radius)
+                    path.addLine(to: CGPoint(x: x, y: y))
                 }
             }
         }
     }
 
-    private func dayArc(width: CGFloat, horizonY: CGFloat, radius: CGFloat) -> some View {
-        let center = CGPoint(x: width / 2, y: horizonY)
-
-        return ZStack {
-            // Full arc outline
-            Path { path in
-                path.addArc(center: center, radius: radius,
-                           startAngle: .degrees(180), endAngle: .degrees(0), clockwise: false)
-            }
-            .stroke(.white.opacity(0.08), lineWidth: 1.5)
-
-            // Lit portion
-            if sunProgress > 0 {
-                Path { path in
-                    let endAngle = 180 - (sunProgress * 180)
-                    path.addArc(center: center, radius: radius,
-                               startAngle: .degrees(180), endAngle: .degrees(endAngle), clockwise: false)
-                }
-                .stroke(
-                    LinearGradient(colors: [.orange.opacity(0.6), .yellow.opacity(0.8)],
-                                   startPoint: .leading, endPoint: .trailing),
-                    lineWidth: 2.5
-                )
-            }
-
-            // Sun position
-            sunOrMoonIcon(
-                progress: min(max(sunProgress, 0.02), 0.98),
-                center: center, radius: radius,
-                icon: "sun.max.fill", glowColor: .yellow, isDay: true
-            )
-        }
-    }
-
-    private func nightArc(width: CGFloat, horizonY: CGFloat, radius: CGFloat) -> some View {
-        // Night arc goes below the horizon (inverted semi-circle)
-        // But we show it above for visibility, just with night styling
-        let center = CGPoint(x: width / 2, y: horizonY)
-
-        return ZStack {
-            // Full arc outline (dimmer for night)
-            Path { path in
-                path.addArc(center: center, radius: radius,
-                           startAngle: .degrees(180), endAngle: .degrees(0), clockwise: false)
-            }
-            .stroke(.white.opacity(0.06), lineWidth: 1.5)
-
-            // Lit portion (night progress)
-            if moonProgress > 0 {
-                Path { path in
-                    let endAngle = 180 - (moonProgress * 180)
-                    path.addArc(center: center, radius: radius,
-                               startAngle: .degrees(180), endAngle: .degrees(endAngle), clockwise: false)
-                }
-                .stroke(
-                    LinearGradient(colors: [.indigo.opacity(0.4), .blue.opacity(0.5)],
-                                   startPoint: .leading, endPoint: .trailing),
-                    lineWidth: 2.5
-                )
-            }
-
-            // Moon position
-            sunOrMoonIcon(
-                progress: min(max(moonProgress, 0.02), 0.98),
-                center: center, radius: radius,
-                icon: "moon.fill", glowColor: .blue, isDay: false
-            )
-        }
-    }
-
-    private func sunOrMoonIcon(progress: Double, center: CGPoint, radius: CGFloat,
-                                icon: String, glowColor: Color, isDay: Bool) -> some View {
-        let angle = Angle.degrees(180 - (progress * 180))
-        let x = center.x + radius * cos(angle.radians)
-        let y = center.y - radius * sin(angle.radians)
+    /// Position the icon on the elliptical arc
+    private func iconAtProgress(
+        progress: Double, centerX: CGFloat, horizonY: CGFloat,
+        arcWidth: CGFloat, arcHeight: CGFloat
+    ) -> some View {
+        let angle = Double.pi * (1 - progress)
+        let x = centerX + CGFloat(cos(angle)) * arcWidth / 2
+        let y = horizonY - CGFloat(sin(angle)) * arcHeight
+        let icon = isDaytime ? "sun.max.fill" : "moon.fill"
+        let glowColor: Color = isDaytime ? .yellow : .blue
 
         return ZStack {
             Circle()
-                .fill(glowColor.opacity(isDay ? 0.15 : 0.1))
+                .fill(glowColor.opacity(isDaytime ? 0.15 : 0.1))
                 .frame(width: 30, height: 30)
                 .position(x: x, y: y)
 
