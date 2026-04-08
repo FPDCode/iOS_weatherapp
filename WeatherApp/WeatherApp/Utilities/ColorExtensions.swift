@@ -96,10 +96,6 @@ struct BackgroundGradient {
         let b = Float(int & 0xFF) / 255.0
         return (r, g, b)
     }
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
 }
 
 // MARK: - Formatters (reads from UnitSettings.shared)
