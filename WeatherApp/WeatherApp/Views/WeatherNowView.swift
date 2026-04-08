@@ -11,9 +11,11 @@ struct WeatherNowView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                BackgroundGradient.forTimeOfDay(
-                    isDay: weatherViewModel.isDay,
-                    weatherCode: weatherViewModel.currentWeatherCode
+                // Background matches the shader's ground color for seamless blend
+                Color(
+                    red: Double(BackgroundGradient.groundColorComponents(isDay: weatherViewModel.isDay, weatherCode: weatherViewModel.currentWeatherCode).0),
+                    green: Double(BackgroundGradient.groundColorComponents(isDay: weatherViewModel.isDay, weatherCode: weatherViewModel.currentWeatherCode).1),
+                    blue: Double(BackgroundGradient.groundColorComponents(isDay: weatherViewModel.isDay, weatherCode: weatherViewModel.currentWeatherCode).2)
                 )
                 .ignoresSafeArea()
 
@@ -86,7 +88,8 @@ struct WeatherNowView: View {
     private var mainContent: some View {
         GeometryReader { outerGeo in
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 20) {
+            VStack(spacing: 0) {
+                // Edge-to-edge shader header — NO padding
                 AdaptiveHorizonHeader(
                     cityName: locationService.cityName,
                     temperature: weatherViewModel.currentTemp,
@@ -116,6 +119,8 @@ struct WeatherNowView: View {
                     }
                 )
 
+                // Cards with padding
+                VStack(spacing: 16) {
                 // Weather Warnings (NWS + Smart)
                     if !weatherViewModel.nwsAlerts.isEmpty || !weatherViewModel.smartWarnings.isEmpty {
                         GlassCard {
@@ -235,8 +240,10 @@ struct WeatherNowView: View {
                     .foregroundStyle(.secondary)
                     .padding(.top, 8)
                     .padding(.bottom, 40)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
             }
-            .padding(.horizontal, 16)
             .frame(width: outerGeo.size.width)
         }
         .coordinateSpace(name: "scroll")
