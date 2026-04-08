@@ -84,6 +84,7 @@ struct WeatherNowView: View {
     // MARK: - Main Content
 
     private var mainContent: some View {
+        GeometryReader { outerGeo in
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
                 AdaptiveHorizonHeader(
@@ -228,9 +229,8 @@ struct WeatherNowView: View {
                     .padding(.bottom, 40)
             }
             .padding(.horizontal, 16)
+            .frame(width: outerGeo.size.width)
         }
-        .scrollIndicators(.hidden)
-        .scrollClipDisabled(false)
         .coordinateSpace(name: "scroll")
         .onPreferenceChange(ScrollOffsetKey.self) { offset in
             // Show nav title when the header scrolls past the top
@@ -244,6 +244,7 @@ struct WeatherNowView: View {
                 await weatherViewModel.fetchWeather(latitude: lat, longitude: lon)
             }
         }
+        } // GeometryReader
     }
 
     // MARK: - Loading View
