@@ -68,7 +68,7 @@ struct SharedActivityWindow: Codable {
 // MARK: - App Group Store
 
 enum WidgetDataStore {
-    static let appGroupID = "group.com.weatherapp.betterWeather"
+    static let appGroupID = "group.com.weatherapp.WeatherBetter"
     private static let dataKey = "shared_weather_data"
 
     static var sharedDefaults: UserDefaults? {
