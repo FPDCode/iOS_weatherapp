@@ -7,12 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+<<<<<<< HEAD
 		02518C5CEA1D50BB512351C8 /* BestTimeForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAFBD90D0B843140002EBC7D /* BestTimeForWidget.swift */; };
+=======
+>>>>>>> 9c1ecea3ddbae220af1ace20836261969eeb1ee6
 		1567122D2F825C9000D9F201 /* WeatherHorizon.metal in Sources */ = {isa = PBXBuildFile; fileRef = 1567122B2F825C9000D9F201 /* WeatherHorizon.metal */; };
 		157C28652F825020004A6F3B /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28642F825020004A6F3B /* SharedWeatherData.swift */; };
 		157C28662F825020004A6F3B /* RainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28632F825020004A6F3B /* RainActivityAttributes.swift */; };
 		157C28682F825048004A6F3B /* RainActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28672F825048004A6F3B /* RainActivityService.swift */; };
 		157C286C2F825072004A6F3B /* HorizonHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C286B2F825072004A6F3B /* HorizonHeaderView.swift */; };
+<<<<<<< HEAD
 		2D40F988769C5942610E93A7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 643A34BCDD9C0516DC85340B /* Foundation.framework */; };
 		457403CBFD70EA7B5D9334F8 /* RainActivityWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7A50A1CC762A4D70A551D3BF /* RainActivityWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		510D487425969E14C34F3C7E /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28642F825020004A6F3B /* SharedWeatherData.swift */; };
@@ -20,6 +24,8 @@
 		735A2D9C852B629FC06CB995 /* HourlyForecastWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43582FBFBA208675AD895E62 /* HourlyForecastWidget.swift */; };
 		75BD9AC102EEEF69FBC730AB /* RainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28632F825020004A6F3B /* RainActivityAttributes.swift */; };
 		91B6A0401DC81D74D54AC546 /* DailyForecastWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C64DF38A12889A592DB2ADF /* DailyForecastWidget.swift */; };
+=======
+>>>>>>> 9c1ecea3ddbae220af1ace20836261969eeb1ee6
 		A10001 /* WeatherAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10001 /* WeatherAppApp.swift */; };
 		A10002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10002 /* ContentView.swift */; };
 		A10003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10003 /* Assets.xcassets */; };
@@ -93,19 +99,25 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+<<<<<<< HEAD
 		0C7F27BDBC893A4E5E083A3A /* RainActivityLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/RainActivityLiveActivity.swift; sourceTree = SOURCE_ROOT; };
+=======
+>>>>>>> 9c1ecea3ddbae220af1ace20836261969eeb1ee6
 		1567122B2F825C9000D9F201 /* WeatherHorizon.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WeatherHorizon.metal; sourceTree = "<group>"; };
 		157C28632F825020004A6F3B /* RainActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityAttributes.swift; sourceTree = "<group>"; };
 		157C28642F825020004A6F3B /* SharedWeatherData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWeatherData.swift; sourceTree = "<group>"; };
 		157C28672F825048004A6F3B /* RainActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityService.swift; sourceTree = "<group>"; };
 		157C286B2F825072004A6F3B /* HorizonHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizonHeaderView.swift; sourceTree = "<group>"; };
 		15A1510C2F824895001C40EC /* WeatherApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WeatherApp.entitlements; sourceTree = "<group>"; };
+<<<<<<< HEAD
 		24F21264459FF13C3257937A /* WeatherWidgetHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/WeatherWidgetHelpers.swift; sourceTree = SOURCE_ROOT; };
 		43582FBFBA208675AD895E62 /* HourlyForecastWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/HourlyForecastWidget.swift; sourceTree = SOURCE_ROOT; };
 		643A34BCDD9C0516DC85340B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		6DFDE195B98E2D0575A97A35 /* RainActivityBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/RainActivityBundle.swift; sourceTree = SOURCE_ROOT; };
 		7A50A1CC762A4D70A551D3BF /* RainActivityWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RainActivityWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C64DF38A12889A592DB2ADF /* DailyForecastWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityWidget/DailyForecastWidget.swift; sourceTree = SOURCE_ROOT; };
+=======
+>>>>>>> 9c1ecea3ddbae220af1ace20836261969eeb1ee6
 		B10001 /* WeatherAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAppApp.swift; sourceTree = "<group>"; };
 		B10002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B10003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -182,6 +194,7 @@
 			path = Shaders;
 			sourceTree = "<group>";
 		};
+<<<<<<< HEAD
 		32E028AE9AE43CD448426061 /* RainActivityWidget */ = {
 			isa = PBXGroup;
 			children = (
@@ -206,6 +219,8 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+=======
+>>>>>>> 9c1ecea3ddbae220af1ace20836261969eeb1ee6
 		E10001 = {
 			isa = PBXGroup;
 			children = (
@@ -487,6 +502,7 @@
 				A10040 /* RadarPreviewCard.swift in Sources */,
 				A10041 /* SearchTabView.swift in Sources */,
 				A10042 /* ClothingAdvisor.swift in Sources */,
+<<<<<<< HEAD
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -504,6 +520,8 @@
 				5C874DE8959B568F6C33742B /* WeatherWidgetHelpers.swift in Sources */,
 				75BD9AC102EEEF69FBC730AB /* RainActivityAttributes.swift in Sources */,
 				510D487425969E14C34F3C7E /* SharedWeatherData.swift in Sources */,
+=======
+>>>>>>> 9c1ecea3ddbae220af1ace20836261969eeb1ee6
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
