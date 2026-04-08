@@ -112,6 +112,28 @@ struct PlanYourDayView: View {
                     BestTimeSummary(allWindows: scoredWindows)
                 }
 
+                // Comfort Level
+                if let comfort = weatherViewModel.comfortInfo {
+                    GlassCard {
+                        ComfortIndexView(
+                            comfort: comfort,
+                            temp: weatherViewModel.currentTemp,
+                            feelsLike: weatherViewModel.hourlyForecasts.first?.feelsLike,
+                            windSpeed: weatherViewModel.windInfo?.speed,
+                            uvIndex: weatherViewModel.todayUVIndex,
+                            isDay: weatherViewModel.isDay,
+                            weatherCode: weatherViewModel.currentWeatherCode
+                        )
+                    }
+                }
+
+                // Garden & Soil
+                if let garden = weatherViewModel.gardeningInfo {
+                    GlassCard {
+                        GardeningView(info: garden)
+                    }
+                }
+
                 Text("Weather data from Open-Meteo.com")
                     .font(.caption2)
                     .foregroundStyle(.secondary)

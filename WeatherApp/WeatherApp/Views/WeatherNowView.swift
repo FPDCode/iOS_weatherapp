@@ -206,32 +206,10 @@ struct WeatherNowView: View {
                         }
                     }
 
-                    // Comfort Index
-                    if let comfort = weatherViewModel.comfortInfo {
-                        GlassCard {
-                            ComfortIndexView(
-                                comfort: comfort,
-                                temp: weatherViewModel.currentTemp,
-                                feelsLike: weatherViewModel.hourlyForecasts.first?.feelsLike,
-                                windSpeed: weatherViewModel.windInfo?.speed,
-                                uvIndex: weatherViewModel.todayUVIndex,
-                                isDay: weatherViewModel.isDay,
-                                weatherCode: weatherViewModel.currentWeatherCode
-                            )
-                        }
-                    }
-
                     // Cloud Cover + Storm Risk
                     if let clouds = weatherViewModel.cloudCoverInfo {
                         GlassCard {
                             CloudCoverView(info: clouds, stormRisk: weatherViewModel.stormRisk)
-                        }
-                    }
-
-                    // Gardening
-                    if let garden = weatherViewModel.gardeningInfo {
-                        GlassCard {
-                            GardeningView(info: garden)
                         }
                     }
 
