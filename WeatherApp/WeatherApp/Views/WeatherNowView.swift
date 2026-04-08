@@ -99,7 +99,15 @@ struct WeatherNowView: View {
                     sunset: weatherViewModel.sunset,
                     sunriseDate: weatherViewModel.sunriseDate,
                     sunsetDate: weatherViewModel.sunsetDate,
-                    lastUpdated: weatherViewModel.lastUpdated
+                    lastUpdated: weatherViewModel.lastUpdated,
+                    cloudCoverHigh: weatherViewModel.cloudCoverInfo?.high ?? 0,
+                    cloudCoverMid: weatherViewModel.cloudCoverInfo?.mid ?? 0,
+                    cloudCoverLow: weatherViewModel.cloudCoverInfo?.low ?? 0,
+                    precipAmount: weatherViewModel.precipTimeline?.slots.first?.precipitation ?? 0,
+                    isRaining: weatherViewModel.precipTimeline?.isRaining ?? false,
+                    windSpeed: weatherViewModel.windInfo?.speed ?? 0,
+                    visibility: weatherViewModel.currentVisibility,
+                    humidity: weatherViewModel.currentHumidity
                 )
                 .background(
                     GeometryReader { geo in

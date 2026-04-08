@@ -1,8 +1,7 @@
 import SwiftUI
 
-/// A weather horizon header inspired by Lumy — uses a Metal shader to render
-/// a dynamic sky with atmospheric glow, sun/moon position, and weather-adaptive
-/// colors. The weather info (temp, condition, etc.) is overlaid on top.
+/// Immersive weather horizon header with 3-layer Metal shader pipeline:
+/// atmosphericSky → proceduralClouds → weatherParticles
 struct HorizonHeaderView: View {
     let cityName: String
     let temperature: Double
@@ -16,9 +15,19 @@ struct HorizonHeaderView: View {
     let sunriseDate: Date?
     let sunsetDate: Date?
     let lastUpdated: Date?
+    // Additional weather data for shader
+    var cloudCoverHigh: Int = 0
+    var cloudCoverMid: Int = 0
+    var cloudCoverLow: Int = 0
+    var precipAmount: Double = 0
+    var isRaining: Bool = false
+    var windSpeed: Double = 0
+    var visibility: Double = 10000
+    var humidity: Int = 50
 
+    // MARK: - Computed Shader Parameters
 
-    /// Time of day as 0.0–1.0 (midnight → midnight)
+    /// 0 = midnight, 0.5 = noon, 1 = midnight
     private var timeOfDay: Double {
         let calendar = Calendar.current
         let now = Date()
@@ -27,61 +36,113 @@ struct HorizonHeaderView: View {
         return seconds / 86400.0
     }
 
-    /// Weather factor: 0.0 = clear, 1.0 = heavy storm
-    private var weatherFactor: Double {
-        switch weatherCode {
-        case 0, 1: return 0.0       // Clear
-        case 2: return 0.15          // Partly cloudy
-        case 3: return 0.3           // Overcast
-        case 45, 48: return 0.5      // Fog
-        case 51...55: return 0.4     // Drizzle
-        case 56...57: return 0.5     // Freezing drizzle
-        case 61...63: return 0.5     // Rain
-        case 65: return 0.65         // Heavy rain
-        case 66...67: return 0.6     // Freezing rain
-        case 71...77: return 0.55    // Snow
-        case 80...82: return 0.55    // Showers
-        case 85...86: return 0.6     // Snow showers
-        case 95: return 0.8          // Thunderstorm
-        case 96, 99: return 0.95     // Thunderstorm + hail
-        default: return 0.1
+    /// Sun elevation: -1 (well below horizon) to 1 (solar noon)
+    private var sunElevation: Float {
+        guard let rise = sunriseDate, let set = sunsetDate else { return isDay ? 0.5 : -0.5 }
+        let now = Date()
+        if now < rise {
+            let timeToSunrise = rise.timeIntervalSince(now) / 3600.0
+            return Float(-min(timeToSunrise, 1.0))
+        } else if now > set {
+            let timeSinceSunset = now.timeIntervalSince(set) / 3600.0
+            return Float(-min(timeSinceSunset, 1.0))
+        } else {
+            let total = set.timeIntervalSince(rise)
+            let elapsed = now.timeIntervalSince(rise)
+            return Float(sin(elapsed / total * .pi))
         }
+    }
+
+    /// 0 = sunrise, 1 = sunset (position on arc)
+    private var sunAzimuth: Float {
+        guard let rise = sunriseDate, let set = sunsetDate else { return 0.5 }
+        let now = Date()
+        if now < rise { return 0.0 }
+        if now > set { return 1.0 }
+        let total = set.timeIntervalSince(rise)
+        let elapsed = now.timeIntervalSince(rise)
+        return Float(min(max(elapsed / total, 0), 1))
+    }
+
+    private var normalizedVisibility: Float {
+        Float(min(visibility / 20000.0, 1.0))
+    }
+
+    private var normalizedHumidity: Float {
+        Float(humidity) / 100.0
+    }
+
+    private var normalizedWindSpeed: Float {
+        Float(min(windSpeed / 50.0, 1.0))
+    }
+
+    private var isSnow: Float {
+        (71...86).contains(weatherCode) ? 1.0 : 0.0
+    }
+
+    private var groundRGB: SIMD3<Float> {
+        let (r, g, b) = BackgroundGradient.groundColorComponents(isDay: isDay, weatherCode: weatherCode)
+        return SIMD3<Float>(r, g, b)
     }
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Metal shader sky — edge to edge
+            // 3-layer Metal shader sky
             skyCanvas
 
             // Weather info overlay
             weatherOverlay
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 340)
+        .frame(height: 360)
         .clipped()
         .contentShape(Rectangle())
     }
 
-    // MARK: - Sky Shader Canvas
+    // MARK: - Sky Shader Canvas (3 layers)
 
     private var skyCanvas: some View {
-        TimelineView(.animation) { timeline in
-            let time = timeline.date.timeIntervalSince1970
-            Canvas { context, size in
-                // Draw a white rect, then apply the shader
-                context.fill(
-                    Path(CGRect(origin: .zero, size: size)),
-                    with: .color(.white)
-                )
+        GeometryReader { geo in
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
+                let time = Float(timeline.date.timeIntervalSince1970.truncatingRemainder(dividingBy: 10000))
+                let w = Float(geo.size.width)
+                let h = Float(geo.size.height)
+
+                Canvas { context, size in
+                    context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.white))
+                }
+                .frame(width: geo.size.width, height: geo.size.height)
+                // Layer 1: Atmospheric sky + sun/moon + arc + ground
+                .colorEffect(ShaderLibrary.atmosphericSky(
+                    .float2(w, h),
+                    .float(sunElevation),
+                    .float(sunAzimuth),
+                    .float(time),
+                    .float(normalizedVisibility),
+                    .float(normalizedHumidity),
+                    .float3(groundRGB.x, groundRGB.y, groundRGB.z),
+                    .float(isDay ? 0.0 : 1.0)
+                ))
+                // Layer 2: Procedural clouds
+                .colorEffect(ShaderLibrary.proceduralClouds(
+                    .float2(w, h),
+                    .float3(Float(cloudCoverLow) / 100.0,
+                            Float(cloudCoverMid) / 100.0,
+                            Float(cloudCoverHigh) / 100.0),
+                    .float(normalizedWindSpeed),
+                    .float(sunElevation),
+                    .float(Float(weatherCode)),
+                    .float(time)
+                ))
+                // Layer 3: Rain/snow particles
+                .colorEffect(ShaderLibrary.weatherParticles(
+                    .float2(w, h),
+                    .float(Float(precipAmount)),
+                    .float(isSnow),
+                    .float(normalizedWindSpeed),
+                    .float(time)
+                ))
             }
-            .colorEffect(
-                ShaderLibrary.weatherHorizon(
-                    .float2(UIScreen.main.bounds.width - 32, 340),
-                    .float(timeOfDay),
-                    .float(weatherFactor),
-                    .float(time.truncatingRemainder(dividingBy: 10000))
-                )
-            )
         }
     }
 
@@ -132,14 +193,12 @@ struct HorizonHeaderView: View {
             }
         }
         .padding(.bottom, 20)
-        .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 2)
+        .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 2)
     }
 }
 
-// MARK: - Fallback for pre-iOS 17 shader support
+// MARK: - Adaptive Wrapper
 
-/// Wraps the horizon header — uses shader on iOS 17+ (where colorEffect is
-/// available), falls back to gradient on older OS versions.
 struct AdaptiveHorizonHeader: View {
     let cityName: String
     let temperature: Double
@@ -153,21 +212,34 @@ struct AdaptiveHorizonHeader: View {
     let sunriseDate: Date?
     let sunsetDate: Date?
     let lastUpdated: Date?
+    var cloudCoverHigh: Int = 0
+    var cloudCoverMid: Int = 0
+    var cloudCoverLow: Int = 0
+    var precipAmount: Double = 0
+    var isRaining: Bool = false
+    var windSpeed: Double = 0
+    var visibility: Double = 10000
+    var humidity: Int = 50
 
     var body: some View {
         HorizonHeaderView(
             cityName: cityName,
             temperature: temperature,
             condition: condition,
-            high: high,
-            low: low,
+            high: high, low: low,
             weatherCode: weatherCode,
             isDay: isDay,
-            sunrise: sunrise,
-            sunset: sunset,
-            sunriseDate: sunriseDate,
-            sunsetDate: sunsetDate,
-            lastUpdated: lastUpdated
+            sunrise: sunrise, sunset: sunset,
+            sunriseDate: sunriseDate, sunsetDate: sunsetDate,
+            lastUpdated: lastUpdated,
+            cloudCoverHigh: cloudCoverHigh,
+            cloudCoverMid: cloudCoverMid,
+            cloudCoverLow: cloudCoverLow,
+            precipAmount: precipAmount,
+            isRaining: isRaining,
+            windSpeed: windSpeed,
+            visibility: visibility,
+            humidity: humidity
         )
     }
 }

@@ -43,6 +43,7 @@ struct BackgroundGradient {
     /// Background gradient that complements the horizon shader header.
     /// Uses darker, more muted tones since the header provides the atmospheric color.
     static func forTimeOfDay(isDay: Bool, weatherCode: Int) -> LinearGradient {
+        let hex = topColorHex(isDay: isDay, weatherCode: weatherCode)
         let colors: [Color]
 
         if !isDay {
@@ -50,30 +51,51 @@ struct BackgroundGradient {
         } else {
             switch weatherCode {
             case 0, 1:
-                // Clear — deep sky blue fading to dark
                 colors = [Color(hex: "0D2137"), Color(hex: "132E4A"), Color(hex: "0F1F30")]
             case 2, 3:
-                // Cloudy — muted blue-gray
                 colors = [Color(hex: "1A2730"), Color(hex: "1E2F3A"), Color(hex: "15202A")]
             case 45, 48:
-                // Fog — soft gray
                 colors = [Color(hex: "1E2428"), Color(hex: "252B30"), Color(hex: "1A2025")]
             case 51...67:
-                // Rain — dark slate
                 colors = [Color(hex: "141D24"), Color(hex: "1A252E"), Color(hex: "111920")]
             case 71...86:
-                // Snow — cool gray-blue
                 colors = [Color(hex: "1A2530"), Color(hex: "202D38"), Color(hex: "161F28")]
             case 95, 96, 99:
-                // Thunderstorm — very dark
                 colors = [Color(hex: "0C0E18"), Color(hex: "10141F"), Color(hex: "080A12")]
             default:
                 colors = [Color(hex: "0D2137"), Color(hex: "132E4A"), Color(hex: "0F1F30")]
             }
         }
 
-        return LinearGradient(
-            colors: colors,
+        return LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
+    }
+
+    /// Returns the top gradient stop hex for the given conditions
+    private static func topColorHex(isDay: Bool, weatherCode: Int) -> String {
+        if !isDay { return "0A1520" }
+        switch weatherCode {
+        case 0, 1: return "0D2137"
+        case 2, 3: return "1A2730"
+        case 45, 48: return "1E2428"
+        case 51...67: return "141D24"
+        case 71...86: return "1A2530"
+        case 95, 96, 99: return "0C0E18"
+        default: return "0D2137"
+        }
+    }
+
+    /// RGB floats (0-1) of the top gradient color — used by Metal shader for
+    /// seamless ground-to-background transition.
+    static func groundColorComponents(isDay: Bool, weatherCode: Int) -> (Float, Float, Float) {
+        let hex = topColorHex(isDay: isDay, weatherCode: weatherCode)
+        let h = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: h).scanHexInt64(&int)
+        let r = Float((int >> 16) & 0xFF) / 255.0
+        let g = Float((int >> 8) & 0xFF) / 255.0
+        let b = Float(int & 0xFF) / 255.0
+        return (r, g, b)
+    }
             startPoint: .top,
             endPoint: .bottom
         )

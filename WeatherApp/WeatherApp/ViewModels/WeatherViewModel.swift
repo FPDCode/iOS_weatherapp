@@ -39,6 +39,8 @@ class WeatherViewModel: ObservableObject {
     @Published var todayPrecipHours: Double = 0
     @Published var nwsAlerts: [NWSAlert] = []
     @Published var smartWarnings: [SmartWarning] = []
+    @Published var currentVisibility: Double = 10000
+    @Published var currentHumidity: Int = 50
 
     private let weatherService = WeatherService.shared
 
@@ -244,6 +246,12 @@ class WeatherViewModel: ObservableObject {
         }
 
         hourlyForecasts = forecasts
+
+        // Extract current hour's visibility and humidity for shader
+        if let first = forecasts.first {
+            currentVisibility = first.visibility
+            currentHumidity = first.humidity
+        }
     }
 
     private func processTodayPhases(_ hourly: HourlyData) {

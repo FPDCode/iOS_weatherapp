@@ -1,139 +1,425 @@
-// WeatherHorizon.metal — Sky horizon shader for the weather header
-// Uses SwiftUI's colorEffect protocol (iOS 17+)
+// WeatherHorizon.metal — Realistic weather sky renderer
+// Three [[ stitchable ]] colorEffect shaders for layered compositing:
+//   1. atmosphericSky  — Rayleigh/Mie scattering, sun/moon, arc path, ground
+//   2. proceduralClouds — FBM noise clouds driven by real cloud cover data
+//   3. weatherParticles — Rain streaks + splashes, snow
 
 #include <metal_stdlib>
 using namespace metal;
 
-// MARK: - Sky Horizon Color Effect
-// Applied via .colorEffect() — receives each pixel position and returns a color.
-// Parameters:
-//   position:  pixel coordinate
-//   args[0]:   float2 size (width, height)
-//   args[1]:   float  timeOfDay (0.0 = midnight, 0.5 = noon, 1.0 = midnight)
-//   args[2]:   float  weatherFactor (0.0 = clear, 1.0 = heavy overcast/storm)
-//   args[3]:   float  animTime (elapsed seconds for subtle animation)
+// ============================================================
+// MARK: - Shared Utilities
+// ============================================================
+
+float hash21(float2 p) {
+    p = fract(p * float2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+
+float valueNoise(float2 p) {
+    float2 i = floor(p);
+    float2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash21(i);
+    float b = hash21(i + float2(1.0, 0.0));
+    float c = hash21(i + float2(0.0, 1.0));
+    float d = hash21(i + float2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float fbm(float2 p, int octaves) {
+    float value = 0.0;
+    float amp = 0.5;
+    float freq = 1.0;
+    for (int i = 0; i < octaves; i++) {
+        value += amp * valueNoise(p * freq);
+        freq *= 2.0;
+        amp *= 0.5;
+    }
+    return value;
+}
+
+// Domain-warped FBM (Inigo Quilez technique) for organic cloud shapes
+float warpedFbm(float2 p, float time, int octaves) {
+    float2 q = float2(
+        fbm(p + float2(0.0, 0.0) + time * 0.08, 3),
+        fbm(p + float2(5.2, 1.3) + time * 0.06, 3)
+    );
+    return fbm(p + 3.0 * q, octaves);
+}
+
+// ============================================================
+// MARK: - Layer 1: Atmospheric Sky
+// ============================================================
+// Params: size, sunElevation (-1..1), sunAzimuth (0..1),
+//         animTime, visibility (0..1), humidity (0..1),
+//         groundColor (float3), isNight (0 or 1)
 
 [[ stitchable ]]
-half4 weatherHorizon(float2 position, half4 currentColor,
-                     float2 size, float timeOfDay, float weatherFactor, float animTime) {
+half4 atmosphericSky(float2 position, half4 currentColor,
+                     float2 size, float sunElevation, float sunAzimuth,
+                     float animTime, float visibility, float humidity,
+                     float3 groundColor, float isNight) {
 
     float2 uv = position / size;
+    float horizonY = 0.62;
 
-    // Horizon sits at ~65% from top
-    float horizonY = 0.65;
+    // --- Atmospheric scattering approximation ---
 
-    // Distance from horizon (positive = below, negative = above)
-    float horizonDist = uv.y - horizonY;
+    float sunElClamped = max(sunElevation, -0.3);
+    float dayFactor = smoothstep(-0.1, 0.3, sunElevation);
 
-    // --- Time-based sky colors ---
+    // Rayleigh-like color: blue zenith, warm horizon at low sun
+    float3 betaR = float3(0.15, 0.35, 0.85); // Blue scattering
+    float viewAngle = max(1.0 - uv.y / horizonY, 0.0); // 0 at top, 1 at horizon
+    float opticalDepth = 1.0 / (max(1.0 - viewAngle, 0.05));
 
-    // Map timeOfDay (0-1) through a day cycle
-    // 0.0 = midnight, 0.25 = sunrise, 0.5 = noon, 0.75 = sunset, 1.0 = midnight
-    float sunAngle = sin(timeOfDay * M_PI_F); // 0 at midnight, 1 at noon
+    // Zenith color
+    float3 zenithDay = float3(0.15, 0.38, 0.82);
+    float3 zenithTwilight = float3(0.12, 0.08, 0.28);
+    float3 zenithNight = float3(0.02, 0.03, 0.08);
 
-    // Sunrise/sunset glow factor (peaks at 0.25 and 0.75)
-    float goldenHour = pow(sin(timeOfDay * 2.0 * M_PI_F), 2.0);
-    goldenHour = max(goldenHour, 0.0);
-    // Specifically boost at sunrise (0.2-0.3) and sunset (0.7-0.8)
-    float sunriseFactor = smoothstep(0.15, 0.25, timeOfDay) * smoothstep(0.35, 0.25, timeOfDay);
-    float sunsetFactor = smoothstep(0.65, 0.75, timeOfDay) * smoothstep(0.85, 0.75, timeOfDay);
-    float twilight = max(sunriseFactor, sunsetFactor);
+    float twilightFactor = smoothstep(-0.1, 0.0, sunElevation) * smoothstep(0.3, 0.0, sunElevation);
 
-    // Sky zenith color (top of sky)
-    half3 zenithNight = half3(0.04, 0.06, 0.12);   // Deep dark blue
-    half3 zenithDay   = half3(0.13, 0.45, 0.85);    // Bright blue
-    half3 zenithTwilight = half3(0.15, 0.12, 0.35);  // Purple-indigo
-    half3 zenithOvercast = half3(0.25, 0.28, 0.32);  // Gray
+    float3 zenith = mix(zenithNight, zenithDay, dayFactor);
+    zenith = mix(zenith, zenithTwilight, twilightFactor * 0.7);
 
-    half3 zenith = mix(zenithNight, zenithDay, half(sunAngle));
-    zenith = mix(zenith, zenithTwilight, half(twilight * 0.6));
-    zenith = mix(zenith, zenithOvercast, half(weatherFactor * 0.7));
+    // Horizon color — warm at sunrise/sunset
+    float3 horizonDay = float3(0.55, 0.70, 0.90);
+    float3 horizonTwilight = float3(0.95, 0.50, 0.15);
+    float3 horizonNight = float3(0.05, 0.06, 0.12);
 
-    // Horizon color
-    half3 horizonNight = half3(0.08, 0.10, 0.18);
-    half3 horizonDay   = half3(0.55, 0.75, 0.95);
-    half3 horizonTwilight = half3(0.95, 0.45, 0.15); // Warm orange
-    half3 horizonOvercast = half3(0.40, 0.42, 0.45);
+    float3 horizon = mix(horizonNight, horizonDay, dayFactor);
+    horizon = mix(horizon, horizonTwilight, twilightFactor * 0.85);
 
-    half3 horizon = mix(horizonNight, horizonDay, half(sunAngle));
-    horizon = mix(horizon, horizonTwilight, half(twilight * 0.8));
-    horizon = mix(horizon, horizonOvercast, half(weatherFactor * 0.6));
-
-    // Ground/below horizon color
-    half3 groundNight = half3(0.03, 0.04, 0.08);
-    half3 groundDay   = half3(0.08, 0.15, 0.22);
-    half3 groundOvercast = half3(0.12, 0.14, 0.16);
-
-    half3 ground = mix(groundNight, groundDay, half(sunAngle * 0.5));
-    ground = mix(ground, groundOvercast, half(weatherFactor * 0.5));
-
-    // --- Compose sky ---
-
-    half3 color;
-    if (horizonDist < 0.0) {
-        // Above horizon: blend zenith → horizon
-        float t = smoothstep(-0.65, 0.0, horizonDist);
-        color = mix(zenith, horizon, half(t));
+    // Sky gradient
+    float3 skyColor;
+    if (uv.y < horizonY) {
+        float t = pow(uv.y / horizonY, 1.5); // Stronger curve
+        skyColor = mix(zenith, horizon, t);
     } else {
-        // Below horizon: blend horizon → ground
-        float t = smoothstep(0.0, 0.35, horizonDist);
-        color = mix(horizon, ground, half(t));
+        // Below horizon — blend to ground
+        float t = (uv.y - horizonY) / (1.0 - horizonY);
+        t = pow(t, 0.6);
+        skyColor = mix(horizon, groundColor, t);
     }
 
-    // --- Horizon glow ---
+    // --- Atmospheric haze near horizon ---
+    float hazeDist = abs(uv.y - horizonY);
+    float haze = exp(-hazeDist * hazeDist * 60.0);
+    float3 hazeColor = mix(float3(0.6, 0.55, 0.5), float3(0.85, 0.55, 0.25), twilightFactor);
+    hazeColor = mix(hazeColor, float3(0.15, 0.15, 0.18), isNight);
+    float hazeStrength = 0.25 + humidity * 0.15 + (1.0 - visibility) * 0.2;
+    skyColor = mix(skyColor, hazeColor, haze * hazeStrength);
 
-    // Atmospheric scattering glow near the horizon
-    float glowWidth = 0.12 + twilight * 0.08;
-    float glow = exp(-abs(horizonDist) / glowWidth);
-    glow *= (0.3 + twilight * 0.7 + sunAngle * 0.2);
+    // --- Horizon glow band ---
+    float glowWidth = 0.06 + twilightFactor * 0.04;
+    float horizonGlow = exp(-hazeDist / glowWidth);
+    float3 glowColor = mix(float3(0.5, 0.6, 0.8), float3(1.0, 0.6, 0.2), twilightFactor);
+    glowColor = mix(glowColor, float3(0.08, 0.08, 0.12), isNight * 0.8);
+    skyColor += glowColor * horizonGlow * 0.3 * (1.0 - isNight * 0.7);
 
-    half3 glowColor = mix(half3(0.7, 0.85, 1.0), half3(1.0, 0.6, 0.2), half(twilight));
-    glowColor = mix(glowColor, half3(0.5, 0.55, 0.6), half(weatherFactor * 0.8));
+    // --- Sun disc + bloom ---
+    if (isNight < 0.5) {
+        // Sun position on elliptical arc
+        float arcRadiusX = 0.38;
+        float arcRadiusY = 0.35;
+        float angle = M_PI_F * (1.0 - sunAzimuth);
+        float2 sunPos = float2(
+            0.5 + arcRadiusX * cos(angle),
+            horizonY - arcRadiusY * sin(angle)
+        );
 
-    color += glowColor * half(glow * 0.4);
+        float distToSun = length((uv - sunPos) * float2(1.0, size.x / size.y));
 
-    // --- Sun/Moon disc ---
+        // Hard disc core
+        float disc = smoothstep(0.018, 0.012, distToSun);
+        // Inner bloom (tight)
+        float bloom1 = exp(-distToSun * distToSun * 800.0) * 1.5;
+        // Medium bloom
+        float bloom2 = exp(-distToSun * 20.0) * 0.5;
+        // Wide atmospheric glow
+        float bloom3 = exp(-distToSun * 5.0) * 0.2;
 
-    float sunX = 0.5 + cos(timeOfDay * 2.0 * M_PI_F - M_PI_F / 2.0) * 0.3;
-    float sunY = horizonY - sin(timeOfDay * M_PI_F) * 0.45;
+        // Sun color: white-hot at high elevation, orange at horizon
+        float3 sunCore = mix(float3(1.0, 0.75, 0.35), float3(1.0, 1.0, 0.92), sunElevation);
+        float3 sunGlow = mix(float3(1.0, 0.5, 0.12), float3(1.0, 0.85, 0.6), sunElevation);
 
-    float2 sunPos = float2(sunX, sunY);
-    float distToSun = length(uv - sunPos);
-
-    if (sunAngle > 0.05) {
-        // Sun glow
-        float sunGlow = exp(-distToSun * distToSun * 80.0) * sunAngle;
-        sunGlow *= (1.0 - weatherFactor * 0.8);
-        half3 sunColor = mix(half3(1.0, 0.85, 0.5), half3(1.0, 0.4, 0.1), half(twilight));
-        color += sunColor * half(sunGlow * 0.5);
-
-        // Subtle sun halo
-        float halo = exp(-distToSun * 8.0) * sunAngle * 0.15;
-        halo *= (1.0 - weatherFactor * 0.9);
-        color += sunColor * half(halo);
+        skyColor += sunCore * disc * 8.0;
+        skyColor += sunCore * bloom1;
+        skyColor += sunGlow * bloom2;
+        skyColor += sunGlow * bloom3;
     } else {
-        // Moon glow at night
-        float moonGlow = exp(-distToSun * distToSun * 200.0) * (1.0 - sunAngle);
-        moonGlow *= (1.0 - weatherFactor * 0.6);
-        color += half3(0.7, 0.75, 0.85) * half(moonGlow * 0.3);
+        // Moon disc + glow
+        float angle = M_PI_F * (1.0 - sunAzimuth);
+        float2 moonPos = float2(
+            0.5 + 0.35 * cos(angle),
+            horizonY - 0.30 * sin(angle)
+        );
+
+        float distToMoon = length((uv - moonPos) * float2(1.0, size.x / size.y));
+
+        // Moon disc
+        float moonDisc = smoothstep(0.016, 0.010, distToMoon);
+        // Subtle surface detail
+        float surface = 0.85 + 0.15 * valueNoise(uv * 80.0);
+        // Glow
+        float moonGlow1 = exp(-distToMoon * 30.0) * 0.3;
+        float moonGlow2 = exp(-distToMoon * 8.0) * 0.1;
+
+        float3 moonColor = float3(0.90, 0.88, 0.82) * surface;
+        skyColor += moonColor * moonDisc * 2.0;
+        skyColor += float3(0.6, 0.65, 0.8) * moonGlow1;
+        skyColor += float3(0.4, 0.45, 0.6) * moonGlow2;
+
+        // Stars
+        if (uv.y < horizonY - 0.05) {
+            float2 starGrid = floor(uv * 120.0);
+            float starHash = hash21(starGrid);
+            if (starHash > 0.985) {
+                float2 starCenter = (starGrid + 0.5) / 120.0;
+                float starDist = length(uv - starCenter) * 300.0;
+                float starBright = exp(-starDist * starDist) * (0.5 + 0.5 * sin(animTime * 2.0 + starHash * 50.0));
+                skyColor += float3(starBright * 0.6);
+            }
+        }
     }
 
-    // --- Subtle animated atmospheric haze ---
+    // --- Sun/Moon arc path (dotted) ---
+    {
+        float arcRX = 0.38;
+        float arcRY = isNight > 0.5 ? 0.30 : 0.35;
+        float bestDist = 1000.0;
+        float bestParam = 0.0;
 
-    float haze = sin(uv.x * 12.0 + animTime * 0.3) * 0.5 + 0.5;
-    haze *= sin(uv.y * 8.0 - animTime * 0.2) * 0.5 + 0.5;
-    haze *= 0.015 * weatherFactor;
-    color += half3(haze);
+        // Sample points along the elliptical arc to find closest
+        for (int i = 0; i <= 40; i++) {
+            float t = float(i) / 40.0;
+            float a = M_PI_F * (1.0 - t);
+            float2 arcPt = float2(0.5 + arcRX * cos(a), horizonY - arcRY * sin(a));
+            float d = length((uv - arcPt) * float2(1.0, size.x / size.y));
+            if (d < bestDist) {
+                bestDist = d;
+                bestParam = t;
+            }
+        }
 
-    // --- Cloud layer (for overcast weather) ---
+        // Dotted pattern
+        float dotFreq = 50.0;
+        float dotPattern = smoothstep(0.45, 0.55, fract(bestParam * dotFreq));
 
-    if (weatherFactor > 0.2) {
-        float cloudY = smoothstep(0.1, 0.5, 1.0 - uv.y);
-        float cloudNoise = sin(uv.x * 20.0 + animTime * 0.4) * 0.5 + 0.5;
-        cloudNoise *= sin(uv.x * 7.0 - animTime * 0.15 + uv.y * 5.0) * 0.5 + 0.5;
-        float clouds = cloudNoise * cloudY * weatherFactor * 0.12;
-        color += half3(clouds);
+        // Arc line
+        float arcLine = smoothstep(0.005, 0.002, bestDist);
+        arcLine *= dotPattern;
+
+        // Progress: completed portion is brighter
+        float completed = step(bestParam, sunAzimuth);
+        float arcAlpha = arcLine * mix(0.12, 0.35, completed);
+
+        skyColor += float3(arcAlpha);
     }
 
-    return half4(color, 1.0);
+    // Tone mapping (prevent oversaturation)
+    skyColor = skyColor / (1.0 + skyColor * 0.3);
+
+    return half4(half3(skyColor), 1.0h);
+}
+
+// ============================================================
+// MARK: - Layer 2: Procedural Clouds
+// ============================================================
+// Params: size, cloudCover (float3: low,mid,high), windSpeed,
+//         sunElevation, weatherCode, animTime
+
+[[ stitchable ]]
+half4 proceduralClouds(float2 position, half4 currentColor,
+                       float2 size, float3 cloudCover, float windSpeed,
+                       float sunElevation, float weatherCode, float animTime) {
+
+    float2 uv = position / size;
+    float horizonY = 0.62;
+
+    // Early return below horizon or if no clouds
+    float totalCover = cloudCover.x + cloudCover.y + cloudCover.z;
+    if (uv.y > horizonY + 0.02 || totalCover < 0.02) {
+        return currentColor;
+    }
+
+    float3 color = float3(currentColor.rgb);
+    float dayFactor = smoothstep(-0.1, 0.3, sunElevation);
+    float2 wind = float2(animTime * windSpeed * 0.02, animTime * windSpeed * 0.005);
+
+    // Cloud base color — bright during day, dark during storms/night
+    float3 cloudBright = mix(float3(0.25, 0.27, 0.35), float3(0.92, 0.90, 0.88), dayFactor);
+    float3 cloudDark = mix(float3(0.08, 0.08, 0.12), float3(0.45, 0.43, 0.42), dayFactor);
+
+    // Darken for storms
+    float stormDarken = smoothstep(80.0, 99.0, weatherCode) * 0.5;
+    cloudBright -= stormDarken;
+    cloudDark -= stormDarken * 0.5;
+
+    // Golden hour tint
+    float twilight = smoothstep(-0.1, 0.0, sunElevation) * smoothstep(0.3, 0.0, sunElevation);
+    cloudBright = mix(cloudBright, float3(1.0, 0.75, 0.45), twilight * 0.4);
+
+    // --- High clouds (cirrus) — thin, wispy, top of sky ---
+    if (cloudCover.z > 0.02) {
+        float yMask = smoothstep(horizonY, 0.0, uv.y); // Strongest at top
+        float2 hUV = uv * float2(3.0, 8.0) + wind * 1.5;
+        float highCloud = warpedFbm(hUV, animTime * 0.5, 5);
+        highCloud = smoothstep(0.45 - cloudCover.z * 0.25, 0.65, highCloud);
+        highCloud *= yMask * cloudCover.z;
+
+        float3 hColor = mix(cloudDark, cloudBright, 0.7 + highCloud * 0.3);
+        color = mix(color, hColor, highCloud * 0.4);
+    }
+
+    // --- Mid clouds (altocumulus) — mid-sky, medium density ---
+    if (cloudCover.y > 0.02) {
+        float yMask = smoothstep(horizonY, 0.15, uv.y) * smoothstep(0.0, 0.2, uv.y);
+        float2 mUV = uv * float2(2.5, 5.0) + wind;
+        float midCloud = warpedFbm(mUV, animTime * 0.3, 4);
+        midCloud = smoothstep(0.42 - cloudCover.y * 0.22, 0.62, midCloud);
+        midCloud *= yMask * cloudCover.y;
+
+        // Light/shadow on clouds
+        float light = 0.6 + 0.4 * fbm(mUV + float2(0.1, 0.0), 2);
+        float3 mColor = mix(cloudDark, cloudBright, light);
+        color = mix(color, mColor, midCloud * 0.55);
+    }
+
+    // --- Low clouds (stratus) — near horizon, thick and opaque ---
+    if (cloudCover.x > 0.02) {
+        float yMask = smoothstep(horizonY, 0.25, uv.y) * smoothstep(0.1, 0.35, uv.y);
+        float2 lUV = uv * float2(2.0, 3.0) + wind * 0.6;
+        float lowCloud = warpedFbm(lUV, animTime * 0.2, 3);
+        lowCloud = smoothstep(0.38 - cloudCover.x * 0.20, 0.58, lowCloud);
+        lowCloud *= yMask * cloudCover.x;
+
+        float light = 0.5 + 0.5 * fbm(lUV + float2(0.05, -0.05), 2);
+        float3 lColor = mix(cloudDark * 0.8, cloudBright, light);
+        color = mix(color, lColor, lowCloud * 0.65);
+    }
+
+    return half4(half3(color), currentColor.a);
+}
+
+// ============================================================
+// MARK: - Layer 3: Weather Particles (Rain/Snow)
+// ============================================================
+// Params: size, precipAmount (mm), isSnow, windSpeed, animTime
+
+[[ stitchable ]]
+half4 weatherParticles(float2 position, half4 currentColor,
+                       float2 size, float precipAmount, float isSnow,
+                       float windSpeed, float animTime) {
+
+    // Early return if no precipitation
+    if (precipAmount < 0.05) {
+        return currentColor;
+    }
+
+    float2 uv = position / size;
+    float3 color = float3(currentColor.rgb);
+    float horizonY = 0.62;
+    float intensity = min(precipAmount / 3.0, 1.0); // Normalize to 0-1
+
+    if (isSnow < 0.5) {
+        // --- Rain ---
+        float rain = 0.0;
+        float windTilt = windSpeed * 0.12;
+
+        // Layer 1: foreground rain (large, fast)
+        {
+            float2 cellSize = float2(0.04, 0.25);
+            float2 cell = floor(uv / cellSize);
+            float rng = hash21(cell);
+            float xOff = hash21(cell * 1.7) * 0.7 + 0.15;
+            float speed = 1.2 + rng * 0.4;
+            float yAnim = fract(uv.y / cellSize.y + animTime * speed + rng);
+            float xDist = abs(fract(uv.x / cellSize.x) - xOff + yAnim * windTilt);
+            float streak = smoothstep(0.012, 0.004, xDist);
+            streak *= smoothstep(0.0, 0.04, yAnim) * smoothstep(0.35, 0.15, yAnim);
+            rain += streak * (0.3 + 0.7 * rng) * 0.5;
+        }
+
+        // Layer 2: midground rain
+        {
+            float2 cellSize = float2(0.055, 0.3);
+            float2 cell = floor(uv / cellSize + 7.0);
+            float rng = hash21(cell);
+            float xOff = hash21(cell * 2.3) * 0.6 + 0.2;
+            float speed = 1.0 + rng * 0.3;
+            float yAnim = fract(uv.y / cellSize.y + animTime * speed + rng);
+            float xDist = abs(fract(uv.x / cellSize.x) - xOff + yAnim * windTilt * 0.8);
+            float streak = smoothstep(0.01, 0.003, xDist);
+            streak *= smoothstep(0.0, 0.03, yAnim) * smoothstep(0.3, 0.12, yAnim);
+            rain += streak * (0.2 + 0.6 * rng) * 0.35;
+        }
+
+        // Layer 3: background rain (faint, slow)
+        {
+            float2 cellSize = float2(0.07, 0.4);
+            float2 cell = floor(uv / cellSize + 13.0);
+            float rng = hash21(cell);
+            float xOff = hash21(cell * 3.1) * 0.5 + 0.25;
+            float speed = 0.7 + rng * 0.3;
+            float yAnim = fract(uv.y / cellSize.y + animTime * speed + rng);
+            float xDist = abs(fract(uv.x / cellSize.x) - xOff + yAnim * windTilt * 0.5);
+            float streak = smoothstep(0.008, 0.002, xDist);
+            streak *= smoothstep(0.0, 0.02, yAnim) * smoothstep(0.25, 0.1, yAnim);
+            rain += streak * rng * 0.2;
+        }
+
+        rain *= intensity;
+
+        // Splash effects at horizon
+        float splash = 0.0;
+        if (uv.y > horizonY - 0.02 && uv.y < horizonY + 0.03) {
+            float cellX = floor(uv.x * 40.0);
+            float rng = hash21(float2(cellX, floor(animTime * 5.0)));
+            if (rng > 0.6) {
+                float t = fract(animTime * 4.0 + hash21(float2(cellX, 0.0)));
+                float radius = t * 0.012;
+                float fade = (1.0 - t) * (1.0 - t);
+                float2 center = float2((cellX + 0.5) / 40.0, horizonY);
+                float dist = length((uv - center) * float2(1.0, 3.0));
+                float ring = smoothstep(radius + 0.003, radius, dist)
+                           * smoothstep(radius - 0.003, radius, dist);
+                splash += ring * fade * intensity;
+            }
+        }
+
+        float3 rainColor = float3(0.65, 0.70, 0.78);
+        color = mix(color, rainColor, rain * 0.5 + splash * 0.3);
+
+    } else {
+        // --- Snow ---
+        float snow = 0.0;
+
+        for (int layer = 0; layer < 3; layer++) {
+            float layerSeed = float(layer) * 7.0;
+            float scale = 0.06 + float(layer) * 0.02;
+            float speed = 0.15 + float(layer) * 0.05;
+            float drift = sin(animTime * 0.5 + layerSeed) * 0.02;
+
+            float2 cellSize = float2(scale, scale);
+            float2 cell = floor((uv + float2(drift, 0.0)) / cellSize + layerSeed);
+            float rng = hash21(cell);
+
+            float2 center = (cell + float2(hash21(cell * 1.3), hash21(cell * 2.7))) * cellSize;
+            center.y = fract(center.y + animTime * speed + rng);
+            center.x += sin(animTime * 0.3 + rng * 20.0) * 0.008 + windSpeed * 0.01;
+
+            float dist = length(uv - center);
+            float flake = smoothstep(0.005, 0.002, dist);
+            snow += flake * (0.4 + 0.6 * rng) * 0.4;
+        }
+
+        snow *= intensity;
+        color = mix(color, float3(0.9, 0.92, 0.95), snow * 0.6);
+    }
+
+    return half4(half3(color), currentColor.a);
 }
