@@ -99,12 +99,14 @@ half4 atmosphericSky(float2 position, half4 currentColor,
         float t = pow(uv.y / horizonY, 1.5); // Stronger curve
         skyColor = mix(zenith, horizon, t);
     } else {
-        // Below horizon — soft atmospheric fade to dark (not sharp cutoff)
+        // Below horizon — fuzzy atmospheric fade (not a sharp line)
         float t = (uv.y - horizonY) / (1.0 - horizonY);
-        float fade = smoothstep(0.0, 0.4, t); // Gentle fade over ~40% of ground area
         float3 darkGround = float3(0.03, 0.03, 0.04);
-        // Start from a dimmed horizon color, fade to near-black
-        skyColor = mix(horizon * 0.15, darkGround, fade);
+        // Two-stage fade: soft glow near horizon, then darken
+        float glowFade = exp(-t * 6.0); // Warm glow that fades exponentially
+        float darkFade = smoothstep(0.0, 0.5, t); // Gradual darken
+        float3 horizonGlow = horizon * 0.2;
+        skyColor = mix(horizonGlow * glowFade, darkGround, darkFade);
     }
 
     // --- Atmospheric haze near horizon (above only) ---

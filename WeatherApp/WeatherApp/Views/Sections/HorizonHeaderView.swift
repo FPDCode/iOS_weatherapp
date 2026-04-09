@@ -95,17 +95,17 @@ struct HorizonHeaderView: View {
             VStack {
                 Spacer()
                 LinearGradient(
-                    colors: [.clear, bgColor.opacity(0.6), bgColor],
+                    colors: [.clear, bgColor.opacity(0.3), bgColor.opacity(0.7), bgColor],
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .frame(height: 80)
+                .frame(height: 100)
             }
 
             weatherOverlay
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 440)
+        .frame(height: 540)
         .clipped()
     }
 
@@ -208,7 +208,7 @@ struct HorizonHeaderView: View {
                     .padding(.top, 2)
             }
         }
-        .padding(.bottom, 60)
+        .padding(.bottom, 140)
     }
 }
 
