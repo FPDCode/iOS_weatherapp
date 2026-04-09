@@ -99,11 +99,12 @@ half4 atmosphericSky(float2 position, half4 currentColor,
         float t = pow(uv.y / horizonY, 1.5); // Stronger curve
         skyColor = mix(zenith, horizon, t);
     } else {
-        // Below horizon — fade quickly to near-black
+        // Below horizon — sharp dark silhouette like reference images
         float t = (uv.y - horizonY) / (1.0 - horizonY);
-        t = pow(t, 0.4); // Fast falloff to dark
-        float3 darkGround = float3(0.04, 0.04, 0.06);
-        skyColor = mix(horizon * 0.3, darkGround, t);
+        // Very thin bright edge at horizon, then immediate dark
+        float edgeGlow = exp(-t * 20.0) * 0.15;
+        float3 darkGround = float3(0.03, 0.03, 0.04);
+        skyColor = darkGround + horizon * edgeGlow;
     }
 
     // --- Atmospheric haze near horizon ---
@@ -132,7 +133,7 @@ half4 atmosphericSky(float2 position, half4 currentColor,
             horizonY - arcRadiusY * sin(angle)
         );
 
-        float distToSun = length((uv - sunPos) * float2(1.0, size.x / size.y));
+        float distToSun = length((uv - sunPos) * float2(1.0, size.y / size.x));
 
         // Hard disc core
         float disc = smoothstep(0.018, 0.012, distToSun);
@@ -159,7 +160,7 @@ half4 atmosphericSky(float2 position, half4 currentColor,
             horizonY - 0.22 * sin(angle)
         );
 
-        float distToMoon = length((uv - moonPos) * float2(1.0, size.x / size.y));
+        float distToMoon = length((uv - moonPos) * float2(1.0, size.y / size.x));
 
         // Moon disc
         float moonDisc = smoothstep(0.016, 0.010, distToMoon);
@@ -208,7 +209,7 @@ half4 atmosphericSky(float2 position, half4 currentColor,
             float t = float(i) / 40.0;
             float a = M_PI_F * (1.0 - t);
             float2 arcPt = float2(0.5 + arcRX * cos(a), horizonY - arcRY * sin(a));
-            float d = length((uv - arcPt) * float2(1.0, size.x / size.y));
+            float d = length((uv - arcPt) * float2(1.0, size.y / size.x));
             if (d < bestDist) {
                 bestDist = d;
                 bestParam = t;
