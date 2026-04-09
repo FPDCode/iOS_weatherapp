@@ -62,6 +62,8 @@ struct WeatherNowView: View {
             .navigationTitle(showNavTitle ? locationService.cityName : "")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(showNavTitle ? .visible : .hidden, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .ignoresSafeArea(edges: .top)
         }
     }
 
