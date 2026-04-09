@@ -59,11 +59,11 @@ struct WeatherNowView: View {
                     }
                 }
             }
+            .ignoresSafeArea(edges: .top)
             .navigationTitle(showNavTitle ? locationService.cityName : "")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(showNavTitle ? .visible : .hidden, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .ignoresSafeArea(edges: .top)
         }
     }
 
@@ -218,7 +218,6 @@ struct WeatherNowView: View {
                     .padding(.bottom, 40)
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 8)
             }
             .frame(width: outerGeo.size.width)
         }

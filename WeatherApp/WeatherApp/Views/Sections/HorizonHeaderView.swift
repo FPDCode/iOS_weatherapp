@@ -85,13 +85,27 @@ struct HorizonHeaderView: View {
         return SIMD3<Float>(r, g, b)
     }
 
+    private let bgColor = Color(red: 0.03, green: 0.03, blue: 0.04)
+
     var body: some View {
         ZStack(alignment: .bottom) {
             skyCanvas
+
+            // Soft fade at bottom for smooth transition to background
+            VStack {
+                Spacer()
+                LinearGradient(
+                    colors: [.clear, bgColor.opacity(0.6), bgColor],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 80)
+            }
+
             weatherOverlay
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 420)
+        .frame(height: 440)
         .clipped()
     }
 
@@ -194,7 +208,7 @@ struct HorizonHeaderView: View {
                     .padding(.top, 2)
             }
         }
-        .padding(.bottom, 80)
+        .padding(.bottom, 60)
     }
 }
 
