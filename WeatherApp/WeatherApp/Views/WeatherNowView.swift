@@ -11,12 +11,8 @@ struct WeatherNowView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background matches the shader's ground color for seamless blend
-                Color(
-                    red: Double(BackgroundGradient.groundColorComponents(isDay: weatherViewModel.isDay, weatherCode: weatherViewModel.currentWeatherCode).0),
-                    green: Double(BackgroundGradient.groundColorComponents(isDay: weatherViewModel.isDay, weatherCode: weatherViewModel.currentWeatherCode).1),
-                    blue: Double(BackgroundGradient.groundColorComponents(isDay: weatherViewModel.isDay, weatherCode: weatherViewModel.currentWeatherCode).2)
-                )
+                // Near-black background matching the shader's dark ground
+                Color(red: 0.04, green: 0.04, blue: 0.06)
                 .ignoresSafeArea()
 
                 if weatherViewModel.isLoading {

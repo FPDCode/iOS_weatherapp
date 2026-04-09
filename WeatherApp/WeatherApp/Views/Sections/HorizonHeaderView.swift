@@ -94,10 +94,10 @@ struct HorizonHeaderView: View {
             weatherOverlay
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 420)
+        .frame(height: 480)
         .clipped()
         .contentShape(Rectangle())
-        .padding(.top, -60) // Pull up behind navigation bar / safe area
+        .padding(.top, -100) // Pull up fully behind status bar + nav bar
     }
 
     // MARK: - Sky Shader Canvas (3 layers)

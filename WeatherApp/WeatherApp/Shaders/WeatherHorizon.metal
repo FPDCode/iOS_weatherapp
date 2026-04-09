@@ -63,7 +63,7 @@ half4 atmosphericSky(float2 position, half4 currentColor,
                      float3 groundColor, float isNight) {
 
     float2 uv = position / size;
-    float horizonY = 0.62;
+    float horizonY = 0.78; // Lower horizon — arc sits in bottom portion
 
     // --- Atmospheric scattering approximation ---
 
@@ -99,10 +99,11 @@ half4 atmosphericSky(float2 position, half4 currentColor,
         float t = pow(uv.y / horizonY, 1.5); // Stronger curve
         skyColor = mix(zenith, horizon, t);
     } else {
-        // Below horizon — blend to ground
+        // Below horizon — fade quickly to near-black
         float t = (uv.y - horizonY) / (1.0 - horizonY);
-        t = pow(t, 0.6);
-        skyColor = mix(horizon, groundColor, t);
+        t = pow(t, 0.4); // Fast falloff to dark
+        float3 darkGround = float3(0.04, 0.04, 0.06);
+        skyColor = mix(horizon * 0.3, darkGround, t);
     }
 
     // --- Atmospheric haze near horizon ---
@@ -123,8 +124,8 @@ half4 atmosphericSky(float2 position, half4 currentColor,
     // --- Sun disc + bloom ---
     if (isNight < 0.5) {
         // Sun position on elliptical arc
-        float arcRadiusX = 0.38;
-        float arcRadiusY = 0.35;
+        float arcRadiusX = 0.42;
+        float arcRadiusY = 0.28;
         float angle = M_PI_F * (1.0 - sunAzimuth);
         float2 sunPos = float2(
             0.5 + arcRadiusX * cos(angle),
@@ -154,8 +155,8 @@ half4 atmosphericSky(float2 position, half4 currentColor,
         // Moon disc + glow
         float angle = M_PI_F * (1.0 - sunAzimuth);
         float2 moonPos = float2(
-            0.5 + 0.35 * cos(angle),
-            horizonY - 0.30 * sin(angle)
+            0.5 + 0.42 * cos(angle),
+            horizonY - 0.22 * sin(angle)
         );
 
         float distToMoon = length((uv - moonPos) * float2(1.0, size.x / size.y));
@@ -173,23 +174,32 @@ half4 atmosphericSky(float2 position, half4 currentColor,
         skyColor += float3(0.6, 0.65, 0.8) * moonGlow1;
         skyColor += float3(0.4, 0.45, 0.6) * moonGlow2;
 
-        // Stars
+        // Stars — each with random blink rate and opacity range
         if (uv.y < horizonY - 0.05) {
             float2 starGrid = floor(uv * 120.0);
             float starHash = hash21(starGrid);
-            if (starHash > 0.985) {
+            if (starHash > 0.982) {
                 float2 starCenter = (starGrid + 0.5) / 120.0;
                 float starDist = length(uv - starCenter) * 300.0;
-                float starBright = exp(-starDist * starDist) * (0.5 + 0.5 * sin(animTime * 2.0 + starHash * 50.0));
-                skyColor += float3(starBright * 0.6);
+                // Random blink speed (0.3 to 3.0) and phase per star
+                float blinkSpeed = 0.3 + hash21(starGrid * 3.7) * 2.7;
+                float blinkPhase = hash21(starGrid * 7.1) * 100.0;
+                // Random base brightness (0.2 to 0.8) — dimmer stars don't dip as much
+                float baseBright = 0.2 + hash21(starGrid * 11.3) * 0.6;
+                float flicker = baseBright + (1.0 - baseBright) * (0.5 + 0.5 * sin(animTime * blinkSpeed + blinkPhase));
+                float starBright = exp(-starDist * starDist) * flicker;
+                // Random color temperature (warm to cool stars)
+                float temp = hash21(starGrid * 5.3);
+                float3 starColor = mix(float3(0.8, 0.85, 1.0), float3(1.0, 0.9, 0.7), temp);
+                skyColor += starColor * starBright * 0.5;
             }
         }
     }
 
-    // --- Sun/Moon arc path (dotted) ---
+    // --- Sun/Moon arc path (dotted) — flat ellipse like reference images ---
     {
-        float arcRX = 0.38;
-        float arcRY = isNight > 0.5 ? 0.30 : 0.35;
+        float arcRX = 0.42;
+        float arcRY = isNight > 0.5 ? 0.22 : 0.28;
         float bestDist = 1000.0;
         float bestParam = 0.0;
 
@@ -238,7 +248,7 @@ half4 proceduralClouds(float2 position, half4 currentColor,
                        float sunElevation, float weatherCode, float animTime) {
 
     float2 uv = position / size;
-    float horizonY = 0.62;
+    float horizonY = 0.78; // Lower horizon — arc sits in bottom portion
 
     // Early return below horizon or if no clouds
     float totalCover = cloudCover.x + cloudCover.y + cloudCover.z;
@@ -322,7 +332,7 @@ half4 weatherParticles(float2 position, half4 currentColor,
 
     float2 uv = position / size;
     float3 color = float3(currentColor.rgb);
-    float horizonY = 0.62;
+    float horizonY = 0.78; // Lower horizon — arc sits in bottom portion
     float intensity = min(precipAmount / 3.0, 1.0); // Normalize to 0-1
 
     if (isSnow < 0.5) {
