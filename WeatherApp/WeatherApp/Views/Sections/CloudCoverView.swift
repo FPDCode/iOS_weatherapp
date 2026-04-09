@@ -4,6 +4,11 @@ struct CloudCoverView: View {
     let info: CloudCoverInfo
     let stormRisk: StormRiskInfo?
     @State private var selectedIndex: Int? = nil
+    @State private var timeRange: CloudTimeRange = .twelve
+
+    private var filteredReadings: [(date: Date, total: Int, low: Int, mid: Int, high: Int)] {
+        Array(info.hourlyReadings.prefix(timeRange.hours))
+    }
 
     /// The reading to display in the metrics area
     private var displayTotal: Int {
@@ -53,6 +58,27 @@ struct CloudCoverView: View {
                         .fontWeight(.medium)
                         .foregroundStyle(.orange)
                         .transition(.opacity)
+                } else {
+                    Menu {
+                        ForEach(CloudTimeRange.allCases) { range in
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    timeRange = range
+                                    selectedIndex = nil
+                                }
+                            } label: {
+                                Label(range.label, systemImage: timeRange == range ? "checkmark" : "clock")
+                            }
+                        }
+                    } label: {
+                        Text(timeRange.label)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(.white.opacity(0.08)))
+                    }
                 }
             }
             .animation(.easeInOut(duration: 0.15), value: selectedIndex)
@@ -81,12 +107,13 @@ struct CloudCoverView: View {
                 .frame(maxWidth: .infinity)
             }
 
-            // 24h interactive cloud timeline
-            if info.hourlyReadings.count >= 4 {
+            // Interactive cloud timeline
+            if filteredReadings.count >= 4 {
                 Divider().background(.white.opacity(0.1))
                 InteractiveCloudTimeline(
-                    readings: info.hourlyReadings,
-                    selectedIndex: $selectedIndex
+                    readings: filteredReadings,
+                    selectedIndex: $selectedIndex,
+                    timeRange: timeRange
                 )
             }
 
@@ -155,6 +182,7 @@ struct CloudLayer: View {
 private struct InteractiveCloudTimeline: View {
     let readings: [(date: Date, total: Int, low: Int, mid: Int, high: Int)]
     @Binding var selectedIndex: Int?
+    var timeRange: CloudTimeRange = .twelve
 
     var body: some View {
         VStack(spacing: 10) {
@@ -168,11 +196,11 @@ private struct InteractiveCloudTimeline: View {
                     .font(.system(size: 8))
                     .foregroundStyle(.tertiary)
                 Spacer()
-                Text("+12h")
+                Text("+\(timeRange.hours / 2)h")
                     .font(.system(size: 8))
                     .foregroundStyle(.tertiary)
                 Spacer()
-                Text("+24h")
+                Text("+\(timeRange.hours)h")
                     .font(.system(size: 8))
                     .foregroundStyle(.tertiary)
             }
@@ -280,5 +308,27 @@ private struct InteractiveCloudLayerChart: View {
                 .frame(width: 30, alignment: .trailing)
                 .contentTransition(.numericText())
         }
+    }
+}
+
+// MARK: - Time Range
+
+enum CloudTimeRange: String, CaseIterable, Identifiable {
+    case six = "6h"
+    case twelve = "12h"
+    case twentyFour = "24h"
+
+    var id: String { rawValue }
+
+    var hours: Int {
+        switch self {
+        case .six: return 6
+        case .twelve: return 12
+        case .twentyFour: return 24
+        }
+    }
+
+    var label: String {
+        "Next \(rawValue)"
     }
 }
