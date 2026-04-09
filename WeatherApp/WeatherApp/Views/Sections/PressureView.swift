@@ -3,6 +3,11 @@ import SwiftUI
 struct PressureView: View {
     let info: PressureInfo
     @State private var selectedIndex: Int? = nil
+    @State private var timeRange: PressureTimeRange = .twelve
+
+    private var filteredReadings: [(date: Date, pressure: Double)] {
+        Array(info.hourlyReadings.prefix(timeRange.hours))
+    }
 
     /// The reading to display in the metrics area (selected or current)
     private var displayPressure: Double {
@@ -38,6 +43,27 @@ struct PressureView: View {
                         .fontWeight(.medium)
                         .foregroundStyle(.orange)
                         .transition(.opacity)
+                } else {
+                    Menu {
+                        ForEach(PressureTimeRange.allCases) { range in
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    timeRange = range
+                                    selectedIndex = nil
+                                }
+                            } label: {
+                                Label(range.label, systemImage: timeRange == range ? "checkmark" : "clock")
+                            }
+                        }
+                    } label: {
+                        Text(timeRange.label)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(.white.opacity(0.08)))
+                    }
                 }
             }
             .animation(.easeInOut(duration: 0.15), value: selectedIndex)
@@ -100,13 +126,14 @@ struct PressureView: View {
             }
 
             // Interactive pressure chart
-            if info.hourlyReadings.count >= 2 {
+            if filteredReadings.count >= 2 {
                 Divider().background(.white.opacity(0.1))
 
                 InteractivePressureChart(
-                    readings: info.hourlyReadings,
+                    readings: filteredReadings,
                     trend: info.trend,
-                    selectedIndex: $selectedIndex
+                    selectedIndex: $selectedIndex,
+                    timeRange: timeRange
                 )
                 .frame(height: 70)
             }
@@ -149,6 +176,7 @@ private struct InteractivePressureChart: View {
     let readings: [(date: Date, pressure: Double)]
     let trend: PressureTrend
     @Binding var selectedIndex: Int?
+    var timeRange: PressureTimeRange = .twelve
 
     private var pressureRange: (min: Double, max: Double) {
         let values = readings.map(\.pressure)
@@ -249,7 +277,7 @@ private struct InteractivePressureChart: View {
                         .font(.system(size: 8))
                         .foregroundStyle(.tertiary)
                     Spacer()
-                    Text("+12h")
+                    Text("+\(timeRange.hours)h")
                         .font(.system(size: 8))
                         .foregroundStyle(.tertiary)
                 }
@@ -279,5 +307,25 @@ private struct InteractivePressureChart: View {
                     }
             )
         }
+    }
+}
+
+// MARK: - Time Range
+
+enum PressureTimeRange: String, CaseIterable, Identifiable {
+    case six = "6h"
+    case twelve = "12h"
+
+    var id: String { rawValue }
+
+    var hours: Int {
+        switch self {
+        case .six: return 6
+        case .twelve: return 12
+        }
+    }
+
+    var label: String {
+        "Next \(rawValue)"
     }
 }
