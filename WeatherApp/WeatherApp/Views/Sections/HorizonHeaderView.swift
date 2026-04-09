@@ -86,16 +86,16 @@ struct HorizonHeaderView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // 3-layer Metal shader sky
-            skyCanvas
-
-            // Weather info overlay
-            weatherOverlay
+        GeometryReader { proxy in
+            let topInset = proxy.safeAreaInsets.top
+            ZStack(alignment: .bottom) {
+                skyCanvas
+                weatherOverlay
+            }
+            .frame(width: proxy.size.width, height: 500 + topInset)
+            .offset(y: -topInset)
         }
-        .frame(maxWidth: .infinity)
         .frame(height: 500)
-        .ignoresSafeArea(edges: .top)
     }
 
     // MARK: - Sky Shader Canvas (3 layers)
@@ -191,7 +191,7 @@ struct HorizonHeaderView: View {
                     .padding(.top, 2)
             }
         }
-        .padding(.bottom, 20)
+        .padding(.bottom, 130) // Keep all text above the horizon line
         .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 2)
     }
 }

@@ -99,25 +99,21 @@ half4 atmosphericSky(float2 position, half4 currentColor,
         float t = pow(uv.y / horizonY, 1.5); // Stronger curve
         skyColor = mix(zenith, horizon, t);
     } else {
-        // Below horizon — sharp dark silhouette like reference images
-        float t = (uv.y - horizonY) / (1.0 - horizonY);
-        // Very thin bright edge at horizon, then immediate dark
-        float edgeGlow = exp(-t * 20.0) * 0.15;
-        float3 darkGround = float3(0.03, 0.03, 0.04);
-        skyColor = darkGround + horizon * edgeGlow;
+        // Below horizon — immediate dark silhouette (reference style)
+        skyColor = float3(0.03, 0.03, 0.04);
     }
 
-    // --- Atmospheric haze near horizon ---
-    float hazeDist = abs(uv.y - horizonY);
-    float haze = exp(-hazeDist * hazeDist * 60.0);
+    // --- Atmospheric haze near horizon (above only) ---
+    float hazeDist = uv.y < horizonY ? horizonY - uv.y : 10.0; // Only above horizon
+    float haze = exp(-hazeDist * hazeDist * 80.0);
     float3 hazeColor = mix(float3(0.6, 0.55, 0.5), float3(0.85, 0.55, 0.25), twilightFactor);
     hazeColor = mix(hazeColor, float3(0.15, 0.15, 0.18), isNight);
     float hazeStrength = 0.25 + humidity * 0.15 + (1.0 - visibility) * 0.2;
     skyColor = mix(skyColor, hazeColor, haze * hazeStrength);
 
-    // --- Horizon glow band ---
+    // --- Horizon glow band (above horizon only) ---
     float glowWidth = 0.06 + twilightFactor * 0.04;
-    float horizonGlow = exp(-hazeDist / glowWidth);
+    float horizonGlow = (uv.y < horizonY) ? exp(-hazeDist / glowWidth) : 0.0;
     float3 glowColor = mix(float3(0.5, 0.6, 0.8), float3(1.0, 0.6, 0.2), twilightFactor);
     glowColor = mix(glowColor, float3(0.08, 0.08, 0.12), isNight * 0.8);
     skyColor += glowColor * horizonGlow * 0.3 * (1.0 - isNight * 0.7);
