@@ -3,7 +3,9 @@ import SwiftUI
 struct WeatherWarningsView: View {
     let nwsAlerts: [NWSAlert]
     let smartWarnings: [SmartWarning]
+    var airQuality: AirQualityInfo? = nil
     @State private var expandedAlertId: String?
+    @State private var showPollenDetail = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -54,9 +56,21 @@ struct WeatherWarningsView: View {
                     }
 
                     ForEach(smartWarnings) { warning in
-                        SmartWarningRow(warning: warning)
+                        if warning.type == .allergyAlert && airQuality != nil {
+                            SmartWarningRow(warning: warning)
+                                .contentShape(Rectangle())
+                                .onTapGesture { showPollenDetail = true }
+                        } else {
+                            SmartWarningRow(warning: warning)
+                        }
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showPollenDetail) {
+            if let aq = airQuality {
+                PollenDetailSheet(airQuality: aq)
+                    .presentationDetents([.large])
             }
         }
     }

@@ -124,7 +124,8 @@ struct WeatherNowView: View {
                         GlassCard {
                             WeatherWarningsView(
                                 nwsAlerts: weatherViewModel.nwsAlerts,
-                                smartWarnings: weatherViewModel.smartWarnings
+                                smartWarnings: weatherViewModel.smartWarnings,
+                                airQuality: weatherViewModel.airQuality
                             )
                         }
                     }
