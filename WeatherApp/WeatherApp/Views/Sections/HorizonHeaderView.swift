@@ -151,14 +151,17 @@ struct HorizonHeaderView: View {
             Text(cityName)
                 .font(.title2)
                 .fontWeight(.medium)
+                .shadow(color: .black.opacity(0.5), radius: 6, x: 0, y: 2)
 
             Text(WeatherFormatters.temperature(temperature))
                 .font(.system(size: 72, weight: .thin, design: .rounded))
+                .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 2)
 
             Text(condition)
                 .font(.title3)
                 .fontWeight(.medium)
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(.white.opacity(0.85))
+                .shadow(color: .black.opacity(0.6), radius: 6, x: 0, y: 1)
 
             HStack(spacing: 16) {
                 Label("H: \(WeatherFormatters.temperature(high))", systemImage: "arrow.up")
@@ -166,30 +169,32 @@ struct HorizonHeaderView: View {
                 Label("L: \(WeatherFormatters.temperature(low))", systemImage: "arrow.down")
                     .font(.subheadline)
             }
-            .foregroundStyle(.white.opacity(0.6))
+            .foregroundStyle(.white.opacity(0.85))
+            .shadow(color: .black.opacity(0.6), radius: 6, x: 0, y: 1)
             .padding(.top, 2)
 
             // Sunrise/Sunset
             HStack(spacing: 24) {
                 Label(sunrise, systemImage: "sunrise.fill")
                     .font(.caption)
-                    .foregroundStyle(.orange.opacity(0.9))
+                    .foregroundStyle(.orange)
                 Label(sunset, systemImage: "sunset.fill")
                     .font(.caption)
-                    .foregroundStyle(.orange.opacity(0.9))
+                    .foregroundStyle(.orange)
             }
+            .shadow(color: .black.opacity(0.7), radius: 4, x: 0, y: 1)
             .padding(.top, 6)
 
             // Last updated
             if let lastUpdated {
                 Text("Updated \(lastUpdated, style: .relative) ago")
                     .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.35))
+                    .foregroundStyle(.white.opacity(0.5))
+                    .shadow(color: .black.opacity(0.7), radius: 4, x: 0, y: 1)
                     .padding(.top, 2)
             }
         }
-        .padding(.bottom, 100) // Keep text above horizon line
-        .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 2)
+        .padding(.bottom, 80)
     }
 }
 

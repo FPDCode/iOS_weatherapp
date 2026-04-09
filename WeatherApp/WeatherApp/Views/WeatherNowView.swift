@@ -218,7 +218,7 @@ struct WeatherNowView: View {
                     .padding(.bottom, 40)
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 16)
+                .padding(.top, 8)
             }
             .frame(width: outerGeo.size.width)
         }
