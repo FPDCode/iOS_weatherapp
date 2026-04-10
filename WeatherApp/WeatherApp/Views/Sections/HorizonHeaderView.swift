@@ -105,7 +105,7 @@ struct HorizonHeaderView: View {
             weatherOverlay
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 540)
+        .frame(height: 440)
         .clipped()
     }
 
@@ -191,10 +191,10 @@ struct HorizonHeaderView: View {
             HStack(spacing: 24) {
                 Label(sunrise, systemImage: "sunrise.fill")
                     .font(.caption)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.white.opacity(0.7))
                 Label(sunset, systemImage: "sunset.fill")
                     .font(.caption)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.white.opacity(0.7))
             }
             .shadow(color: .black.opacity(0.7), radius: 4, x: 0, y: 1)
             .padding(.top, 6)
@@ -208,7 +208,7 @@ struct HorizonHeaderView: View {
                     .padding(.top, 2)
             }
         }
-        .padding(.bottom, 140)
+        .padding(.bottom, 90)
     }
 }
 
