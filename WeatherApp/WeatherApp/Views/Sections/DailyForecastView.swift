@@ -150,29 +150,25 @@ struct DailyRow: View {
 // MARK: - Temperature-to-Color Mapping
 
 enum TemperatureColor {
-    /// Maps a Celsius temperature to a color based on how it feels.
-    /// Uses the color scale from the reference image.
+    /// Maps a temperature (in user's display unit) to a color based on how it feels.
     static func forCelsius(_ temp: Double) -> Color {
-        // Convert if user is in Fahrenheit — the API temp is in user's unit
-        let celsius: Double
-        if UnitSettings.shared.selectedTemperature == .fahrenheit {
-            celsius = (temp - 32) * 5 / 9
-        } else {
-            celsius = temp
-        }
+        // Convert to Celsius for consistent thresholds
+        let c = UnitSettings.shared.selectedTemperature == .fahrenheit
+            ? (temp - 32) * 5.0 / 9.0
+            : temp
 
-        switch celsius {
-        case ...(-18):  return Color(hex: "9B59B6") // Extreme Cold — purple
-        case -17...(-7): return Color(hex: "1A237E") // Dangerous Cold — deep blue
-        case -6...(-1):  return Color(hex: "1565C0") // Freezing — blue
-        case 0...7:      return Color(hex: "2196F3") // Cold — light blue
-        case 8...12:     return Color(hex: "4DD0E1") // Cool — cyan
-        case 13...17:    return Color(hex: "26A69A") // Mild — teal
-        case 18...23:    return Color(hex: "66BB6A") // Comfortable — green
-        case 24...29:    return Color(hex: "FDD835") // Warm — yellow
-        case 30...34:    return Color(hex: "EF6C00") // Hot — orange
-        case 35...40:    return Color(hex: "D32F2F") // Very Hot — red
-        default:         return Color(hex: "9B59B6") // Extreme Heat — purple
+        // Smooth gradient stops — no gaps, no purple
+        switch c {
+        case ..<0:       return Color(hex: "1565C0") // Freezing — blue
+        case 0..<5:      return Color(hex: "1E88E5") // Cold — medium blue
+        case 5..<10:     return Color(hex: "29B6F6") // Cool — light blue
+        case 10..<15:    return Color(hex: "4DD0E1") // Cool-Mild — cyan
+        case 15..<18:    return Color(hex: "26A69A") // Mild — teal
+        case 18..<23:    return Color(hex: "66BB6A") // Comfortable — green
+        case 23..<27:    return Color(hex: "FDD835") // Warm — yellow
+        case 27..<32:    return Color(hex: "FFA726") // Hot — orange
+        case 32..<38:    return Color(hex: "EF5350") // Very Hot — red
+        default:         return Color(hex: "D32F2F") // Extreme Heat — dark red
         }
     }
 }
