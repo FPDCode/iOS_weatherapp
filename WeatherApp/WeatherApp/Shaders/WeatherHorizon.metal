@@ -67,13 +67,7 @@ half4 atmosphericSky(float2 position, half4 currentColor,
 
     // --- Atmospheric scattering approximation ---
 
-    float sunElClamped = max(sunElevation, -0.3);
     float dayFactor = smoothstep(-0.1, 0.3, sunElevation);
-
-    // Rayleigh-like color: blue zenith, warm horizon at low sun
-    float3 betaR = float3(0.15, 0.35, 0.85); // Blue scattering
-    float viewAngle = max(1.0 - uv.y / horizonY, 0.0); // 0 at top, 1 at horizon
-    float opticalDepth = 1.0 / (max(1.0 - viewAngle, 0.05));
 
     // Zenith color
     float3 zenithDay = float3(0.15, 0.38, 0.82);

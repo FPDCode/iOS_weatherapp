@@ -21,7 +21,7 @@ struct AQIDetailSheet: View {
                                 Text("\(airQuality.aqi)")
                                     .font(.system(size: 36, weight: .bold, design: .rounded))
                                     .foregroundStyle(Color(hex: airQuality.level.color))
-                                Text(airQuality.level.label)
+                                Text(airQuality.level.rawValue)
                                     .font(.caption)
                                     .fontWeight(.semibold)
                                     .foregroundStyle(Color(hex: airQuality.level.color))

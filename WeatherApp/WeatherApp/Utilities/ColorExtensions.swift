@@ -43,7 +43,6 @@ struct BackgroundGradient {
     /// Background gradient that complements the horizon shader header.
     /// Uses darker, more muted tones since the header provides the atmospheric color.
     static func forTimeOfDay(isDay: Bool, weatherCode: Int) -> LinearGradient {
-        let hex = topColorHex(isDay: isDay, weatherCode: weatherCode)
         let colors: [Color]
 
         if !isDay {
