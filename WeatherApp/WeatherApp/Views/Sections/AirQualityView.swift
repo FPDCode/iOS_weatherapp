@@ -3,7 +3,9 @@ import SwiftUI
 struct AirQualityView: View {
     let airQuality: AirQualityInfo
     let uvIndex: Double
+    var hourlyForecasts: [HourlyForecast] = []
     @State private var showPollenDetail = false
+    @State private var showUVDetail = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -38,7 +40,7 @@ struct AirQualityView: View {
                         .fill(.white.opacity(0.08))
                 )
 
-                // UV Index Card
+                // UV Index Card (tappable)
                 VStack(spacing: 8) {
                     Image(systemName: uvIcon)
                         .font(.title2)
@@ -63,6 +65,7 @@ struct AirQualityView: View {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(.white.opacity(0.08))
                 )
+                .onTapGesture { showUVDetail = true }
             }
 
             // Particulates
@@ -102,7 +105,9 @@ struct AirQualityView: View {
         }
         .sheet(isPresented: $showPollenDetail) {
             PollenDetailSheet(airQuality: airQuality)
-                .presentationDetents([.large])
+        }
+        .sheet(isPresented: $showUVDetail) {
+            UVDetailSheet(currentUV: uvIndex, hourlyForecasts: hourlyForecasts)
         }
     }
 

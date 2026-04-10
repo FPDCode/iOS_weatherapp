@@ -6,6 +6,11 @@ struct WeatherNowView: View {
     @ObservedObject var locationStore = LocationStore.shared
     @State private var showLocationPicker = false
     @State private var showNavTitle = false
+    @State private var showAQIDetail = false
+    @State private var showUVDetail = false
+    @State private var showPressureDetail = false
+    @State private var showWindDetail = false
+    @State private var showSunDetail = false
     var switchToRadar: (() -> Void)?
 
     var body: some View {
@@ -179,6 +184,7 @@ struct WeatherNowView: View {
                                 tomorrowSunset: weatherViewModel.tomorrowSunsetDate
                             )
                         }
+                        .onTapGesture { showSunDetail = true }
                     }
 
                     // Wind Gauge
@@ -186,6 +192,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             WindGaugeView(wind: wind)
                         }
+                        .onTapGesture { showWindDetail = true }
                     }
 
                     // Air Pressure
@@ -193,6 +200,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             PressureView(info: pressure)
                         }
+                        .onTapGesture { showPressureDetail = true }
                     }
 
                     // Air Quality & UV
@@ -200,9 +208,11 @@ struct WeatherNowView: View {
                         GlassCard {
                             AirQualityView(
                                 airQuality: aq,
-                                uvIndex: weatherViewModel.todayUVIndex
+                                uvIndex: weatherViewModel.todayUVIndex,
+                                hourlyForecasts: weatherViewModel.hourlyForecasts
                             )
                         }
+                        .onTapGesture { showAQIDetail = true }
                     }
 
                     // Cloud Cover + Storm Risk
@@ -236,6 +246,34 @@ struct WeatherNowView: View {
             }
         }
         } // GeometryReader
+        .sheet(isPresented: $showAQIDetail) {
+            if let aq = weatherViewModel.airQuality {
+                AQIDetailSheet(airQuality: aq, hourlyForecasts: weatherViewModel.hourlyForecasts)
+            }
+        }
+        .sheet(isPresented: $showUVDetail) {
+            UVDetailSheet(currentUV: weatherViewModel.todayUVIndex, hourlyForecasts: weatherViewModel.hourlyForecasts)
+        }
+        .sheet(isPresented: $showPressureDetail) {
+            if let pressure = weatherViewModel.pressureInfo {
+                PressureDetailSheet(info: pressure)
+            }
+        }
+        .sheet(isPresented: $showWindDetail) {
+            if let wind = weatherViewModel.windInfo {
+                WindDetailSheet(wind: wind, hourlyForecasts: weatherViewModel.hourlyForecasts)
+            }
+        }
+        .sheet(isPresented: $showSunDetail) {
+            if let rise = weatherViewModel.sunriseDate, let set = weatherViewModel.sunsetDate {
+                SunDetailSheet(
+                    sunriseDate: rise, sunsetDate: set,
+                    tomorrowSunrise: weatherViewModel.tomorrowSunriseDate,
+                    tomorrowSunset: weatherViewModel.tomorrowSunsetDate,
+                    dailyForecasts: weatherViewModel.dailyForecasts
+                )
+            }
+        }
     }
 
     // MARK: - Loading View
