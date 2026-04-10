@@ -3,6 +3,7 @@ import SwiftUI
 struct AirQualityView: View {
     let airQuality: AirQualityInfo
     let uvIndex: Double
+    @State private var showPollenDetail = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -70,7 +71,7 @@ struct AirQualityView: View {
                 ParticulateLabel(label: "PM10", value: airQuality.pm10)
             }
 
-            // Pollen
+            // Pollen (tappable for detail)
             if let pollen = airQuality.pollenSummary {
                 Divider().background(.white.opacity(0.1))
 
@@ -83,6 +84,10 @@ struct AirQualityView: View {
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundStyle(.secondary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
                     }
 
                     HStack(spacing: 16) {
@@ -91,7 +96,13 @@ struct AirQualityView: View {
                         PollenPill(type: "Weed", level: pollen.weedLevel)
                     }
                 }
+                .contentShape(Rectangle())
+                .onTapGesture { showPollenDetail = true }
             }
+        }
+        .sheet(isPresented: $showPollenDetail) {
+            PollenDetailSheet(airQuality: airQuality)
+                .presentationDetents([.large])
         }
     }
 
