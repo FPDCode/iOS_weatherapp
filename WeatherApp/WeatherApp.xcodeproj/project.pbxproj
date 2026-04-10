@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		15033E6A2F88FACA008C1656 /* PollenDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15033E692F88FACA008C1656 /* PollenDetailSheet.swift */; };
 		1567122D2F825C9000D9F201 /* WeatherHorizon.metal in Sources */ = {isa = PBXBuildFile; fileRef = 1567122B2F825C9000D9F201 /* WeatherHorizon.metal */; };
 		157C28652F825020004A6F3B /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28642F825020004A6F3B /* SharedWeatherData.swift */; };
 		157C28662F825020004A6F3B /* RainActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28632F825020004A6F3B /* RainActivityAttributes.swift */; };
@@ -63,7 +64,6 @@
 		A10040 /* RadarPreviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10041 /* RadarPreviewCard.swift */; };
 		A10041 /* SearchTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10042 /* SearchTabView.swift */; };
 		A10042 /* ClothingAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10043 /* ClothingAdvisor.swift */; };
-		B256BE6DF84F1A98445B6B37 /* PollenDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC1934290FF468E0AF3F688 /* PollenDetailSheet.swift */; };
 		EEBADF690D690F7F306EEAC9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 643A34BCDD9C0516DC85340B /* Foundation.framework */; };
 		F8ECD2F504E3AA30DB3BF082 /* WeatherWidgetHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753F2F5B472BFF13B691BDB3 /* WeatherWidgetHelpers.swift */; };
 		FB498C908FC475BFF870E4D3 /* BestTimeForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA5B4537AEC4E0EAA723AF3 /* BestTimeForWidget.swift */; };
@@ -96,7 +96,8 @@
 /* Begin PBXFileReference section */
 		009F65D49B2A05973C977B0B /* DailyForecastWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyForecastWidget.swift; sourceTree = "<group>"; };
 		03AC35D14154F1D67FC35840 /* HourlyForecastWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HourlyForecastWidget.swift; sourceTree = "<group>"; };
-		0EC1934290FF468E0AF3F688 /* PollenDetailSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PollenDetailSheet.swift; sourceTree = "<group>"; };
+		15033E692F88FACA008C1656 /* PollenDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollenDetailSheet.swift; sourceTree = "<group>"; };
+		15213F742F8706B400C678FF /* RainActivityWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RainActivityWidgetExtension.entitlements; sourceTree = "<group>"; };
 		1567122B2F825C9000D9F201 /* WeatherHorizon.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = WeatherHorizon.metal; sourceTree = "<group>"; };
 		157C28632F825020004A6F3B /* RainActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RainActivityAttributes.swift; sourceTree = "<group>"; };
 		157C28642F825020004A6F3B /* SharedWeatherData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWeatherData.swift; sourceTree = "<group>"; };
@@ -197,7 +198,6 @@
 				6EA5B4537AEC4E0EAA723AF3 /* BestTimeForWidget.swift */,
 				753F2F5B472BFF13B691BDB3 /* WeatherWidgetHelpers.swift */,
 			);
-			name = RainActivityWidget;
 			path = RainActivityWidget;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -212,6 +212,7 @@
 		E10001 = {
 			isa = PBXGroup;
 			children = (
+				15213F742F8706B400C678FF /* RainActivityWidgetExtension.entitlements */,
 				E10002 /* WeatherApp */,
 				E10009 /* Products */,
 				956EC1F1D173EAE2CC9BC86E /* Frameworks */,
@@ -317,6 +318,7 @@
 		E10010 /* Sections */ = {
 			isa = PBXGroup;
 			children = (
+				15033E692F88FACA008C1656 /* PollenDetailSheet.swift */,
 				B10010 /* CurrentWeatherHeader.swift */,
 				B10011 /* TodayPhasesView.swift */,
 				B10012 /* HourlyForecastView.swift */,
@@ -337,7 +339,6 @@
 				B10041 /* RadarPreviewCard.swift */,
 				B10042 /* SearchTabView.swift */,
 				157C286B2F825072004A6F3B /* HorizonHeaderView.swift */,
-				0EC1934290FF468E0AF3F688 /* PollenDetailSheet.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -475,6 +476,7 @@
 				A10011 /* TodayPhasesView.swift in Sources */,
 				A10012 /* HourlyForecastView.swift in Sources */,
 				A10013 /* DailyForecastView.swift in Sources */,
+				15033E6A2F88FACA008C1656 /* PollenDetailSheet.swift in Sources */,
 				1567122D2F825C9000D9F201 /* WeatherHorizon.metal in Sources */,
 				A10014 /* SettingsView.swift in Sources */,
 				A10015 /* CitySearchService.swift in Sources */,
@@ -509,7 +511,6 @@
 				A10040 /* RadarPreviewCard.swift in Sources */,
 				A10041 /* SearchTabView.swift in Sources */,
 				A10042 /* ClothingAdvisor.swift in Sources */,
-				B256BE6DF84F1A98445B6B37 /* PollenDetailSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -529,6 +530,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = RainActivityWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MBVPABF8MH;
@@ -543,6 +545,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				ODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.WeatherBetter.RainActivityWidget;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -558,6 +561,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = RainActivityWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MBVPABF8MH;
@@ -572,6 +576,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				ODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.weatherapp.WeatherBetter.RainActivityWidget;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
