@@ -132,10 +132,47 @@ struct DailyRow: View {
     }
 
     private var tempBarGradient: LinearGradient {
-        LinearGradient(
-            colors: [Color(hex: "64B5F6"), Color(hex: "FFB74D"), Color(hex: "EF5350")],
+        // Map actual temperatures to colors based on how they feel
+        let lowColor = TemperatureColor.forCelsius(forecast.tempLow)
+        let highColor = TemperatureColor.forCelsius(forecast.tempHigh)
+        // Add a midpoint color for the middle of the range
+        let midTemp = (forecast.tempLow + forecast.tempHigh) / 2
+        let midColor = TemperatureColor.forCelsius(midTemp)
+
+        return LinearGradient(
+            colors: [lowColor, midColor, highColor],
             startPoint: .leading,
             endPoint: .trailing
         )
+    }
+}
+
+// MARK: - Temperature-to-Color Mapping
+
+enum TemperatureColor {
+    /// Maps a Celsius temperature to a color based on how it feels.
+    /// Uses the color scale from the reference image.
+    static func forCelsius(_ temp: Double) -> Color {
+        // Convert if user is in Fahrenheit — the API temp is in user's unit
+        let celsius: Double
+        if UnitSettings.shared.selectedTemperature == .fahrenheit {
+            celsius = (temp - 32) * 5 / 9
+        } else {
+            celsius = temp
+        }
+
+        switch celsius {
+        case ...(-18):  return Color(hex: "9B59B6") // Extreme Cold — purple
+        case -17...(-7): return Color(hex: "1A237E") // Dangerous Cold — deep blue
+        case -6...(-1):  return Color(hex: "1565C0") // Freezing — blue
+        case 0...7:      return Color(hex: "2196F3") // Cold — light blue
+        case 8...12:     return Color(hex: "4DD0E1") // Cool — cyan
+        case 13...17:    return Color(hex: "26A69A") // Mild — teal
+        case 18...23:    return Color(hex: "66BB6A") // Comfortable — green
+        case 24...29:    return Color(hex: "FDD835") // Warm — yellow
+        case 30...34:    return Color(hex: "EF6C00") // Hot — orange
+        case 35...40:    return Color(hex: "D32F2F") // Very Hot — red
+        default:         return Color(hex: "9B59B6") // Extreme Heat — purple
+        }
     }
 }
