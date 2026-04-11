@@ -82,7 +82,8 @@ final class RainActivityService {
             RainActivityAttributes.RainSlot(
                 minuteOffset: max(0, Int(slot.time.timeIntervalSince(now) / 60)),
                 precipitation: slot.precipitation,
-                intensity: slot.intensity.rawValue
+                intensity: slot.intensity.rawValue,
+                precipChance: slot.precipChance
             )
         }
 

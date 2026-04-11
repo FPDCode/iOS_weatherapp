@@ -17,5 +17,6 @@ struct RainActivityAttributes: ActivityAttributes {
         let minuteOffset: Int         // Minutes from activity start (0, 15, 30...)
         let precipitation: Double     // mm per 15 min
         let intensity: String         // "None", "Light", "Moderate", "Heavy"
+        let precipChance: Int         // 0-100% from hourly data
     }
 }

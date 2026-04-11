@@ -371,12 +371,17 @@ class WeatherViewModel: ObservableObject {
             let rain = rainArr[safe: i] ?? precip
             let snow = snowArr[safe: i] ?? 0
 
+            // Map hourly precipitation chance onto this 15-min slot
+            let slotHour = calendar.component(.hour, from: date)
+            let chance = hourlyForecasts.first { calendar.component(.hour, from: $0.time) == slotHour }?.precipChance ?? 0
+
             slots.append(PrecipSlot(
                 time: date,
                 precipitation: precip,
                 rain: rain,
                 snowfall: snow,
-                intensity: PrecipIntensity.from(mmPer15min: precip)
+                intensity: PrecipIntensity.from(mmPer15min: precip),
+                precipChance: chance
             ))
         }
 
