@@ -893,6 +893,9 @@ class WeatherViewModel: ObservableObject {
 
         WidgetDataStore.write(data)
         WidgetCenter.shared.reloadAllTimelines()
+
+        // Send to Apple Watch
+        PhoneConnectivityService.shared.sendWeatherData(data)
     }
 }
 
