@@ -54,15 +54,34 @@ struct HorizonHeaderView: View {
         }
     }
 
-    /// 0 = sunrise, 1 = sunset (position on arc)
+    /// 0 = sunrise, 1 = sunset (position on arc) for day
+    /// At night: 0 = sunset, 1 = next sunrise (moon progress)
     private var sunAzimuth: Float {
         guard let rise = sunriseDate, let set = sunsetDate else { return 0.5 }
         let now = Date()
-        if now < rise { return 0.0 }
-        if now > set { return 1.0 }
-        let total = set.timeIntervalSince(rise)
-        let elapsed = now.timeIntervalSince(rise)
-        return Float(min(max(elapsed / total, 0), 1))
+
+        if now >= rise && now <= set {
+            // Daytime: sun progress from sunrise to sunset
+            let total = set.timeIntervalSince(rise)
+            let elapsed = now.timeIntervalSince(rise)
+            return Float(min(max(elapsed / total, 0), 1))
+        } else {
+            // Nighttime: moon progress from sunset to next sunrise
+            let nextSunrise: Date
+            if now < rise {
+                nextSunrise = rise
+            } else {
+                // After sunset — use tomorrow's sunrise
+                nextSunrise = rise.addingTimeInterval(86400)
+            }
+
+            let nightStart = now < rise ? set.addingTimeInterval(-86400) : set
+            let totalNight = nextSunrise.timeIntervalSince(nightStart)
+            let elapsed = now.timeIntervalSince(nightStart)
+
+            guard totalNight > 0 else { return 0.5 }
+            return Float(min(max(elapsed / totalNight, 0), 1))
+        }
     }
 
     private var normalizedVisibility: Float {
