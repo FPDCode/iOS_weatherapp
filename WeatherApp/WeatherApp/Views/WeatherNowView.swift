@@ -6,6 +6,7 @@ struct WeatherNowView: View {
     @ObservedObject var locationStore = LocationStore.shared
     @State private var showLocationPicker = false
     @State private var showNavTitle = false
+    @State private var scrollOffset: CGFloat = 0
     @State private var showAQIDetail = false
     @State private var showUVDetail = false
     @State private var showPressureDetail = false
@@ -119,6 +120,7 @@ struct WeatherNowView: View {
                     visibility: weatherViewModel.currentVisibility,
                     humidity: weatherViewModel.currentHumidity
                 )
+                .offset(y: scrollOffset > 0 ? 0 : scrollOffset * 0.4) // Parallax: moves at 40% of scroll speed
                 .background(
                     GeometryReader { geo in
                         Color.clear
@@ -246,7 +248,7 @@ struct WeatherNowView: View {
         }
         .coordinateSpace(name: "scroll")
         .onPreferenceChange(ScrollOffsetKey.self) { offset in
-            // Show nav title when the header scrolls past the top
+            scrollOffset = offset
             withAnimation(.easeInOut(duration: 0.2)) {
                 showNavTitle = offset < -20
             }
