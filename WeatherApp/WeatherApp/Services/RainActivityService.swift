@@ -15,8 +15,12 @@ final class RainActivityService {
     func update(with timeline: PrecipitationTimeline?, locationName: String) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
 
+        // Always check for existing activities (survives app restart)
+        if currentActivity == nil {
+            currentActivity = Activity<RainActivityAttributes>.activities.first
+        }
+
         guard let timeline, timeline.maxIntensity >= 0.1 else {
-            // No rain — end any running activity
             endIfNeeded()
             return
         }
@@ -31,27 +35,33 @@ final class RainActivityService {
                 )
             }
         } else {
-            // Start a new activity
+            // End any stale activities before starting a new one
+            for activity in Activity<RainActivityAttributes>.activities {
+                Task {
+                    await activity.end(nil, dismissalPolicy: .immediate)
+                }
+            }
             startActivity(state: state)
         }
     }
 
-    /// Force-end the activity (e.g. when app terminates or user switches location).
     func endIfNeeded() {
-        guard let activity = currentActivity else { return }
-        let finalState = RainActivityAttributes.ContentState(
-            summary: "No rain expected",
-            nextChangeLabel: "Clear for now",
-            isRaining: false,
-            slots: [],
-            locationName: "",
-            updatedAt: Date()
-        )
-        Task {
-            await activity.end(
-                ActivityContent(state: finalState, staleDate: nil),
-                dismissalPolicy: .immediate
+        // End ALL rain activities (not just the tracked one)
+        for activity in Activity<RainActivityAttributes>.activities {
+            let finalState = RainActivityAttributes.ContentState(
+                summary: "No rain expected",
+                nextChangeLabel: "Clear for now",
+                isRaining: false,
+                slots: [],
+                locationName: "",
+                updatedAt: Date()
             )
+            Task {
+                await activity.end(
+                    ActivityContent(state: finalState, staleDate: nil),
+                    dismissalPolicy: .immediate
+                )
+            }
         }
         currentActivity = nil
     }
