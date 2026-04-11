@@ -9,6 +9,8 @@ struct PlanYourDayView: View {
     @State private var selectedActivity: OutdoorActivity = .running
     @State private var scoredWindows: [ScoredActivityWindow] = []
     @State private var briefing: MorningBriefing?
+    @State private var showComfortDetail = false
+    @State private var showGardenDetail = false
 
     var body: some View {
         NavigationStack {
@@ -40,6 +42,21 @@ struct PlanYourDayView: View {
         }
         .onChange(of: calendarService.hasCalendarAccess) { _, _ in
             generatePlan()
+        }
+        .sheet(isPresented: $showComfortDetail) {
+            if let comfort = weatherViewModel.comfortInfo {
+                ComfortDetailSheet(
+                    comfort: comfort,
+                    temp: weatherViewModel.currentTemp,
+                    feelsLike: weatherViewModel.hourlyForecasts.first?.feelsLike,
+                    humidity: comfort.humidity
+                )
+            }
+        }
+        .sheet(isPresented: $showGardenDetail) {
+            if let garden = weatherViewModel.gardeningInfo {
+                GardeningDetailSheet(info: garden)
+            }
         }
     }
 
@@ -125,6 +142,7 @@ struct PlanYourDayView: View {
                             weatherCode: weatherViewModel.currentWeatherCode
                         )
                     }
+                    .onTapGesture { showComfortDetail = true }
                 }
 
                 // Garden & Soil
@@ -132,6 +150,7 @@ struct PlanYourDayView: View {
                     GlassCard {
                         GardeningView(info: garden)
                     }
+                    .onTapGesture { showGardenDetail = true }
                 }
 
                 Text("Weather data from Open-Meteo.com")

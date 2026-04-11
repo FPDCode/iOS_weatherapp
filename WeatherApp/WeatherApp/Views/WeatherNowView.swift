@@ -11,6 +11,8 @@ struct WeatherNowView: View {
     @State private var showPressureDetail = false
     @State private var showWindDetail = false
     @State private var showSunDetail = false
+    @State private var showPrecipDetail = false
+    @State private var showCloudDetail = false
     var switchToRadar: (() -> Void)?
 
     var body: some View {
@@ -140,6 +142,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             PrecipTimelineView(timeline: precip)
                         }
+                        .onTapGesture { showPrecipDetail = true }
                     }
 
                     GlassCard {
@@ -220,6 +223,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             CloudCoverView(info: clouds, stormRisk: weatherViewModel.stormRisk)
                         }
+                        .onTapGesture { showCloudDetail = true }
                     }
 
                 Text("Data from Open-Meteo.com")
@@ -246,6 +250,16 @@ struct WeatherNowView: View {
             }
         }
         } // GeometryReader
+        .sheet(isPresented: $showPrecipDetail) {
+            if let precip = weatherViewModel.precipTimeline {
+                PrecipDetailSheet(timeline: precip, hourlyForecasts: weatherViewModel.hourlyForecasts)
+            }
+        }
+        .sheet(isPresented: $showCloudDetail) {
+            if let clouds = weatherViewModel.cloudCoverInfo {
+                CloudCoverDetailSheet(info: clouds, stormRisk: weatherViewModel.stormRisk)
+            }
+        }
         .sheet(isPresented: $showAQIDetail) {
             if let aq = weatherViewModel.airQuality {
                 AQIDetailSheet(airQuality: aq, hourlyForecasts: weatherViewModel.hourlyForecasts)
