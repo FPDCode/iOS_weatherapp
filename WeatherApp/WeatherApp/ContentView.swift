@@ -4,10 +4,10 @@ struct ContentView: View {
     @EnvironmentObject var locationService: LocationService
     @EnvironmentObject var weatherViewModel: WeatherViewModel
     @EnvironmentObject var unitSettings: UnitSettings
-    @State private var selectedTab = 0
+    @EnvironmentObject var deepLinkHandler: DeepLinkHandler
 
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $deepLinkHandler.selectedTab) {
             WeatherNowView(switchToRadar: { selectedTab = 2 })
                 .tabItem {
                     Label("Now", systemImage: "cloud.sun.fill")

@@ -8,6 +8,7 @@ struct RainTimelineWidget: Widget {
         StaticConfiguration(kind: kind, provider: WeatherTimelineProvider()) { entry in
             RainTimelineWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(URL(string: "weatherapp://now/precipitation"))
         }
         .configurationDisplayName("Rain Timeline")
         .description("Precipitation intensity for the next 2 hours.")

@@ -21,6 +21,7 @@
 		5CDB6A5046B6E908F2963211 /* HourlyForecastWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03AC35D14154F1D67FC35840 /* HourlyForecastWidget.swift */; };
 		620D9749D32AAF8232AAA911 /* DailyForecastWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009F65D49B2A05973C977B0B /* DailyForecastWidget.swift */; };
 		624FA0D65101DADE4698D290 /* CurrentConditionsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C9661FE9304100665D140C /* CurrentConditionsWidget.swift */; };
+		7461808CC6BA58546A213F1C /* GoogleCalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 858370CA3E846383A3D917FE /* GoogleCalendarService.swift */; };
 		7B019AF3610ACFA7965094A4 /* RainTimelineWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C12A7BB2B9ED0090534ECCA1 /* RainTimelineWidget.swift */; };
 		8D344AF43330A0BC0FE0158D /* SharedWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C28642F825020004A6F3B /* SharedWeatherData.swift */; };
 		A10001 /* WeatherAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10001 /* WeatherAppApp.swift */; };
@@ -65,6 +66,7 @@
 		A10040 /* RadarPreviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10041 /* RadarPreviewCard.swift */; };
 		A10041 /* SearchTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10042 /* SearchTabView.swift */; };
 		A10042 /* ClothingAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10043 /* ClothingAdvisor.swift */; };
+		E5C01C984F7DDCCC5AC86E93 /* DeepLinkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7513284785079A61322E6A4C /* DeepLinkHandler.swift */; };
 		EEBADF690D690F7F306EEAC9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 643A34BCDD9C0516DC85340B /* Foundation.framework */; };
 		F8ECD2F504E3AA30DB3BF082 /* WeatherWidgetHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753F2F5B472BFF13B691BDB3 /* WeatherWidgetHelpers.swift */; };
 		FB498C908FC475BFF870E4D3 /* BestTimeForWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA5B4537AEC4E0EAA723AF3 /* BestTimeForWidget.swift */; };
@@ -107,8 +109,10 @@
 		15A1510C2F824895001C40EC /* WeatherApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WeatherApp.entitlements; sourceTree = "<group>"; };
 		643A34BCDD9C0516DC85340B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		6EA5B4537AEC4E0EAA723AF3 /* BestTimeForWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BestTimeForWidget.swift; sourceTree = "<group>"; };
+		7513284785079A61322E6A4C /* DeepLinkHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DeepLinkHandler.swift; sourceTree = "<group>"; };
 		753F2F5B472BFF13B691BDB3 /* WeatherWidgetHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WeatherWidgetHelpers.swift; sourceTree = "<group>"; };
 		7A50A1CC762A4D70A551D3BF /* RainActivityWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RainActivityWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		858370CA3E846383A3D917FE /* GoogleCalendarService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoogleCalendarService.swift; sourceTree = "<group>"; };
 		8F215DB19775DCE54AE7E21D /* RainActivityLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityLiveActivity.swift; sourceTree = "<group>"; };
 		B10001 /* WeatherAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAppApp.swift; sourceTree = "<group>"; };
 		B10002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -295,6 +299,7 @@
 				B10037 /* RadarService.swift */,
 				B10039 /* TileCache.swift */,
 				B10043 /* ClothingAdvisor.swift */,
+				858370CA3E846383A3D917FE /* GoogleCalendarService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -303,6 +308,7 @@
 			isa = PBXGroup;
 			children = (
 				B10008 /* ColorExtensions.swift */,
+				7513284785079A61322E6A4C /* DeepLinkHandler.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -515,6 +521,8 @@
 				A10041 /* SearchTabView.swift in Sources */,
 				A10042 /* ClothingAdvisor.swift in Sources */,
 				1970F737311F169626DC5A55 /* WeatherDetailSheets.swift in Sources */,
+				7461808CC6BA58546A213F1C /* GoogleCalendarService.swift in Sources */,
+				E5C01C984F7DDCCC5AC86E93 /* DeepLinkHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

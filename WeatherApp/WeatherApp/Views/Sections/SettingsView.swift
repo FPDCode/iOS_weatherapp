@@ -4,6 +4,8 @@ struct SettingsView: View {
     @EnvironmentObject var unitSettings: UnitSettings
     @AppStorage("commuteOutHour") var commuteOutHour: Int = 8
     @AppStorage("commuteReturnHour") var commuteReturnHour: Int = 18
+    @AppStorage("google_client_id") var googleClientID: String = ""
+    @StateObject private var googleCal = GoogleCalendarService.shared
 
     var body: some View {
         NavigationStack {
@@ -137,6 +139,59 @@ struct SettingsView: View {
                     }
                 } header: {
                     Text("About")
+                }
+
+                // MARK: - Google Calendar
+                Section {
+                    if googleCal.isSignedIn {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Connected")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                if let email = googleCal.userEmail {
+                                    Text(email)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            Spacer()
+                            Button("Sign Out") {
+                                googleCal.signOut()
+                            }
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                        }
+                    } else {
+                        Button {
+                            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                               let window = scene.windows.first {
+                                googleCal.signIn(from: window)
+                            }
+                        } label: {
+                            HStack {
+                                Image(systemName: "calendar.badge.plus")
+                                    .foregroundStyle(.blue)
+                                Text("Sign in with Google")
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+                    }
+
+                    if let error = googleCal.errorMessage {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                } header: {
+                    Text("Google Calendar")
+                } footer: {
+                    Text("Connect your Google Calendar to find the best weather windows in your free time.")
                 }
             }
             .navigationTitle("Settings")
