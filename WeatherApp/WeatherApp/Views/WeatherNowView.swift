@@ -13,6 +13,7 @@ struct WeatherNowView: View {
     @State private var showSunDetail = false
     @State private var showPrecipDetail = false
     @State private var showCloudDetail = false
+    @State private var showMoonDetail = false
     var switchToRadar: (() -> Void)?
 
     var body: some View {
@@ -98,6 +99,7 @@ struct WeatherNowView: View {
                 AdaptiveHorizonHeader(
                     cityName: locationService.cityName,
                     temperature: weatherViewModel.currentTemp,
+                    feelsLike: weatherViewModel.hourlyForecasts.first?.feelsLike,
                     condition: weatherViewModel.currentCondition,
                     high: weatherViewModel.todayHigh,
                     low: weatherViewModel.todayLow,
@@ -142,7 +144,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             PrecipTimelineView(timeline: precip)
                         }
-                        .onTapGesture { showPrecipDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showPrecipDetail = true }
                     }
 
                     GlassCard {
@@ -187,7 +189,7 @@ struct WeatherNowView: View {
                                 tomorrowSunset: weatherViewModel.tomorrowSunsetDate
                             )
                         }
-                        .onTapGesture { showSunDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showSunDetail = true }
                     }
 
                     // Wind Gauge
@@ -195,7 +197,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             WindGaugeView(wind: wind)
                         }
-                        .onTapGesture { showWindDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showWindDetail = true }
                     }
 
                     // Air Pressure
@@ -203,7 +205,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             PressureView(info: pressure)
                         }
-                        .onTapGesture { showPressureDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showPressureDetail = true }
                     }
 
                     // Air Quality & UV
@@ -215,7 +217,7 @@ struct WeatherNowView: View {
                                 hourlyForecasts: weatherViewModel.hourlyForecasts
                             )
                         }
-                        .onTapGesture { showAQIDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showAQIDetail = true }
                     }
 
                     // Cloud Cover + Storm Risk
@@ -223,8 +225,14 @@ struct WeatherNowView: View {
                         GlassCard {
                             CloudCoverView(info: clouds, stormRisk: weatherViewModel.stormRisk)
                         }
-                        .onTapGesture { showCloudDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showCloudDetail = true }
                     }
+
+                    // Moon Phase
+                    GlassCard {
+                        MoonPhaseView(date: Date())
+                    }
+                    .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showMoonDetail = true }
 
                 Text("Data from Open-Meteo.com")
                     .font(.caption2)
@@ -250,6 +258,9 @@ struct WeatherNowView: View {
             }
         }
         } // GeometryReader
+        .sheet(isPresented: $showMoonDetail) {
+            MoonPhaseDetailSheet(date: Date())
+        }
         .sheet(isPresented: $showPrecipDetail) {
             if let precip = weatherViewModel.precipTimeline {
                 PrecipDetailSheet(timeline: precip, hourlyForecasts: weatherViewModel.hourlyForecasts)

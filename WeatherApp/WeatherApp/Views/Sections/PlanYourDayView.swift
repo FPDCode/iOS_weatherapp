@@ -142,7 +142,7 @@ struct PlanYourDayView: View {
                             weatherCode: weatherViewModel.currentWeatherCode
                         )
                     }
-                    .onTapGesture { showComfortDetail = true }
+                    .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showComfortDetail = true }
                 }
 
                 // Garden & Soil
@@ -150,7 +150,7 @@ struct PlanYourDayView: View {
                     GlassCard {
                         GardeningView(info: garden)
                     }
-                    .onTapGesture { showGardenDetail = true }
+                    .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showGardenDetail = true }
                 }
 
                 Text("Weather data from Open-Meteo.com")

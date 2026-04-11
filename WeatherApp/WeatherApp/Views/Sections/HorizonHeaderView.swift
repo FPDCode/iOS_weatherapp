@@ -5,6 +5,7 @@ import SwiftUI
 struct HorizonHeaderView: View {
     let cityName: String
     let temperature: Double
+    var feelsLike: Double? = nil
     let condition: String
     let high: Double
     let low: Double
@@ -177,6 +178,14 @@ struct HorizonHeaderView: View {
                 .foregroundStyle(.white.opacity(0.85))
                 .shadow(color: .black.opacity(0.6), radius: 6, x: 0, y: 1)
 
+            // Feels like (only show if different from actual)
+            if let feels = feelsLike, abs(feels - temperature) >= 1.5 {
+                Text("Feels like \(WeatherFormatters.temperature(feels))")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 1)
+            }
+
             HStack(spacing: 16) {
                 Label("H: \(WeatherFormatters.temperature(high))", systemImage: "arrow.up")
                     .font(.subheadline)
@@ -217,6 +226,7 @@ struct HorizonHeaderView: View {
 struct AdaptiveHorizonHeader: View {
     let cityName: String
     let temperature: Double
+    var feelsLike: Double? = nil
     let condition: String
     let high: Double
     let low: Double
