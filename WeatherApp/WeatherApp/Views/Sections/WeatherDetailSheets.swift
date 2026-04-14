@@ -77,7 +77,7 @@ struct AQIDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -264,7 +264,7 @@ struct UVDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -388,7 +388,7 @@ struct PressureDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -477,7 +477,7 @@ struct WindDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -626,7 +626,7 @@ struct SunDetailSheet: View {
                         .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
                     }
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)

@@ -71,7 +71,7 @@ struct PrecipDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -176,7 +176,7 @@ struct CloudCoverDetailSheet: View {
                         .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
                     }
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -297,7 +297,7 @@ struct ComfortDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -399,7 +399,7 @@ struct GardeningDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
