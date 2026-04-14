@@ -8,6 +8,7 @@ struct CurrentConditionsWidget: Widget {
         StaticConfiguration(kind: kind, provider: WeatherTimelineProvider()) { entry in
             CurrentConditionsView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(URL(string: "weatherapp://now"))
         }
         .configurationDisplayName("Current Weather")
         .description("Temperature, conditions, and today's range.")

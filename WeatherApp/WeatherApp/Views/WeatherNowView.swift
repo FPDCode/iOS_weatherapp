@@ -6,11 +6,15 @@ struct WeatherNowView: View {
     @ObservedObject var locationStore = LocationStore.shared
     @State private var showLocationPicker = false
     @State private var showNavTitle = false
+    @State private var scrollOffset: CGFloat = 0
     @State private var showAQIDetail = false
     @State private var showUVDetail = false
     @State private var showPressureDetail = false
     @State private var showWindDetail = false
     @State private var showSunDetail = false
+    @State private var showPrecipDetail = false
+    @State private var showCloudDetail = false
+    @State private var showMoonDetail = false
     var switchToRadar: (() -> Void)?
 
     var body: some View {
@@ -96,6 +100,7 @@ struct WeatherNowView: View {
                 AdaptiveHorizonHeader(
                     cityName: locationService.cityName,
                     temperature: weatherViewModel.currentTemp,
+                    feelsLike: weatherViewModel.hourlyForecasts.first?.feelsLike,
                     condition: weatherViewModel.currentCondition,
                     high: weatherViewModel.todayHigh,
                     low: weatherViewModel.todayLow,
@@ -115,6 +120,7 @@ struct WeatherNowView: View {
                     visibility: weatherViewModel.currentVisibility,
                     humidity: weatherViewModel.currentHumidity
                 )
+                .offset(y: scrollOffset > 0 ? 0 : scrollOffset * 0.4) // Parallax: moves at 40% of scroll speed
                 .background(
                     GeometryReader { geo in
                         Color.clear
@@ -140,6 +146,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             PrecipTimelineView(timeline: precip)
                         }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showPrecipDetail = true }
                     }
 
                     GlassCard {
@@ -184,7 +191,7 @@ struct WeatherNowView: View {
                                 tomorrowSunset: weatherViewModel.tomorrowSunsetDate
                             )
                         }
-                        .onTapGesture { showSunDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showSunDetail = true }
                     }
 
                     // Wind Gauge
@@ -192,7 +199,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             WindGaugeView(wind: wind)
                         }
-                        .onTapGesture { showWindDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showWindDetail = true }
                     }
 
                     // Air Pressure
@@ -200,7 +207,7 @@ struct WeatherNowView: View {
                         GlassCard {
                             PressureView(info: pressure)
                         }
-                        .onTapGesture { showPressureDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showPressureDetail = true }
                     }
 
                     // Air Quality & UV
@@ -212,7 +219,7 @@ struct WeatherNowView: View {
                                 hourlyForecasts: weatherViewModel.hourlyForecasts
                             )
                         }
-                        .onTapGesture { showAQIDetail = true }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showAQIDetail = true }
                     }
 
                     // Cloud Cover + Storm Risk
@@ -220,7 +227,14 @@ struct WeatherNowView: View {
                         GlassCard {
                             CloudCoverView(info: clouds, stormRisk: weatherViewModel.stormRisk)
                         }
+                        .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showCloudDetail = true }
                     }
+
+                    // Moon Phase
+                    GlassCard {
+                        MoonPhaseView(date: Date())
+                    }
+                    .onTapGesture { UIImpactFeedbackGenerator(style: .light).impactOccurred(); showMoonDetail = true }
 
                 Text("Data from Open-Meteo.com")
                     .font(.caption2)
@@ -234,7 +248,7 @@ struct WeatherNowView: View {
         }
         .coordinateSpace(name: "scroll")
         .onPreferenceChange(ScrollOffsetKey.self) { offset in
-            // Show nav title when the header scrolls past the top
+            scrollOffset = offset
             withAnimation(.easeInOut(duration: 0.2)) {
                 showNavTitle = offset < -20
             }
@@ -246,6 +260,19 @@ struct WeatherNowView: View {
             }
         }
         } // GeometryReader
+        .sheet(isPresented: $showMoonDetail) {
+            MoonPhaseDetailSheet(date: Date())
+        }
+        .sheet(isPresented: $showPrecipDetail) {
+            if let precip = weatherViewModel.precipTimeline {
+                PrecipDetailSheet(timeline: precip, hourlyForecasts: weatherViewModel.hourlyForecasts)
+            }
+        }
+        .sheet(isPresented: $showCloudDetail) {
+            if let clouds = weatherViewModel.cloudCoverInfo {
+                CloudCoverDetailSheet(info: clouds, stormRisk: weatherViewModel.stormRisk)
+            }
+        }
         .sheet(isPresented: $showAQIDetail) {
             if let aq = weatherViewModel.airQuality {
                 AQIDetailSheet(airQuality: aq, hourlyForecasts: weatherViewModel.hourlyForecasts)

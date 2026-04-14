@@ -289,6 +289,7 @@ struct PrecipSlot: Identifiable {
     let rain: Double
     let snowfall: Double
     let intensity: PrecipIntensity
+    let precipChance: Int  // 0-100%, mapped from parent hour's probability
 }
 
 enum PrecipIntensity: String {

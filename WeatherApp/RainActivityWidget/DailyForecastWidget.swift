@@ -8,6 +8,7 @@ struct DailyForecastWidget: Widget {
         StaticConfiguration(kind: kind, provider: WeatherTimelineProvider()) { entry in
             DailyForecastWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(URL(string: "weatherapp://now/daily"))
         }
         .configurationDisplayName("Daily Forecast")
         .description("5-day weather outlook.")

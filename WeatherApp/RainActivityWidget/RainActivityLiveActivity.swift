@@ -96,9 +96,13 @@ struct RainActivityLiveActivity: Widget {
 
                 Spacer()
 
-                Text(context.state.locationName)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                // Max chance
+                if let maxChance = context.state.slots.map(\.precipChance).max(), maxChance > 0 {
+                    Text("\(maxChance)%")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.cyan)
+                }
             }
 
             // Rain intensity bars

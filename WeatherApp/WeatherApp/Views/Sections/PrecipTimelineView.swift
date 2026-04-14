@@ -87,15 +87,21 @@ struct PrecipBarChart: View {
 
             HStack(alignment: .bottom, spacing: 3) {
                 ForEach(slots) { slot in
-                    VStack(spacing: 0) {
+                    VStack(spacing: 2) {
                         Spacer(minLength: 0)
 
+                        // Chance % label above bar
+                        if slot.precipChance > 0 {
+                            Text("\(slot.precipChance)%")
+                                .font(.system(size: 8, weight: .medium))
+                                .foregroundStyle(.cyan.opacity(0.9))
+                        }
+
                         // Rain amount label on top of tall bars
-                        if slot.precipitation >= 0.5 {
+                        if slot.precipitation >= 0.3 {
                             Text(String(format: "%.1f", slot.precipitation))
                                 .font(.system(size: 7, weight: .bold))
-                                .foregroundStyle(.white.opacity(0.8))
-                                .padding(.bottom, 2)
+                                .foregroundStyle(.white.opacity(0.7))
                         }
 
                         // Bar

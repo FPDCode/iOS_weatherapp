@@ -22,6 +22,8 @@ struct WeatherAppApp: App {
         }
     }
 
+    @StateObject private var deepLinkHandler = DeepLinkHandler.shared
+
     var body: some Scene {
         WindowGroup {
             if hasCompletedOnboarding {
@@ -29,6 +31,7 @@ struct WeatherAppApp: App {
                     .environmentObject(locationService)
                     .environmentObject(weatherViewModel)
                     .environmentObject(unitSettings)
+                    .environmentObject(deepLinkHandler)
                     .task {
                         locationService.requestLocation()
                     }
@@ -42,6 +45,9 @@ struct WeatherAppApp: App {
                         if newPhase == .active {
                             fetchWeatherIfReady()
                         }
+                    }
+                    .onOpenURL { url in
+                        deepLinkHandler.handle(url)
                     }
             } else {
                 OnboardingView()

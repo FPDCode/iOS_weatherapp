@@ -222,9 +222,11 @@ half4 atmosphericSky(float2 position, half4 currentColor,
 
         // Progress: completed portion is brighter
         float completed = step(bestParam, sunAzimuth);
-        float arcAlpha = arcLine * mix(0.12, 0.35, completed);
+        // Day: warm white arc, Night: cool blue arc
+        float3 arcColor = isNight > 0.5 ? float3(0.3, 0.4, 0.7) : float3(1.0, 1.0, 1.0);
+        float arcAlpha = arcLine * mix(0.10, 0.30, completed);
 
-        skyColor += float3(arcAlpha);
+        skyColor += arcColor * arcAlpha;
     }
 
     // Tone mapping (prevent oversaturation)

@@ -23,7 +23,7 @@ struct PollenDetailSheet: View {
                     // About
                     aboutSection
                 }
-                .padding(16)
+                .padding(.horizontal, 4)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)

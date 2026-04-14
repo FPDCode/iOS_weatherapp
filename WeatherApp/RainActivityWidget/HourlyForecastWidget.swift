@@ -8,6 +8,7 @@ struct HourlyForecastWidget: Widget {
         StaticConfiguration(kind: kind, provider: WeatherTimelineProvider()) { entry in
             HourlyForecastWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(URL(string: "weatherapp://now/hourly"))
         }
         .configurationDisplayName("Hourly Forecast")
         .description("Next 6 hours at a glance.")

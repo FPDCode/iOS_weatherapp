@@ -46,6 +46,7 @@ struct BestTimeForWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: SelectActivityIntent.self, provider: BestTimeProvider()) { entry in
             BestTimeForWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
+                .widgetURL(URL(string: "weatherapp://plan"))
         }
         .configurationDisplayName("Best Time For")
         .description("Best upcoming time slot for your chosen activity.")
