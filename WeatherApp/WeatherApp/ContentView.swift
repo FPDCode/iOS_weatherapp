@@ -8,7 +8,7 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $deepLinkHandler.selectedTab) {
-            WeatherNowView(switchToRadar: { selectedTab = 2 })
+            WeatherNowView(switchToRadar: { deepLinkHandler.selectedTab = 2 })
                 .tabItem {
                     Label("Now", systemImage: "cloud.sun.fill")
                 }
