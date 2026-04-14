@@ -49,7 +49,7 @@ struct PrecipDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // 24h precipitation chart (interactive)
                     VStack(alignment: .leading, spacing: 8) {
@@ -64,7 +64,7 @@ struct PrecipDetailSheet: View {
                         .frame(height: 120)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Intensity guide
                     VStack(alignment: .leading, spacing: 8) {
@@ -75,9 +75,9 @@ struct PrecipDetailSheet: View {
                         intensityRow("Heavy", "> 2.0 mm/15min", "2B6CB0")
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -151,7 +151,7 @@ struct CloudCoverDetailSheet: View {
                         Text(cloudDescription).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Layer breakdown
                     VStack(alignment: .leading, spacing: 12) {
@@ -163,7 +163,7 @@ struct CloudCoverDetailSheet: View {
                         cloudLayerDetail("Low Clouds", info.low, "546E7A", "Stratus, stratocumulus — thick clouds below 2 km altitude")
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Storm risk
                     if let storm = stormRisk {
@@ -179,10 +179,10 @@ struct CloudCoverDetailSheet: View {
                             Text(stormExplanation).font(.caption).foregroundStyle(.secondary)
                         }
                         .padding(16)
-                        .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                        .background(Color.white.opacity(0.05))
                     }
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -274,7 +274,7 @@ struct ComfortDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // What it means
                     VStack(alignment: .leading, spacing: 12) {
@@ -282,7 +282,7 @@ struct ComfortDetailSheet: View {
                         Text(comfortExplanation).font(.subheadline).foregroundStyle(.secondary)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Comfort scale
                     VStack(alignment: .leading, spacing: 8) {
@@ -301,9 +301,9 @@ struct ComfortDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -376,7 +376,7 @@ struct GardeningDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Advice
                     VStack(alignment: .leading, spacing: 12) {
@@ -384,14 +384,14 @@ struct GardeningDetailSheet: View {
                         Text(info.wateringAdvice).font(.subheadline).foregroundStyle(.secondary)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     VStack(alignment: .leading, spacing: 12) {
                         sectionLabel("PLANTING", icon: "leaf.fill")
                         Text(info.plantingAdvice).font(.subheadline).foregroundStyle(.secondary)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Soil temp guide
                     VStack(alignment: .leading, spacing: 8) {
@@ -403,9 +403,9 @@ struct GardeningDetailSheet: View {
                         soilRow("> 20°C", "Warm-season crops (tomatoes, peppers, squash)")
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)

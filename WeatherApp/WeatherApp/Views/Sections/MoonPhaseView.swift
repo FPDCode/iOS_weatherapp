@@ -128,7 +128,7 @@ struct MoonPhaseDetailSheet: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Upcoming phases
                     VStack(alignment: .leading, spacing: 12) {
@@ -150,7 +150,7 @@ struct MoonPhaseDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Moon facts
                     VStack(alignment: .leading, spacing: 12) {
@@ -161,9 +161,9 @@ struct MoonPhaseDetailSheet: View {
                         moonFactRow("moon.righthalf.filled", "Last Quarter", "Left half illuminated — waning")
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)

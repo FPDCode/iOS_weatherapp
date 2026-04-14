@@ -31,7 +31,7 @@ struct AQIDetailSheet: View {
                         AQIScaleBar(currentAQI: airQuality.aqi)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Particulates
                     VStack(alignment: .leading, spacing: 12) {
@@ -42,7 +42,7 @@ struct AQIDetailSheet: View {
                         ParticulateRow(name: "PM10", value: airQuality.pm10, unit: "µg/m³", description: "Coarse particles — dust, pollen, mold", threshold: 50)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Health recommendations
                     VStack(alignment: .leading, spacing: 12) {
@@ -62,7 +62,7 @@ struct AQIDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // AQI Scale Legend
                     VStack(alignment: .leading, spacing: 8) {
@@ -75,9 +75,9 @@ struct AQIDetailSheet: View {
                         aqiLegendRow("Hazardous", "300+", "7C3AED")
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -237,7 +237,7 @@ struct UVDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Hourly UV chart (interactive)
                     VStack(alignment: .leading, spacing: 8) {
@@ -255,7 +255,7 @@ struct UVDetailSheet: View {
                         .frame(height: 120)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Protection tips
                     VStack(alignment: .leading, spacing: 12) {
@@ -271,9 +271,9 @@ struct UVDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -369,7 +369,7 @@ struct PressureDetailSheet: View {
                         Text("\(sign)\(String(format: "%.1f", change)) hPa in next 10 hours").font(.caption).foregroundStyle(.secondary)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Pressure trend chart (interactive)
                     if info.hourlyReadings.count >= 2 {
@@ -386,7 +386,7 @@ struct PressureDetailSheet: View {
                             .frame(height: 120)
                         }
                         .padding(16)
-                        .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                        .background(Color.white.opacity(0.05))
                     }
 
                     // What it means
@@ -403,7 +403,7 @@ struct PressureDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Reference
                     VStack(alignment: .leading, spacing: 8) {
@@ -413,9 +413,9 @@ struct PressureDetailSheet: View {
                         pressureRef("High", "> 1020 hPa", "Fair, dry weather expected")
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -467,7 +467,7 @@ struct WindDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Hourly wind chart (interactive)
                     VStack(alignment: .leading, spacing: 8) {
@@ -483,7 +483,7 @@ struct WindDetailSheet: View {
                         .frame(height: 120)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Beaufort scale
                     VStack(alignment: .leading, spacing: 8) {
@@ -509,9 +509,9 @@ struct WindDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
@@ -612,7 +612,7 @@ struct SunDetailSheet: View {
                         }
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Golden hour
                     VStack(alignment: .leading, spacing: 12) {
@@ -635,7 +635,7 @@ struct SunDetailSheet: View {
                             .font(.caption).foregroundStyle(.tertiary)
                     }
                     .padding(16)
-                    .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    .background(Color.white.opacity(0.05))
 
                     // Tomorrow
                     if let tmrRise = tomorrowSunrise, let tmrSet = tomorrowSunset {
@@ -657,10 +657,10 @@ struct SunDetailSheet: View {
                             }
                         }
                         .padding(16)
-                        .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                        .background(Color.white.opacity(0.05))
                     }
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 0)
             }
             .background(Color(red: 0.04, green: 0.04, blue: 0.06).ignoresSafeArea())
             .preferredColorScheme(.dark)
