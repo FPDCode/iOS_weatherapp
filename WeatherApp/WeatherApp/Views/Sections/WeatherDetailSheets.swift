@@ -239,11 +239,20 @@ struct UVDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
 
-                    // Hourly UV chart
+                    // Hourly UV chart (interactive)
                     VStack(alignment: .leading, spacing: 8) {
                         sectionLabel("24-HOUR UV INDEX", icon: "chart.xyaxis.line")
-                        UVHourlyChart(forecasts: Array(hourlyForecasts.prefix(24)))
-                            .frame(height: 100)
+                        InteractiveLineChart(
+                            dataPoints: hourlyForecasts.prefix(24).map {
+                                InteractiveLineChart.ChartDataPoint(time: $0.time, value: $0.uvIndex)
+                            },
+                            lineColor: Color(hex: uvColor),
+                            fillColor: Color(hex: uvColor),
+                            unit: "UV",
+                            dangerThreshold: 6,
+                            dangerColor: Color(hex: "F87171")
+                        )
+                        .frame(height: 120)
                     }
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
@@ -362,6 +371,24 @@ struct PressureDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
 
+                    // Pressure trend chart (interactive)
+                    if info.hourlyReadings.count >= 2 {
+                        VStack(alignment: .leading, spacing: 8) {
+                            sectionLabel("12-HOUR PRESSURE", icon: "chart.xyaxis.line")
+                            InteractiveLineChart(
+                                dataPoints: info.hourlyReadings.map {
+                                    InteractiveLineChart.ChartDataPoint(time: $0.date, value: $0.pressure)
+                                },
+                                lineColor: Color(hex: info.trend.color),
+                                fillColor: Color(hex: info.trend.color),
+                                unit: "hPa"
+                            )
+                            .frame(height: 120)
+                        }
+                        .padding(16)
+                        .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
+                    }
+
                     // What it means
                     VStack(alignment: .leading, spacing: 12) {
                         sectionLabel("WHAT THIS MEANS", icon: "info.circle.fill")
@@ -442,11 +469,18 @@ struct WindDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
 
-                    // Hourly wind chart
+                    // Hourly wind chart (interactive)
                     VStack(alignment: .leading, spacing: 8) {
                         sectionLabel("24-HOUR WIND", icon: "chart.xyaxis.line")
-                        WindHourlyChart(forecasts: Array(hourlyForecasts.prefix(24)))
-                            .frame(height: 80)
+                        InteractiveLineChart(
+                            dataPoints: hourlyForecasts.prefix(24).map {
+                                InteractiveLineChart.ChartDataPoint(time: $0.time, value: $0.windSpeed)
+                            },
+                            lineColor: .blue,
+                            fillColor: .blue,
+                            unit: UnitSettings.shared.windSpeed
+                        )
+                        .frame(height: 120)
                     }
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))

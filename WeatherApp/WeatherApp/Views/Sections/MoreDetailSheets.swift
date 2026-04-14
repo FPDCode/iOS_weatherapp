@@ -51,11 +51,17 @@ struct PrecipDetailSheet: View {
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))
 
-                    // 24h precipitation chart
+                    // 24h precipitation chart (interactive)
                     VStack(alignment: .leading, spacing: 8) {
                         sectionLabel("24-HOUR PRECIPITATION", icon: "chart.bar.fill")
-                        PrecipHourlyChart(forecasts: Array(hourlyForecasts.prefix(24)))
-                            .frame(height: 100)
+                        InteractiveBarChart(
+                            dataPoints: hourlyForecasts.prefix(24).map {
+                                InteractiveBarChart.BarDataPoint(time: $0.time, value: $0.precipAmount)
+                            },
+                            barColor: Color(hex: "4299E1"),
+                            unit: "mm"
+                        )
+                        .frame(height: 120)
                     }
                     .padding(16)
                     .background(RoundedRectangle(cornerRadius: 16).fill(.white.opacity(0.05)))

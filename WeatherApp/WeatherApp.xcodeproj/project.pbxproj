@@ -15,6 +15,7 @@
 		157C286C2F825072004A6F3B /* HorizonHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157C286B2F825072004A6F3B /* HorizonHeaderView.swift */; };
 		1970F737311F169626DC5A55 /* WeatherDetailSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7249F30E05F0423B274849 /* WeatherDetailSheets.swift */; };
 		27E028D3140BE0647F55C713 /* RainActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE8C93AB470C5854F673813 /* RainActivityBundle.swift */; };
+		2D362BF8C838313F0D85DDDB /* InteractiveCharts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86932F4BED4B2CAA66E2F89A /* InteractiveCharts.swift */; };
 		37DCA379BF28185CAE3566F4 /* RainActivityWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BC7C6A625DBE4985A5ED7003 /* RainActivityWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3AECDD5B15027E925D375F3D /* RainActivityLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F215DB19775DCE54AE7E21D /* RainActivityLiveActivity.swift */; };
 		4464E09AA4BEDB5720E4633A /* WatchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50107CA162043B34C63A1F7E /* WatchHomeView.swift */; };
@@ -151,6 +152,7 @@
 		753F2F5B472BFF13B691BDB3 /* WeatherWidgetHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WeatherWidgetHelpers.swift; sourceTree = "<group>"; };
 		7A50A1CC762A4D70A551D3BF /* RainActivityWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RainActivityWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		858370CA3E846383A3D917FE /* GoogleCalendarService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoogleCalendarService.swift; sourceTree = "<group>"; };
+		86932F4BED4B2CAA66E2F89A /* InteractiveCharts.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InteractiveCharts.swift; sourceTree = "<group>"; };
 		8F215DB19775DCE54AE7E21D /* RainActivityLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RainActivityLiveActivity.swift; sourceTree = "<group>"; };
 		B10001 /* WeatherAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAppApp.swift; sourceTree = "<group>"; };
 		B10002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -353,6 +355,7 @@
 				B10009 /* GlassCard.swift */,
 				B10017 /* CitySearchSheet.swift */,
 				B10036 /* DayDetailSheet.swift */,
+				86932F4BED4B2CAA66E2F89A /* InteractiveCharts.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -642,6 +645,7 @@
 				743EDF387CEA3347EDEA737E /* MoreDetailSheets.swift in Sources */,
 				5A22089514508B04356DF77E /* MoonPhaseView.swift in Sources */,
 				7F5FF06EDAD867274A65E08E /* PhoneConnectivityService.swift in Sources */,
+				2D362BF8C838313F0D85DDDB /* InteractiveCharts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
